@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:SiteMonitor.ViewModels"
+        mc:Ignorable="d"
+        d:DesignWidth="475"
+        d:DesignHeight="300"
+        Width="475"
+        Height="300"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        x:Class="SiteMonitor.Views.MainWindow"
+        x:DataType="viewModels:MainWindowViewModel"
+        Icon="/Assets/logo.ico"
+        Title="Site Monitor">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Grid Margin="20">
+        <Label>Hello World</Label>
+    </Grid>
+</Window>
