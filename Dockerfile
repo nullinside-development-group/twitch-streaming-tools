@@ -6,11 +6,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG TAG_VERSION
 WORKDIR /src
-COPY ["src/[ApplicationNameUpperCamelCase]/[ApplicationNameUpperCamelCase].csproj", "src/[ApplicationNameUpperCamelCase]/"]
-RUN dotnet restore "src/[ApplicationNameUpperCamelCase]/[ApplicationNameUpperCamelCase].csproj"
+COPY ["src/TwitchStreamingTools/TwitchStreamingTools.csproj", "src/TwitchStreamingTools/"]
+RUN dotnet restore "src/TwitchStreamingTools/TwitchStreamingTools.csproj"
 COPY src/ .
-WORKDIR "/src/[ApplicationNameUpperCamelCase]"
-RUN dotnet build "[ApplicationNameUpperCamelCase].csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/TwitchStreamingTools"
+RUN dotnet build "TwitchStreamingTools.csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
@@ -20,8 +20,8 @@ ARG DESCRIPTION
 RUN apt-get update && apt-get dist-upgrade -y && apt-get install zip jq -y
 
 # Generate the executables
-RUN dotnet publish "[ApplicationNameUpperCamelCase].csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x64 -r win-x64
-RUN dotnet publish "[ApplicationNameUpperCamelCase].csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x86 -r win-x86
+RUN dotnet publish "TwitchStreamingTools.csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x64 -r win-x64
+RUN dotnet publish "TwitchStreamingTools.csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x86 -r win-x86
 RUN cd /app/publish/win-x64 && zip -r ../windows-x64.zip *
 RUN cd /app/publish/win-x86 && zip -r ../windows-x86.zip *
 
@@ -31,7 +31,7 @@ RUN curl -L \
       -X POST \
       -H "Accept: application/vnd.github+json" \
       -H "Authorization: Bearer $GITHUB_TOKEN" \
-      https://api.github.com/repos/[GitOwnerAndRepoName]/releases \
+      https://api.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases \
       -d '{"tag_name":"'$TAG_VERSION'","target_commitish":"main","name":"'$TAG_VERSION'","body":"'$DESCRIPTION'","draft":false,"prerelease":false,"generate_release_notes":false}' 
 
 # Upload the files to the release. We need to get the ID for the release we created first and then upload the zips.
@@ -40,7 +40,7 @@ RUN curl -L \
 RUN export RELEASE_ID=$(curl -L \
                           -H "Accept: application/vnd.github+json" \
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          "https://api.github.com/repos/[GitOwnerAndRepoName]/releases/latest" \
+                          "https://api.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases/latest" \
                           | jq .id) && \
     echo "Release ID: "$RELEASE_ID && \
     curl -L \
@@ -48,12 +48,12 @@ RUN export RELEASE_ID=$(curl -L \
       -H "Accept: application/vnd.github+json" \
       -H "Authorization: Bearer $GITHUB_TOKEN" \
       -H "Content-Type: application/octet-stream" \
-      "https://uploads.github.com/repos/[GitOwnerAndRepoName]/releases/$RELEASE_ID/assets?name=windows-x64.zip" \
+      "https://uploads.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases/$RELEASE_ID/assets?name=windows-x64.zip" \
       --data-binary "@/app/publish/windows-x64.zip" && \
     curl -L \
     -X POST \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $GITHUB_TOKEN" \
     -H "Content-Type: application/octet-stream" \
-    "https://uploads.github.com/repos/[GitOwnerAndRepoName]/releases/$RELEASE_ID/assets?name=windows-x86.zip" \
+    "https://uploads.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases/$RELEASE_ID/assets?name=windows-x86.zip" \
     --data-binary "@/app/publish/windows-x86.zip"

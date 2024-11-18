@@ -3,7 +3,7 @@
 export TAG_VERSION=$(git tag --points-at HEAD)
 if [[ -z "$TAG_VERSION" ]]; then
     # Get the latest version for the repo
-    export CURRENT_VERSION=$(curl "https://api.github.com/repos/[GitOwnerAndRepoName]/tags" | jq -r '.[0].name')
+    export CURRENT_VERSION=$(curl "https://api.github.com/repos/nullinside-development-group/twitch-streaming-tools/tags" | jq -r '.[0].name')
     major=1
     minor=0
     build=-1

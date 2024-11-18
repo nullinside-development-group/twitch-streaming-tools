@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nullinside.Api.Common", "nullinside-api\src\Nullinside.Api.Common\Nullinside.Api.Common.csproj", "{D9EF6294-DF13-4901-B7EF-2DBC50B9E4E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "[ApplicationNameUpperCamelCase]", "[ApplicationNameUpperCamelCase]\[ApplicationNameUpperCamelCase].csproj", "{D16A0A78-91C3-4098-AF67-2AD287522274}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchStreamingTools", "TwitchStreamingTools\TwitchStreamingTools.csproj", "{D16A0A78-91C3-4098-AF67-2AD287522274}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

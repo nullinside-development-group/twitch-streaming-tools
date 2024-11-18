@@ -13,10 +13,10 @@
         <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DocumentationFile>bin\Debug\[ApplicationNameUpperCamelCase].xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\TwitchStreamingTools.xml</DocumentationFile>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DocumentationFile>bin\Release\[ApplicationNameUpperCamelCase].xml</DocumentationFile>
+        <DocumentationFile>bin\Release\TwitchStreamingTools.xml</DocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 

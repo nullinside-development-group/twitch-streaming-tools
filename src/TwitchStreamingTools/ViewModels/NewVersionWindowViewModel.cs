@@ -41,7 +41,7 @@ public class NewVersionWindowViewModel : ViewModelBase {
 
     Task.Factory.StartNew(async () => {
       GithubLatestReleaseJson? version =
-        await GitHubUpdateManager.GetLatestVersion("nullinside-development-group", "nullinside-site-monitor");
+        await GitHubUpdateManager.GetLatestVersion("nullinside-development-group", "twitch-streaming-tools");
 
       if (null == version) {
         return;
