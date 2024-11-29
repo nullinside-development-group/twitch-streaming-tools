@@ -5,4 +5,5 @@ namespace TwitchStreamingTools.ViewModels;
 /// <summary>
 ///   A base class for all view models.
 /// </summary>
-public class ViewModelBase : ReactiveObject { }
+public class ViewModelBase : ReactiveObject {
+}

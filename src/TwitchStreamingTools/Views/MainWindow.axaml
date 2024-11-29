@@ -40,12 +40,11 @@
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
-    
+
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
         <systemBar:WindowsTitleBar IsSeamless="True"></systemBar:WindowsTitleBar>
-        <systemBar:MacrosTitleBar IsSeamless="False"></systemBar:MacrosTitleBar>
         <DockPanel Background="Transparent">
             <SplitView IsPaneOpen="{Binding IsMenuOpen}"
                        OpenPaneLength="100"
@@ -60,7 +59,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="{x:Type m:MenuItem}">
                                     <StackPanel Spacing="15" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Label}"/>
+                                        <TextBlock Text="{Binding Label}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -68,7 +67,7 @@
                     </StackPanel>
                 </SplitView.Pane>
                 <SplitView.Content>
-                    <TransitioningContentControl Margin="10" Content="{Binding Page}"/>
+                    <TransitioningContentControl Margin="10" Content="{Binding Page}" />
                 </SplitView.Content>
             </SplitView>
         </DockPanel>

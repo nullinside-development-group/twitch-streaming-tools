@@ -8,6 +8,6 @@
     <Design.DataContext>
         <pages:ChatViewModel />
     </Design.DataContext>
-    
+
     <TextBlock>Shit</TextBlock>
 </UserControl>

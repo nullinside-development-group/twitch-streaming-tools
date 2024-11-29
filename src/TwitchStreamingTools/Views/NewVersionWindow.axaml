@@ -20,12 +20,11 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <viewModels:NewVersionWindowViewModel />
     </Design.DataContext>
-    
+
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
         <systemBar:WindowsTitleBar IsSeamless="True"></systemBar:WindowsTitleBar>
-        <systemBar:MacrosTitleBar IsSeamless="False"></systemBar:MacrosTitleBar>
         <DockPanel Background="Transparent">
             <StackPanel Margin="10">
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 10">There is a new version of the software available, would you like to download it?</TextBlock>
@@ -39,7 +38,10 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button Command="{Binding OpenBrowser}" Margin="0 10 0 0">Open Browser...</Button>
-                    <Button Command="{Binding CloseWindow}" CommandParameter="{Binding ElementName=Window}" Margin="10 10 0 0">Close</Button>
+                    <Button Command="{Binding CloseWindow}" CommandParameter="{Binding ElementName=Window}"
+                            Margin="10 10 0 0">
+                        Close
+                    </Button>
                 </StackPanel>
             </StackPanel>
         </DockPanel>

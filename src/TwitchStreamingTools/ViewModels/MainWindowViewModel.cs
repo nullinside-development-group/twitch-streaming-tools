@@ -28,7 +28,7 @@ public class MainWindowViewModel : ViewModelBase {
   /// The open page.
   /// </summary>
   private ViewModelBase _page = new AccountViewModel();
-  
+
   /// <summary>
   /// The menu items.
   /// </summary>
@@ -39,12 +39,13 @@ public class MainWindowViewModel : ViewModelBase {
   /// </summary>
   public MainWindowViewModel() {
     OnToggleMenu = ReactiveCommand.Create(() => IsMenuOpen = !IsMenuOpen);
-    
+
     // Dynamically setup the pages
     MenuItems = new ObservableCollection<MenuItem>();
     var pages = AppDomain.CurrentDomain.GetAssemblies()
       .SelectMany(a => a.GetTypes())
-      .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) && typeof(ViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
+      .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
+                  typeof(ViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
       .Select(t => new MenuItem(t));
     MenuItems.AddRange(pages);
   }
