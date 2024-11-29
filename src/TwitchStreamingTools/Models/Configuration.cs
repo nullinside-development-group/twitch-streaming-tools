@@ -1,16 +1,19 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System;
+using System.IO;
 
 using Newtonsoft.Json;
 
-namespace SiteMonitor.Models;
+using Nullinside.Api.Common.Twitch;
+
+namespace TwitchStreamingTools.Models;
 
 /// <summary>
 ///   The configuration of the application.
 /// </summary>
 public class Configuration {
   private static readonly string s_configLocation =
-    Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? string.Empty, "config.json");
+    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nullinside",
+      "twitch-streaming-tools", "config.json");
 
   private static Configuration? s_instance;
 
@@ -27,6 +30,16 @@ public class Configuration {
     }
   }
 
+  /// <summary>
+  ///   The twitch OAuth token.
+  /// </summary>
+  public OAuthResponse? OAuth { get; set; }
+
+  /// <summary>
+  ///   The twitch application configuration for getting OAuth tokens.
+  /// </summary>
+  public TwitchAppConfig? TwitchAppConfig { get; set; }
+
   private static Configuration? ReadConfiguration() {
     try {
       string json = File.ReadAllText(s_configLocation);
@@ -39,9 +52,11 @@ public class Configuration {
   ///   Writes the configuration file to disk.
   /// </summary>
   /// <returns>True if successful, false otherwise.</returns>
-  public static bool WriteConfiguration() {
+  public bool WriteConfiguration() {
     try {
-      string json = JsonConvert.SerializeObject(Instance);
+      Directory.CreateDirectory(Path.GetDirectoryName(s_configLocation)!);
+
+      string json = JsonConvert.SerializeObject(this);
       File.WriteAllText(s_configLocation, json);
       return true;
     }

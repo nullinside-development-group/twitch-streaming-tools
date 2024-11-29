@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:pages="clr-namespace:TwitchStreamingTools.ViewModels.Pages"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TwitchStreamingTools.Views.Pages.AccountView"
+             x:DataType="pages:AccountViewModel">
+
+    <Design.DataContext>
+        <pages:AccountViewModel />
+    </Design.DataContext>
+
+    <DockPanel HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch"
+               Name="ContentWrapper">
+        <StackPanel Orientation="Vertical"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="25">
+            <Image Width="200" Source="/Assets/twitch-wordart.png" />
+            <Button IsVisible="{Binding !HasValidOAuthToken}"
+                    Command="{Binding OnLaunchBrowser}"
+                    HorizontalAlignment="Center"
+                    VerticalContentAlignment="Top">
+                Login
+            </Button>
+            <StackPanel IsVisible="{Binding HasValidOAuthToken}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="0 0 10 0">User:</TextBlock>
+                    <TextBox Grid.Column="1" Text="{Binding TwitchUsername}" IsReadOnly="True" />
+                </Grid>
+                <Button Margin="0 15 0 0"
+                        Command="{Binding OnLogout}"
+                        HorizontalAlignment="Center"
+                        VerticalContentAlignment="Top">
+                    Logout
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

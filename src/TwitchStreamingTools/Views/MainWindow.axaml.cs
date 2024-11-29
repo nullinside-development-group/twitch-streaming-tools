@@ -2,14 +2,15 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
 using Nullinside.Api.Common.Desktop;
 
-using SiteMonitor.ViewModels;
+using TwitchStreamingTools.ViewModels;
 
-namespace SiteMonitor.Views;
+namespace TwitchStreamingTools.Views;
 
 /// <summary>
 ///   The main application window.
@@ -20,6 +21,10 @@ public partial class MainWindow : Window {
   /// </summary>
   public MainWindow() {
     InitializeComponent();
+    Constants.CLIPBOARD = Clipboard;
+#if DEBUG
+    this.AttachDevTools();
+#endif
   }
 
   /// <summary>

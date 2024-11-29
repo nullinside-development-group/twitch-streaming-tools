@@ -25,16 +25,32 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.2.1" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
+        <PackageReference Include="Avalonia" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.2"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.1" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.1" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.2"/>
+        <PackageReference Include="Material.Avalonia" Version="3.8.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\nullinside-api\src\Nullinside.Api.Common\Nullinside.Api.Common.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Views\Pages\AccountView.axaml.cs">
+            <DependentUpon>AccountView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\MainWindow.axaml.cs">
+            <DependentUpon>MainWindow.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\WindowsTitleBar.axaml.cs">
+            <DependentUpon>WindowsTitleBar.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
     </ItemGroup>
 </Project>
