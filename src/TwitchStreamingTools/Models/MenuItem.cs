@@ -32,7 +32,7 @@ public class MenuItem {
   /// The view model.
   /// </summary>
   public Type ModelType { get; set; }
-  
+
   /// <summary>
   /// The view model.
   /// </summary>
