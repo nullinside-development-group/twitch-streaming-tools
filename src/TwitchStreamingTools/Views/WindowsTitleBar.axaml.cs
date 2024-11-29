@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using Avalonia;
@@ -8,7 +7,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 
-namespace TwitchStreamingTools.Views.SystemBar;
+namespace TwitchStreamingTools.Views;
 
 /// <summary>
 /// The window menu bar at the top of the UI

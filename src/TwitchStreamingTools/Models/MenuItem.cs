@@ -1,4 +1,9 @@
 using System;
+using System.Net.Mime;
+
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace TwitchStreamingTools.Models;
 
@@ -10,9 +15,12 @@ public class MenuItem {
   /// Initializes a new instance of the <see cref="MenuItem"/> class.
   /// </summary>
   /// <param name="type">The view model to generate the page from.</param>
-  public MenuItem(Type type) {
+  public MenuItem(Type type, string iconKey) {
     ModelType = type;
     Label = type.Name.Replace("ViewModel", "");
+
+    Application.Current!.TryFindResource(iconKey, out var icon);
+    Icon = (StreamGeometry)icon!;
   }
 
   /// <summary>
@@ -24,4 +32,9 @@ public class MenuItem {
   /// The view model.
   /// </summary>
   public Type ModelType { get; set; }
+  
+  /// <summary>
+  /// The view model.
+  /// </summary>
+  public StreamGeometry Icon { get; set; }
 }

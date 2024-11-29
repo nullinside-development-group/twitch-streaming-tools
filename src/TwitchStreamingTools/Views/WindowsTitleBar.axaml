@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="TwitchStreamingTools.Views.SystemBar.WindowsTitleBar"
+             x:Class="TwitchStreamingTools.Views.WindowsTitleBar"
              DockPanel.Dock="Top">
     <StackPanel>
         <Grid>
@@ -36,14 +36,14 @@
                                Name="SystemChromeTitle">
                     </TextBlock>
                 </StackPanel>
-                <StackPanel Height="22"
-                            HorizontalAlignment="Right"
+                <StackPanel HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             Spacing="0"
-                            VerticalAlignment="Top">
+                            VerticalAlignment="Stretch">
                     <Button Width="46"
                             VerticalAlignment="Stretch"
                             HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
                             BorderThickness="0"
                             Name="MinimizeButton"
                             ToolTip.Tip="Minimize">
@@ -69,6 +69,8 @@
 
                     <Button Width="46"
                             VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
                             BorderThickness="0"
                             Name="MaximizeButton">
                         <ToolTip.Tip>
@@ -99,6 +101,8 @@
 
                     <Button Width="46"
                             VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
                             BorderThickness="0"
                             Name="CloseButton"
                             ToolTip.Tip="Close">

@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
@@ -20,6 +21,9 @@ public partial class MainWindow : Window {
   /// </summary>
   public MainWindow() {
     InitializeComponent();
+#if DEBUG
+    this.AttachDevTools();
+#endif
   }
 
   /// <summary>

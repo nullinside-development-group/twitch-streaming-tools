@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:TwitchStreamingTools.ViewModels"
         xmlns:m="clr-namespace:TwitchStreamingTools.Models"
-        xmlns:systemBar="clr-namespace:TwitchStreamingTools.Views.SystemBar"
+        xmlns:views="clr-namespace:TwitchStreamingTools.Views"
         mc:Ignorable="d"
         d:DesignWidth="475"
         d:DesignHeight="300"
@@ -44,22 +44,26 @@
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
-        <systemBar:WindowsTitleBar IsSeamless="True"></systemBar:WindowsTitleBar>
+        <views:WindowsTitleBar IsSeamless="True"></views:WindowsTitleBar>
         <DockPanel Background="Transparent">
             <SplitView IsPaneOpen="{Binding IsMenuOpen}"
-                       OpenPaneLength="100"
+                       CompactPaneLength="55"
+                       OpenPaneLength="150"
                        DisplayMode="CompactInline"
                        Background="rgb(26, 24, 23)"
                        PaneBackground="#211F1E">
                 <SplitView.Pane>
                     <StackPanel Spacing="5"
                                 Margin="5">
-                        <Button Command="{Binding OnToggleMenu}">-</Button>
-                        <ListBox ItemsSource="{Binding MenuItems}">
+                        <Button Command="{Binding OnToggleMenu}">
+                            <PathIcon Data="{StaticResource LineHorizontal3Regular}"></PathIcon>
+                        </Button>
+                        <ListBox ItemsSource="{Binding MenuItems}" SelectedItem="{Binding SelectedMenuItem}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="{x:Type m:MenuItem}">
-                                    <StackPanel Spacing="15" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Label}" />
+                                    <StackPanel Spacing="15" Orientation="Horizontal" Margin="0">
+                                        <PathIcon Data="{Binding Icon}" Padding="0" />
+                                        <TextBlock Text="{Binding Label}" Padding="0" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

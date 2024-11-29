@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:TwitchStreamingTools.ViewModels"
-        xmlns:systemBar="clr-namespace:TwitchStreamingTools.Views.SystemBar"
+        xmlns:views="clr-namespace:TwitchStreamingTools.Views"
         x:Name="Window"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
         x:Class="TwitchStreamingTools.Views.NewVersionWindow"
@@ -24,7 +24,7 @@
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
-        <systemBar:WindowsTitleBar IsSeamless="True"></systemBar:WindowsTitleBar>
+        <views:WindowsTitleBar IsSeamless="True"></views:WindowsTitleBar>
         <DockPanel Background="Transparent">
             <StackPanel Margin="10">
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 10">There is a new version of the software available, would you like to download it?</TextBlock>

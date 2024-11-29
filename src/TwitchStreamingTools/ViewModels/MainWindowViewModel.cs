@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 
+using Avalonia;
 using Avalonia.Controls;
 
 using DynamicData;
@@ -30,6 +31,11 @@ public class MainWindowViewModel : ViewModelBase {
   private ViewModelBase _page = new AccountViewModel();
 
   /// <summary>
+  /// The currently selected page.
+  /// </summary>
+  private MenuItem _selectedMenuItem;
+
+  /// <summary>
   /// The menu items.
   /// </summary>
   public ObservableCollection<MenuItem> MenuItems { get; set; }
@@ -45,9 +51,16 @@ public class MainWindowViewModel : ViewModelBase {
     var pages = AppDomain.CurrentDomain.GetAssemblies()
       .SelectMany(a => a.GetTypes())
       .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
-                  typeof(ViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
-      .Select(t => new MenuItem(t));
+                  typeof(PageViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
+      .Select(t => new MenuItem(t, ((PageViewModelBase)Activator.CreateInstance(t)!).IconResourceKey))
+      .ToList();
     MenuItems.AddRange(pages);
+    SelectedMenuItem = pages.First(p => typeof(AccountViewModel).IsAssignableTo(p.ModelType));
+    PropertyChanged += (_, e) => {
+      if (nameof(SelectedMenuItem).Equals(e.PropertyName)) {
+        OnSelectedMenuItemChanged();
+      }
+    };
   }
 
   /// <summary>
@@ -69,5 +82,25 @@ public class MainWindowViewModel : ViewModelBase {
   public ViewModelBase Page {
     get => _page;
     set => this.RaiseAndSetIfChanged(ref _page, value);
+  }
+
+  /// <summary>
+  /// The currently selected page.
+  /// </summary>
+  public MenuItem SelectedMenuItem {
+    get => _selectedMenuItem;
+    set => this.RaiseAndSetIfChanged(ref _selectedMenuItem, value);
+  }
+
+  /// <summary>
+  /// Links the <see cref="Page"/> showing on the screen with changes to the <see cref="SelectedMenuItem"/>.
+  /// </summary>
+  private void OnSelectedMenuItemChanged() {
+    var viewModel = Activator.CreateInstance(SelectedMenuItem.ModelType) as ViewModelBase;
+    if (null == viewModel) {
+      return;
+    }
+
+    Page = viewModel;
   }
 }
