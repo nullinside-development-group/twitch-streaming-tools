@@ -4,64 +4,41 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 
 namespace TwitchStreamingTools.Views;
 
 /// <summary>
-/// The window menu bar at the top of the UI
+///   The window menu bar at the top of the UI
 /// </summary>
 /// <remarks>From: https://github.com/FrankenApps/Avalonia-CustomTitleBarTemplate.git</remarks>
 public partial class WindowsTitleBar : UserControl {
-  private Button minimizeButton;
-  private Button maximizeButton;
-  private Path maximizeIcon;
-  private ToolTip maximizeToolTip;
-  private Button closeButton;
-  private Image windowIcon;
-
-  private DockPanel titleBar;
-  private DockPanel titleBarBackground;
-  private TextBlock systemChromeTitle;
-  private NativeMenuBar seamlessMenuBar;
-  private NativeMenuBar defaultMenuBar;
-
   /// <summary>
-  /// A flag indicating whether the system bar should be seemless with other content or have its own vertical space.
+  ///   A flag indicating whether the system bar should be seemless with other content or have its own vertical space.
   /// </summary>
   public static readonly StyledProperty<bool> IsSeamlessProperty =
     AvaloniaProperty.Register<WindowsTitleBar, bool>(nameof(IsSeamless));
 
-  /// <summary>
-  /// A flag indicating whether the system bar should be seemless with other content or have its own vertical space.
-  /// </summary>
-  public bool IsSeamless {
-    get { return GetValue(IsSeamlessProperty); }
-    set {
-      SetValue(IsSeamlessProperty, value);
-      if (titleBarBackground != null &&
-          systemChromeTitle != null &&
-          seamlessMenuBar != null &&
-          defaultMenuBar != null) {
-        titleBarBackground.IsVisible = IsSeamless ? false : true;
-        systemChromeTitle.IsVisible = IsSeamless ? false : true;
-        seamlessMenuBar.IsVisible = IsSeamless ? true : false;
-        defaultMenuBar.IsVisible = IsSeamless ? false : true;
+  private readonly Button closeButton;
+  private readonly NativeMenuBar defaultMenuBar;
+  private readonly Button maximizeButton;
+  private readonly Path maximizeIcon;
+  private readonly ToolTip maximizeToolTip;
+  private readonly Button minimizeButton;
+  private readonly NativeMenuBar seamlessMenuBar;
+  private readonly TextBlock systemChromeTitle;
 
-        if (IsSeamless == false) {
-          titleBar.Resources["SystemControlForegroundBaseHighBrush"] =
-            new SolidColorBrush { Color = new Color(255, 0, 0, 0) };
-        }
-      }
-    }
-  }
+  private readonly DockPanel titleBar;
+  private readonly DockPanel titleBarBackground;
+  private readonly Image windowIcon;
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="WindowsTitleBar"/> class.
+  ///   Initializes a new instance of the <see cref="WindowsTitleBar" /> class.
   /// </summary>
   public WindowsTitleBar() {
-    this.InitializeComponent();
+    InitializeComponent();
     minimizeButton = this.FindControl<Button>("MinimizeButton")!;
     maximizeButton = this.FindControl<Button>("MaximizeButton")!;
     maximizeIcon = this.FindControl<Path>("MaximizeIcon")!;
@@ -83,13 +60,37 @@ public partial class WindowsTitleBar : UserControl {
     SubscribeToWindowState();
   }
 
-  private void CloseWindow(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-    Window hostWindow = (Window)this.VisualRoot!;
+  /// <summary>
+  ///   A flag indicating whether the system bar should be seemless with other content or have its own vertical space.
+  /// </summary>
+  public bool IsSeamless {
+    get => GetValue(IsSeamlessProperty);
+    set {
+      SetValue(IsSeamlessProperty, value);
+      if (titleBarBackground != null &&
+          systemChromeTitle != null &&
+          seamlessMenuBar != null &&
+          defaultMenuBar != null) {
+        titleBarBackground.IsVisible = IsSeamless ? false : true;
+        systemChromeTitle.IsVisible = IsSeamless ? false : true;
+        seamlessMenuBar.IsVisible = IsSeamless ? true : false;
+        defaultMenuBar.IsVisible = IsSeamless ? false : true;
+
+        if (IsSeamless == false) {
+          titleBar.Resources["SystemControlForegroundBaseHighBrush"] =
+            new SolidColorBrush { Color = new Color(255, 0, 0, 0) };
+        }
+      }
+    }
+  }
+
+  private void CloseWindow(object sender, RoutedEventArgs e) {
+    var hostWindow = (Window)VisualRoot!;
     hostWindow.Close();
   }
 
-  private void MaximizeWindow(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-    Window hostWindow = (Window)this.VisualRoot!;
+  private void MaximizeWindow(object sender, RoutedEventArgs e) {
+    var hostWindow = (Window)VisualRoot!;
 
     if (hostWindow.WindowState == WindowState.Normal) {
       hostWindow.WindowState = WindowState.Maximized;
@@ -99,16 +100,16 @@ public partial class WindowsTitleBar : UserControl {
     }
   }
 
-  private void MinimizeWindow(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-    Window hostWindow = (Window)this.VisualRoot!;
+  private void MinimizeWindow(object sender, RoutedEventArgs e) {
+    var hostWindow = (Window)VisualRoot!;
     hostWindow.WindowState = WindowState.Minimized;
   }
 
   private async void SubscribeToWindowState() {
-    Window? hostWindow = this.VisualRoot as Window;
+    var hostWindow = VisualRoot as Window;
 
     while (hostWindow == null) {
-      hostWindow = this.VisualRoot as Window;
+      hostWindow = VisualRoot as Window;
       await Task.Delay(50);
     }
 

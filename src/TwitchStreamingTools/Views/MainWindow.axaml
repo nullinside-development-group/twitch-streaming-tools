@@ -44,7 +44,7 @@
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
-        <views:WindowsTitleBar IsSeamless="True"></views:WindowsTitleBar>
+        <views:WindowsTitleBar IsSeamless="True" />
         <DockPanel Background="Transparent">
             <SplitView IsPaneOpen="{Binding IsMenuOpen}"
                        CompactPaneLength="55"
@@ -56,7 +56,7 @@
                     <StackPanel Spacing="5"
                                 Margin="5">
                         <Button Command="{Binding OnToggleMenu}">
-                            <PathIcon Data="{StaticResource LineHorizontal3Regular}"></PathIcon>
+                            <PathIcon Data="{StaticResource LineHorizontal3Regular}" />
                         </Button>
                         <ListBox ItemsSource="{Binding MenuItems}" SelectedItem="{Binding SelectedMenuItem}">
                             <ListBox.ItemTemplate>

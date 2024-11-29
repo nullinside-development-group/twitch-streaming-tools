@@ -1,7 +1,7 @@
 namespace TwitchStreamingTools.ViewModels.Pages;
 
 /// <summary>
-/// Handles binding your account to the application.
+///   Handles binding your account to the application.
 /// </summary>
 public class AccountViewModel : PageViewModelBase {
   /// <inheritdoc />

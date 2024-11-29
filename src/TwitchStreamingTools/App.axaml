@@ -11,7 +11,7 @@
 
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="/Assets/icons.axaml"></StyleInclude>
+        <StyleInclude Source="/Assets/icons.axaml" />
     </Application.Styles>
 
     <TrayIcon.Icons>

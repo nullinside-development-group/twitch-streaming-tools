@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-
-using Avalonia;
-using Avalonia.Controls;
 
 using DynamicData;
 
@@ -21,24 +19,19 @@ namespace TwitchStreamingTools.ViewModels;
 /// </summary>
 public class MainWindowViewModel : ViewModelBase {
   /// <summary>
-  /// A flag indicating whether the menu is open.
+  ///   A flag indicating whether the menu is open.
   /// </summary>
   private bool _isMenuOpen;
 
   /// <summary>
-  /// The open page.
+  ///   The open page.
   /// </summary>
   private ViewModelBase _page = new AccountViewModel();
 
   /// <summary>
-  /// The currently selected page.
+  ///   The currently selected page.
   /// </summary>
   private MenuItem _selectedMenuItem;
-
-  /// <summary>
-  /// The menu items.
-  /// </summary>
-  public ObservableCollection<MenuItem> MenuItems { get; set; }
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="MainWindowViewModel" /> class.
@@ -48,7 +41,7 @@ public class MainWindowViewModel : ViewModelBase {
 
     // Dynamically setup the pages
     MenuItems = new ObservableCollection<MenuItem>();
-    var pages = AppDomain.CurrentDomain.GetAssemblies()
+    List<MenuItem>? pages = AppDomain.CurrentDomain.GetAssemblies()
       .SelectMany(a => a.GetTypes())
       .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
                   typeof(PageViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
@@ -64,7 +57,12 @@ public class MainWindowViewModel : ViewModelBase {
   }
 
   /// <summary>
-  /// A flag indicating whether the menu is open.
+  ///   The menu items.
+  /// </summary>
+  public ObservableCollection<MenuItem> MenuItems { get; set; }
+
+  /// <summary>
+  ///   A flag indicating whether the menu is open.
   /// </summary>
   public bool IsMenuOpen {
     get => _isMenuOpen;
@@ -72,12 +70,12 @@ public class MainWindowViewModel : ViewModelBase {
   }
 
   /// <summary>
-  /// Called when toggling the menu open and close.
+  ///   Called when toggling the menu open and close.
   /// </summary>
   public ReactiveCommand<Unit, bool> OnToggleMenu { get; }
 
   /// <summary>
-  /// The open page.
+  ///   The open page.
   /// </summary>
   public ViewModelBase Page {
     get => _page;
@@ -85,7 +83,7 @@ public class MainWindowViewModel : ViewModelBase {
   }
 
   /// <summary>
-  /// The currently selected page.
+  ///   The currently selected page.
   /// </summary>
   public MenuItem SelectedMenuItem {
     get => _selectedMenuItem;
@@ -93,7 +91,7 @@ public class MainWindowViewModel : ViewModelBase {
   }
 
   /// <summary>
-  /// Links the <see cref="Page"/> showing on the screen with changes to the <see cref="SelectedMenuItem"/>.
+  ///   Links the <see cref="Page" /> showing on the screen with changes to the <see cref="SelectedMenuItem" />.
   /// </summary>
   private void OnSelectedMenuItemChanged() {
     var viewModel = Activator.CreateInstance(SelectedMenuItem.ModelType) as ViewModelBase;

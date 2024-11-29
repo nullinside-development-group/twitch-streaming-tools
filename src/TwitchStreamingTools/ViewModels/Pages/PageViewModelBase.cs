@@ -5,7 +5,7 @@
 /// </summary>
 public abstract class PageViewModelBase : ViewModelBase {
   /// <summary>
-  /// The style resource key name of the icon.
+  ///   The style resource key name of the icon.
   /// </summary>
   public abstract string IconResourceKey { get; }
 }

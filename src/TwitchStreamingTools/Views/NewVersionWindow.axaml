@@ -22,7 +22,7 @@
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
-        <views:WindowsTitleBar IsSeamless="True"></views:WindowsTitleBar>
+        <views:WindowsTitleBar IsSeamless="True" />
         <DockPanel Background="Transparent">
             <StackPanel Margin="10">
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 10">There is a new version of the software available, would you like to download it?</TextBlock>
