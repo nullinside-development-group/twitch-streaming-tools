@@ -48,7 +48,7 @@ public class MainWindowViewModel : ViewModelBase {
       .Select(t => new MenuItem(t, ((PageViewModelBase)Activator.CreateInstance(t)!).IconResourceKey))
       .ToList();
     MenuItems.AddRange(pages);
-    SelectedMenuItem = pages.First(p => typeof(AccountViewModel).IsAssignableTo(p.ModelType));
+    _selectedMenuItem = pages.First(p => typeof(AccountViewModel).IsAssignableTo(p.ModelType));
     PropertyChanged += (_, e) => {
       if (nameof(SelectedMenuItem).Equals(e.PropertyName)) {
         OnSelectedMenuItemChanged();

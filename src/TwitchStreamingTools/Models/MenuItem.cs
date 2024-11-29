@@ -14,6 +14,7 @@ public class MenuItem {
   ///   Initializes a new instance of the <see cref="MenuItem" /> class.
   /// </summary>
   /// <param name="type">The view model to generate the page from.</param>
+  /// <param name="iconKey">The key name of the icon to use.</param>
   public MenuItem(Type type, string iconKey) {
     ModelType = type;
     Label = type.Name.Replace("ViewModel", "");
