@@ -7,9 +7,9 @@ using Avalonia.Threading;
 
 using Nullinside.Api.Common.Desktop;
 
-using SiteMonitor.ViewModels;
+using TwitchStreamingTools.ViewModels;
 
-namespace SiteMonitor.Views;
+namespace TwitchStreamingTools.Views;
 
 /// <summary>
 ///   The main application window.

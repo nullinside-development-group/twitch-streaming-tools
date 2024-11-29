@@ -5,10 +5,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-using SiteMonitor.ViewModels;
-using SiteMonitor.Views;
+using TwitchStreamingTools.ViewModels;
+using TwitchStreamingTools.Views;
 
-namespace SiteMonitor;
+namespace TwitchStreamingTools;
 
 /// <summary>
 ///   Main entry point of the application.
