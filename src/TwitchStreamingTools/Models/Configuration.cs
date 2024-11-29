@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 using Newtonsoft.Json;
@@ -10,7 +11,7 @@ namespace TwitchStreamingTools.Models;
 /// </summary>
 public class Configuration {
   private static readonly string s_configLocation =
-    Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? string.Empty, "config.json");
+    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nullinside", "twitch-streaming-tools", "config.json");
 
   private static Configuration? s_instance;
 
