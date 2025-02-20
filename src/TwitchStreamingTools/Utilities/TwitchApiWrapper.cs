@@ -74,7 +74,7 @@ public class TwitchApiWrapper : TwitchApiProxy {
     }
 
     using var client = new HttpClient();
-    string url = $"https://{Constants.API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
+    string url = $"{Constants.API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
     var request = new HttpRequestMessage(HttpMethod.Post, url);
     using HttpResponseMessage response =
       await client.PostAsJsonAsync(request.RequestUri, $"{{\"refreshToken\":\"{OAuth?.RefreshToken}\"}}");
