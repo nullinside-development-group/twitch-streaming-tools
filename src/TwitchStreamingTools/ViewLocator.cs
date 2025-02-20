@@ -3,9 +3,9 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 
-using SiteMonitor.ViewModels;
+using TwitchStreamingTools.ViewModels;
 
-namespace SiteMonitor;
+namespace TwitchStreamingTools;
 
 /// <summary>
 ///   Pre-generated for us.

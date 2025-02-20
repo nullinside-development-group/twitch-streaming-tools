@@ -9,9 +9,9 @@ using Nullinside.Api.Common.Desktop;
 
 using ReactiveUI;
 
-using SiteMonitor.Views;
+using TwitchStreamingTools.Views;
 
-namespace SiteMonitor.ViewModels;
+namespace TwitchStreamingTools.ViewModels;
 
 /// <summary>
 ///   The view model for the <seealso cref="NewVersionWindow" /> class.
