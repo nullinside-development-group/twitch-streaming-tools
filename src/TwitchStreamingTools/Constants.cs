@@ -17,7 +17,7 @@ public static class Constants {
   /// <summary>
   ///   The domain that the api service is hosted at.
   /// </summary>
-  public static string API_SITE_DOMAIN = "localhost:5036";
+  public static string API_SITE_DOMAIN = "http://localhost:5036";
 #else
   /// <summary>
   /// The twitch app client id.
@@ -27,13 +27,13 @@ public static class Constants {
   /// <summary>
   /// The domain that the api service is hosted at.
   /// </summary>
-  public static string API_SITE_DOMAIN = "nullinside.com";
+  public static string API_SITE_DOMAIN = "https://nullinside.com";
 #endif
 
   /// <summary>
   ///   The twitch app redirect link.
   /// </summary>
-  public static string TWITCH_CLIENT_REDIRECT = $"http://{API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
+  public static string TWITCH_CLIENT_REDIRECT = $"{API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
 
   /// <summary>
   ///   The reference to the clipboard API.
