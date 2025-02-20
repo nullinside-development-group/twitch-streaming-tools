@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Newtonsoft.Json;
@@ -39,7 +40,16 @@ public class Configuration {
   ///   The twitch application configuration for getting OAuth tokens.
   /// </summary>
   public TwitchAppConfig? TwitchAppConfig { get; set; }
+  
+  /// <summary>
+  /// The collection of twitch chats we should read from.
+  /// </summary>
+  public IEnumerable<string>? TwitchChats { get; set; }
 
+  /// <summary>
+  /// Reads the configuration from disk.
+  /// </summary>
+  /// <returns>The configuration if successful, null otherwise.</returns>
   private static Configuration? ReadConfiguration() {
     try {
       string json = File.ReadAllText(s_configLocation);

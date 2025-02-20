@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Reactive;
 
 using ReactiveUI;
@@ -23,6 +24,10 @@ public class ChatViewModel : PageViewModelBase {
   ///   Initializes a new instance of the <see cref="ChatViewModel" /> class.
   /// </summary>
   public ChatViewModel() {
+    foreach (var channel in Models.Configuration.Instance.TwitchChats ?? []) {
+      _selectedTwitchChatNames.Add(channel);
+    }
+    
     OnAddChat = ReactiveCommand.Create(() => {
       string? username = TwitchChatName?.Trim();
       if (string.IsNullOrWhiteSpace(username)) {
@@ -32,10 +37,14 @@ public class ChatViewModel : PageViewModelBase {
       _selectedTwitchChatNames.Remove(username);
       _selectedTwitchChatNames.Add(username);
       TwitchChatName = null;
+      Models.Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
+      Models.Configuration.Instance.WriteConfiguration();
     });
 
     OnRemoveChat = ReactiveCommand.Create<string>(s => {
       _selectedTwitchChatNames.Remove(s);
+      Models.Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
+      Models.Configuration.Instance.WriteConfiguration();
     });
   }
 
