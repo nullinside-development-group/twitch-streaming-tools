@@ -20,12 +20,12 @@ public static class Constants {
   public static string API_SITE_DOMAIN = "http://localhost:5036";
 #else
   /// <summary>
-  /// The twitch app client id.
+  ///   The twitch app client id.
   /// </summary>
   public static string TWITCH_CLIENT_ID = "gi1eu8xu9tl6vkjqz4tjqkdzfmcq5h";
 
   /// <summary>
-  /// The domain that the api service is hosted at.
+  ///   The domain that the api service is hosted at.
   /// </summary>
   public static string API_SITE_DOMAIN = "https://nullinside.com";
 #endif

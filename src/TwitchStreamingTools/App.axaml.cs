@@ -1,10 +1,15 @@
 using System;
+using System.Threading.Tasks;
 
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
+using Nullinside.Api.Common.Twitch;
+
+using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.Views;
 
@@ -14,6 +19,7 @@ namespace TwitchStreamingTools;
 ///   Main entry point of the application.
 /// </summary>
 public class App : Application {
+  private Task startup;
   /// <summary>
   ///   Initializes the GUI.
   /// </summary>
@@ -25,6 +31,9 @@ public class App : Application {
   ///   Launches the main application window.
   /// </summary>
   public override void OnFrameworkInitializationCompleted() {
+    TwitchClientProxy.Instance.TwitchOAuthToken = Configuration.Instance.OAuth?.Bearer;
+    TwitchClientProxy.Instance.TwitchUsername = Configuration.Instance.TwitchUsername;
+    
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
       desktop.MainWindow = new MainWindow {
         DataContext = new MainWindowViewModel()

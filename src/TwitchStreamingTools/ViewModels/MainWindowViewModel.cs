@@ -6,8 +6,12 @@ using System.Reactive;
 
 using DynamicData;
 
+using Nullinside.Api.Common.Twitch;
+
 using ReactiveUI;
 
+using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels.Pages;
 
 using MenuItem = TwitchStreamingTools.Models.MenuItem;

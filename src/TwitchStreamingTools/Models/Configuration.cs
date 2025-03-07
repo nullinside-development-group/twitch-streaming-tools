@@ -30,6 +30,11 @@ public class Configuration {
       return s_instance;
     }
   }
+  
+  /// <summary>
+  /// The username of the user logged in through the <see cref="OAuth"/> token.
+  /// </summary>
+  public string? TwitchUsername { get; set; }
 
   /// <summary>
   ///   The twitch OAuth token.
@@ -40,14 +45,14 @@ public class Configuration {
   ///   The twitch application configuration for getting OAuth tokens.
   /// </summary>
   public TwitchAppConfig? TwitchAppConfig { get; set; }
-  
+
   /// <summary>
-  /// The collection of twitch chats we should read from.
+  ///   The collection of twitch chats we should read from.
   /// </summary>
   public IEnumerable<string>? TwitchChats { get; set; }
 
   /// <summary>
-  /// Reads the configuration from disk.
+  ///   Reads the configuration from disk.
   /// </summary>
   /// <returns>The configuration if successful, null otherwise.</returns>
   private static Configuration? ReadConfiguration() {

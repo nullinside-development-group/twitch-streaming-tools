@@ -1,15 +1,23 @@
+using System;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Reactive;
+using System.Threading.Channels;
+
+using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
+
+using TwitchLib.Client.Events;
+using TwitchLib.Client.Interfaces;
+
+using TwitchStreamingTools.Models;
 
 namespace TwitchStreamingTools.ViewModels.Pages;
 
 /// <summary>
 ///   Handles settings up and viewing chat.
 /// </summary>
-public class ChatViewModel : PageViewModelBase {
+public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   The list of chat names selected in the list.
   /// </summary>
@@ -19,15 +27,20 @@ public class ChatViewModel : PageViewModelBase {
   ///   The current twitch chat name entered by the user.
   /// </summary>
   private string? _twitchChatName;
+  
+  /// <summary>
+  ///   The current twitch chat.
+  /// </summary>
+  private string _twitchChat = String.Empty;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="ChatViewModel" /> class.
   /// </summary>
   public ChatViewModel() {
-    foreach (var channel in Models.Configuration.Instance.TwitchChats ?? []) {
+    foreach (string channel in Configuration.Instance.TwitchChats ?? []) {
       _selectedTwitchChatNames.Add(channel);
     }
-    
+
     OnAddChat = ReactiveCommand.Create(() => {
       string? username = TwitchChatName?.Trim();
       if (string.IsNullOrWhiteSpace(username)) {
@@ -36,16 +49,37 @@ public class ChatViewModel : PageViewModelBase {
 
       _selectedTwitchChatNames.Remove(username);
       _selectedTwitchChatNames.Add(username);
+      TwitchClientProxy.Instance.AddMessageCallback(username, OnChatMessage).Wait();
+      
       TwitchChatName = null;
-      Models.Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
-      Models.Configuration.Instance.WriteConfiguration();
+      Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
+      Configuration.Instance.WriteConfiguration();
     });
 
     OnRemoveChat = ReactiveCommand.Create<string>(s => {
       _selectedTwitchChatNames.Remove(s);
-      Models.Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
-      Models.Configuration.Instance.WriteConfiguration();
+      // todo: disconnect from chat
+      Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
+      Configuration.Instance.WriteConfiguration();
     });
+    
+    TwitchClientProxy.Instance.AddInstanceCallback(OnNewTwitchClient);
+    OnNewTwitchClient(TwitchClientProxy.Instance);
+  }
+
+  private void OnNewTwitchClient(TwitchClientProxy chatClient) {
+    foreach (var channel in _selectedTwitchChatNames) {
+      chatClient.AddMessageCallback(channel, OnChatMessage);
+    }
+  }
+
+  private void OnChatMessage(OnMessageReceivedArgs msg) {
+    if (_selectedTwitchChatNames.Count > 1) {
+      TwitchChat = (TwitchChat + $"\n({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+    }
+    else {
+      TwitchChat = (TwitchChat + $"\n{msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+    }
   }
 
   /// <inheritdoc />
@@ -68,6 +102,14 @@ public class ChatViewModel : PageViewModelBase {
     get => _twitchChatName;
     set => this.RaiseAndSetIfChanged(ref _twitchChatName, value);
   }
+  
+  /// <summary>
+  ///   The current twitch chat.
+  /// </summary>
+  public string? TwitchChat {
+    get => _twitchChat;
+    set => this.RaiseAndSetIfChanged(ref _twitchChat, value);
+  }
 
   /// <summary>
   ///   The list of chat names selected in the list.
@@ -75,5 +117,11 @@ public class ChatViewModel : PageViewModelBase {
   public ObservableCollection<string> ChatItems {
     get => _selectedTwitchChatNames;
     set => this.RaiseAndSetIfChanged(ref _selectedTwitchChatNames, value);
+  }
+
+  /// <inheritdoc />
+  public void Dispose() {
+    OnAddChat.Dispose();
+    OnRemoveChat.Dispose();
   }
 }
