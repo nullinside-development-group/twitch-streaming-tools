@@ -9,7 +9,6 @@ using Avalonia.Markup.Xaml;
 using Nullinside.Api.Common.Twitch;
 
 using TwitchStreamingTools.Models;
-using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.Views;
 
@@ -20,6 +19,7 @@ namespace TwitchStreamingTools;
 /// </summary>
 public class App : Application {
   private Task startup;
+
   /// <summary>
   ///   Initializes the GUI.
   /// </summary>
@@ -33,7 +33,7 @@ public class App : Application {
   public override void OnFrameworkInitializationCompleted() {
     TwitchClientProxy.Instance.TwitchOAuthToken = Configuration.Instance.OAuth?.Bearer;
     TwitchClientProxy.Instance.TwitchUsername = Configuration.Instance.TwitchUsername;
-    
+
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
       desktop.MainWindow = new MainWindow {
         DataContext = new MainWindowViewModel()

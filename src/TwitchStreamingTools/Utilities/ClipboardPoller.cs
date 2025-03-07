@@ -48,6 +48,11 @@ public class ClipboardPoller<T> : IClipboardPoller<T>, IDisposable {
     _timer.Stop();
   }
 
+  /// <inheritdoc />
+  public void Dispose() {
+    _timer.Dispose();
+  }
+
   /// <summary>
   ///   Checks the clipboard for our token.
   /// </summary>
@@ -75,10 +80,5 @@ public class ClipboardPoller<T> : IClipboardPoller<T>, IDisposable {
     }
 
     _timer.Start();
-  }
-
-  /// <inheritdoc />
-  public void Dispose() {
-    _timer.Dispose();
   }
 }

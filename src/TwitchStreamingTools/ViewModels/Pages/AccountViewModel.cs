@@ -81,6 +81,14 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     set => this.RaiseAndSetIfChanged(ref _twitchUsername, value);
   }
 
+  /// <inheritdoc />
+  public void Dispose() {
+    _timer.Stop();
+    _clipboardPoller?.Dispose();
+    OnLaunchBrowser.Dispose();
+    OnLogout.Dispose();
+  }
+
   /// <summary>
   ///   Checks the current twitch OAuth token against the twitch API to ensure it's valid.
   /// </summary>
@@ -97,7 +105,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
       HasValidOAuthToken = !string.IsNullOrWhiteSpace(TwitchUsername);
 
       if (HasValidOAuthToken) {
-        if (!string.Equals(api.OAuth?.AccessToken, Configuration.Instance.OAuth.Bearer) || 
+        if (!string.Equals(api.OAuth?.AccessToken, Configuration.Instance.OAuth.Bearer) ||
             !string.Equals(TwitchUsername, Configuration.Instance.TwitchUsername)) {
           SetCredentials(TwitchUsername, new OAuthResponse {
             Bearer = api.OAuth.AccessToken,
@@ -148,14 +156,6 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     catch {
       // do nothing
     }
-  }
-
-  /// <inheritdoc />
-  public void Dispose() {
-    _timer.Stop();
-    _clipboardPoller?.Dispose();
-    OnLaunchBrowser.Dispose();
-    OnLogout.Dispose();
   }
 
   private void ClearCredentials() {

@@ -1,14 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Threading.Channels;
 
 using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
 
 using TwitchLib.Client.Events;
-using TwitchLib.Client.Interfaces;
 
 using TwitchStreamingTools.Models;
 
@@ -24,14 +22,19 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   private ObservableCollection<string> _selectedTwitchChatNames = [];
 
   /// <summary>
-  ///   The current twitch chat name entered by the user.
+  ///   The current position of the cursor for the text box showing our chat logs, increment to move down.
   /// </summary>
-  private string? _twitchChatName;
-  
+  private int _textBoxCursorPosition;
+
   /// <summary>
   ///   The current twitch chat.
   /// </summary>
-  private string _twitchChat = String.Empty;
+  private string _twitchChat = string.Empty;
+
+  /// <summary>
+  ///   The current twitch chat name entered by the user.
+  /// </summary>
+  private string? _twitchChatName;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="ChatViewModel" /> class.
@@ -50,7 +53,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
       _selectedTwitchChatNames.Remove(username);
       _selectedTwitchChatNames.Add(username);
       TwitchClientProxy.Instance.AddMessageCallback(username, OnChatMessage).Wait();
-      
+
       TwitchChatName = null;
       Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
       Configuration.Instance.WriteConfiguration();
@@ -62,24 +65,9 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
       Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
       Configuration.Instance.WriteConfiguration();
     });
-    
+
     TwitchClientProxy.Instance.AddInstanceCallback(OnNewTwitchClient);
     OnNewTwitchClient(TwitchClientProxy.Instance);
-  }
-
-  private void OnNewTwitchClient(TwitchClientProxy chatClient) {
-    foreach (var channel in _selectedTwitchChatNames) {
-      chatClient.AddMessageCallback(channel, OnChatMessage);
-    }
-  }
-
-  private void OnChatMessage(OnMessageReceivedArgs msg) {
-    if (_selectedTwitchChatNames.Count > 1) {
-      TwitchChat = (TwitchChat + $"\n({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
-    }
-    else {
-      TwitchChat = (TwitchChat + $"\n{msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
-    }
   }
 
   /// <inheritdoc />
@@ -102,7 +90,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     get => _twitchChatName;
     set => this.RaiseAndSetIfChanged(ref _twitchChatName, value);
   }
-  
+
   /// <summary>
   ///   The current twitch chat.
   /// </summary>
@@ -119,9 +107,34 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     set => this.RaiseAndSetIfChanged(ref _selectedTwitchChatNames, value);
   }
 
+  /// <summary>
+  ///   The current position of the cursor for the text box showing our chat logs, increment to move down.
+  /// </summary>
+  public int TextBoxCursorPosition {
+    get => _textBoxCursorPosition;
+    set => this.RaiseAndSetIfChanged(ref _textBoxCursorPosition, value);
+  }
+
   /// <inheritdoc />
   public void Dispose() {
     OnAddChat.Dispose();
     OnRemoveChat.Dispose();
+  }
+
+  private void OnNewTwitchClient(TwitchClientProxy chatClient) {
+    foreach (string channel in _selectedTwitchChatNames) {
+      chatClient.AddMessageCallback(channel, OnChatMessage);
+    }
+  }
+
+  private void OnChatMessage(OnMessageReceivedArgs msg) {
+    if (_selectedTwitchChatNames.Count > 1) {
+      TwitchChat = (TwitchChat + $"\n({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+    }
+    else {
+      TwitchChat = (TwitchChat + $"\n{msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+    }
+
+    TextBoxCursorPosition = int.MaxValue;
   }
 }

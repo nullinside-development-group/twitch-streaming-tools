@@ -30,9 +30,9 @@ public class Configuration {
       return s_instance;
     }
   }
-  
+
   /// <summary>
-  /// The username of the user logged in through the <see cref="OAuth"/> token.
+  ///   The username of the user logged in through the <see cref="OAuth" /> token.
   /// </summary>
   public string? TwitchUsername { get; set; }
 
