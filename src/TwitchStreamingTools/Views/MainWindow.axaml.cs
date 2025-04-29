@@ -8,6 +8,8 @@ using Avalonia.Threading;
 
 using Nullinside.Api.Common.Desktop;
 
+using TwitchStreamingTools.ViewModels;
+
 namespace TwitchStreamingTools.Views;
 
 /// <summary>

@@ -108,7 +108,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
         if (!string.Equals(api.OAuth?.AccessToken, Configuration.Instance.OAuth.Bearer) ||
             !string.Equals(TwitchUsername, Configuration.Instance.TwitchUsername)) {
           SetCredentials(TwitchUsername, new OAuthResponse {
-            Bearer = api.OAuth.AccessToken,
+            Bearer = api.OAuth!.AccessToken!,
             Refresh = api.OAuth.RefreshToken ?? string.Empty,
             ExpiresUtc = api.OAuth.ExpiresUtc ?? DateTime.MinValue
           });
