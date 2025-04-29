@@ -48,6 +48,7 @@ public class TwitchApiWrapper : TwitchApiProxy {
         if (null != api.OAuth && !string.IsNullOrWhiteSpace(api.OAuth.AccessToken) &&
             !string.IsNullOrWhiteSpace(api.OAuth.RefreshToken)) {
           await api.RefreshAccessToken();
+          (string? id, string? username) userInfo = await api.GetUser();
           Configuration.Instance.OAuth = new OAuthResponse {
             Bearer = api.OAuth.AccessToken,
             Refresh = api.OAuth.RefreshToken,

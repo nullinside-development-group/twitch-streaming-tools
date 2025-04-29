@@ -10,7 +10,7 @@ namespace TwitchStreamingTools.Utilities;
 /// <summary>
 ///   Polls the clipboard looking for a specific JSON message.
 /// </summary>
-public class ClipboardPoller<T> : IClipboardPoller<T> {
+public class ClipboardPoller<T> : IClipboardPoller<T>, IDisposable {
   /// <summary>
   ///   The callback to invoke when an OAuth token is found.
   /// </summary>
@@ -46,6 +46,11 @@ public class ClipboardPoller<T> : IClipboardPoller<T> {
   /// <inheritdoc />
   public void StopPolling() {
     _timer.Stop();
+  }
+
+  /// <inheritdoc />
+  public void Dispose() {
+    _timer.Dispose();
   }
 
   /// <summary>

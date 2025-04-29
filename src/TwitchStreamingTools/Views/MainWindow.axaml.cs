@@ -52,6 +52,7 @@ public partial class MainWindow : Window {
       }
 
       Dispatcher.UIThread.Post(async () => {
+#if !DEBUG
         var versionWindow = new NewVersionWindow {
           DataContext = new NewVersionWindowViewModel {
             LocalVersion = localVersion
@@ -59,6 +60,7 @@ public partial class MainWindow : Window {
         };
 
         await versionWindow.ShowDialog(this);
+#endif
       });
     });
   }

@@ -44,6 +44,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <TextBox Grid.Row="1" Grid.Column="1" />
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TwitchChat}"
+                 CaretIndex="{Binding TextBoxCursorPosition, Mode=TwoWay}" IsReadOnly="True" />
     </Grid>
 </UserControl>

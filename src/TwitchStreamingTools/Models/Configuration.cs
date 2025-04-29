@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Newtonsoft.Json;
@@ -31,6 +32,11 @@ public class Configuration {
   }
 
   /// <summary>
+  ///   The username of the user logged in through the <see cref="OAuth" /> token.
+  /// </summary>
+  public string? TwitchUsername { get; set; }
+
+  /// <summary>
   ///   The twitch OAuth token.
   /// </summary>
   public OAuthResponse? OAuth { get; set; }
@@ -40,6 +46,15 @@ public class Configuration {
   /// </summary>
   public TwitchAppConfig? TwitchAppConfig { get; set; }
 
+  /// <summary>
+  ///   The collection of twitch chats we should read from.
+  /// </summary>
+  public IEnumerable<string>? TwitchChats { get; set; }
+
+  /// <summary>
+  ///   Reads the configuration from disk.
+  /// </summary>
+  /// <returns>The configuration if successful, null otherwise.</returns>
   private static Configuration? ReadConfiguration() {
     try {
       string json = File.ReadAllText(s_configLocation);
