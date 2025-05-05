@@ -7,8 +7,9 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 
 using Nullinside.Api.Common.Desktop;
-
+#if !DEBUG
 using TwitchStreamingTools.ViewModels;
+#endif
 
 namespace TwitchStreamingTools.Views;
 

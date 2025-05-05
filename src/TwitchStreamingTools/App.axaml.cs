@@ -1,14 +1,16 @@
 using System;
-using System.Threading.Tasks;
 
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Nullinside.Api.Common.Twitch;
 
 using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Services;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.Views;
 
@@ -32,9 +34,16 @@ public class App : Application {
     TwitchClientProxy.Instance.TwitchOAuthToken = Configuration.Instance.OAuth?.Bearer;
     TwitchClientProxy.Instance.TwitchUsername = Configuration.Instance.TwitchUsername;
 
+    // Register all the services needed for the application to run
+    var collection = new ServiceCollection();
+    collection.AddCommonServices();
+
+    // Creates a ServiceProvider containing services from the provided IServiceCollection
+    ServiceProvider services = collection.BuildServiceProvider();
+    var vm = services.GetRequiredService<MainWindowViewModel>();
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
       desktop.MainWindow = new MainWindow {
-        DataContext = new MainWindowViewModel()
+        DataContext = vm
       };
     }
 
