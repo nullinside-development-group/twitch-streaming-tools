@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions {
     collection.AddTransient<MainWindowViewModel>();
     collection.AddTransient<AccountViewModel>();
     collection.AddTransient<ChatViewModel>();
+    collection.AddTransient<NewVersionWindowViewModel>();
     collection.AddTransient<ITwitchApiProxy, TwitchApiWrapper>(TwitchApiWrapperFactory);
   }
 
