@@ -1,12 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Threading.Tasks;
 
 using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
 
 using TwitchLib.Client.Events;
+using TwitchLib.Client.Interfaces;
 
 using TwitchStreamingTools.Models;
 
@@ -20,6 +22,11 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   ///   The list of chat names selected in the list.
   /// </summary>
   private ObservableCollection<string> _selectedTwitchChatNames = [];
+  
+  /// <summary>
+  /// The twitch chat client.
+  /// </summary>
+  private ITwitchClientProxy _twitchClient;
 
   /// <summary>
   ///   The current position of the cursor for the text box showing our chat logs, increment to move down.
@@ -39,9 +46,11 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   Initializes a new instance of the <see cref="ChatViewModel" /> class.
   /// </summary>
-  public ChatViewModel() {
+  public ChatViewModel(ITwitchClientProxy twitchClient) {
+    _twitchClient = twitchClient;
     foreach (string channel in Configuration.Instance.TwitchChats ?? []) {
       _selectedTwitchChatNames.Add(channel);
+      _twitchClient.AddMessageCallback(channel, OnChatMessage);
     }
 
     OnAddChat = ReactiveCommand.Create(() => {
@@ -52,7 +61,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
       _selectedTwitchChatNames.Remove(username);
       _selectedTwitchChatNames.Add(username);
-      TwitchClientProxy.Instance.AddMessageCallback(username, OnChatMessage).Wait();
+      _ = _twitchClient.AddMessageCallback(username, OnChatMessage);
 
       TwitchChatName = null;
       Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
@@ -65,9 +74,6 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
       Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
       Configuration.Instance.WriteConfiguration();
     });
-
-    TwitchClientProxy.Instance.AddInstanceCallback(OnNewTwitchClient);
-    OnNewTwitchClient(TwitchClientProxy.Instance);
   }
 
   /// <inheritdoc />
@@ -119,12 +125,6 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   public void Dispose() {
     OnAddChat.Dispose();
     OnRemoveChat.Dispose();
-  }
-
-  private void OnNewTwitchClient(TwitchClientProxy chatClient) {
-    foreach (string channel in _selectedTwitchChatNames) {
-      chatClient.AddMessageCallback(channel, OnChatMessage);
-    }
   }
 
   private void OnChatMessage(OnMessageReceivedArgs msg) {
