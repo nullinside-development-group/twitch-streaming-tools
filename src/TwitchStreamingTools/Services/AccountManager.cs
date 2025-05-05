@@ -96,6 +96,7 @@ public class AccountManager : IAccountManager {
     _twitchClient.TwitchUsername = null;
     CredentialsAreValid = false;
     TwitchUsername = null;
+    Configuration.Instance.WriteConfiguration();
 
     OnCredentialsChanged?.Invoke(null);
     OnCredentialsStatusChanged?.Invoke(false);
