@@ -6,6 +6,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Nullinside.Api.Common.Desktop;
 #if !DEBUG
 using TwitchStreamingTools.ViewModels;
@@ -17,6 +19,11 @@ namespace TwitchStreamingTools.Views;
 ///   The main application window.
 /// </summary>
 public partial class MainWindow : Window {
+  /// <summary>
+  /// The service provider for DI.
+  /// </summary>
+  public IServiceProvider? ServiceProvider { get; set; }
+  
   /// <summary>
   ///   Initializes a new instance of the <see cref="MainWindow" /> class.
   /// </summary>
@@ -53,11 +60,15 @@ public partial class MainWindow : Window {
       }
 
 #if !DEBUG
+      var vm = ServiceProvider?.GetRequiredService<NewVersionWindowViewModel>();
+      if (null == vm) {
+        return;
+      }
+      
+      vm.LocalVersion = localVersion;
       Dispatcher.UIThread.Post(async () => {
         var versionWindow = new NewVersionWindow {
-          DataContext = new NewVersionWindowViewModel {
-            LocalVersion = localVersion
-          }
+          DataContext = vm
         };
 
         await versionWindow.ShowDialog(this);
