@@ -68,9 +68,9 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
       Configuration.Instance.WriteConfiguration();
     });
 
-    OnRemoveChat = ReactiveCommand.Create<string>(s => {
-      _selectedTwitchChatNames.Remove(s);
-      // todo: disconnect from chat
+    OnRemoveChat = ReactiveCommand.Create<string>(channel => {
+      _selectedTwitchChatNames.Remove(channel);
+      _twitchClient.RemoveMessageCallback(channel, OnChatMessage);
       Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
       Configuration.Instance.WriteConfiguration();
     });
