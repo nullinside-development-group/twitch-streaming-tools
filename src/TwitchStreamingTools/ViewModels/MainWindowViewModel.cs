@@ -6,6 +6,8 @@ using System.Reactive;
 
 using DynamicData;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using ReactiveUI;
 
 using TwitchStreamingTools.ViewModels.Pages;
@@ -19,6 +21,11 @@ namespace TwitchStreamingTools.ViewModels;
 /// </summary>
 public class MainWindowViewModel : ViewModelBase {
   /// <summary>
+  ///   The dependency injection service provider.
+  /// </summary>
+  private readonly IServiceProvider _provider;
+
+  /// <summary>
   ///   A flag indicating whether the menu is open.
   /// </summary>
   private bool _isMenuOpen;
@@ -26,7 +33,7 @@ public class MainWindowViewModel : ViewModelBase {
   /// <summary>
   ///   The open page.
   /// </summary>
-  private ViewModelBase _page = new AccountViewModel();
+  private ViewModelBase _page;
 
   /// <summary>
   ///   The currently selected page.
@@ -36,7 +43,9 @@ public class MainWindowViewModel : ViewModelBase {
   /// <summary>
   ///   Initializes a new instance of the <see cref="MainWindowViewModel" /> class.
   /// </summary>
-  public MainWindowViewModel() {
+  /// <param name="provider">The dependency injection service provider.</param>
+  public MainWindowViewModel(IServiceProvider provider) {
+    _provider = provider;
     OnToggleMenu = ReactiveCommand.Create(() => IsMenuOpen = !IsMenuOpen);
 
     // Dynamically setup the pages
@@ -45,7 +54,7 @@ public class MainWindowViewModel : ViewModelBase {
       .SelectMany(a => a.GetTypes())
       .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
                   typeof(PageViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
-      .Select(t => new MenuItem(t, ((PageViewModelBase)Activator.CreateInstance(t)!).IconResourceKey))
+      .Select(t => new MenuItem(t, (_provider.GetRequiredService(t) as PageViewModelBase)!.IconResourceKey))
       .ToList();
     MenuItems.AddRange(pages);
     _selectedMenuItem = pages.First(p => typeof(AccountViewModel).IsAssignableTo(p.ModelType));
@@ -54,6 +63,9 @@ public class MainWindowViewModel : ViewModelBase {
         OnSelectedMenuItemChanged();
       }
     };
+
+    // Set the initial page
+    _page = (_provider.GetRequiredService(typeof(AccountViewModel)) as AccountViewModel)!;
   }
 
   /// <summary>
@@ -94,7 +106,7 @@ public class MainWindowViewModel : ViewModelBase {
   ///   Links the <see cref="Page" /> showing on the screen with changes to the <see cref="SelectedMenuItem" />.
   /// </summary>
   private void OnSelectedMenuItemChanged() {
-    var viewModel = Activator.CreateInstance(SelectedMenuItem.ModelType) as ViewModelBase;
+    var viewModel = _provider.GetService(SelectedMenuItem.ModelType) as ViewModelBase;
     if (null == viewModel) {
       return;
     }
