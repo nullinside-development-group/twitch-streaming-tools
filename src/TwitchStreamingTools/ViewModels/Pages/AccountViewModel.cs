@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using ReactiveUI;
 
+using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Services;
 using TwitchStreamingTools.Utilities;
 

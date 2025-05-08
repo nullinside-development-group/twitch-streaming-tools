@@ -29,6 +29,11 @@ public static class Constants {
   /// </summary>
   public static string API_SITE_DOMAIN = "https://nullinside.com";
 #endif
+  
+  /// <summary>
+  ///     A regular expression for identifying a link.
+  /// </summary>
+  public const string REGEX_URL = @"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=,]*)";
 
   /// <summary>
   ///   The twitch app redirect link.

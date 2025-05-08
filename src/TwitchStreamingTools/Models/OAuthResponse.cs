@@ -2,6 +2,8 @@ using System;
 
 using Newtonsoft.Json;
 
+namespace TwitchStreamingTools.Models;
+
 /// <summary>
 ///   A JSON representation of an OAuth token.
 /// </summary>
