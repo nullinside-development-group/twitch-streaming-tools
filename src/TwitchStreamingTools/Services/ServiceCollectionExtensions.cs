@@ -1,11 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Twitch;
 
-using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.ViewModels.Pages;
 
@@ -20,8 +16,6 @@ public static class ServiceCollectionExtensions {
   /// </summary>
   /// <param name="collection">The services collection to initialize.</param>
   public static void AddCommonServices(this IServiceCollection collection) {
-    // collection.AddSingleton<IRepository, Repository>();
-    // collection.AddTransient<BusinessService>();
     collection.AddSingleton<IAccountManager, AccountManager>();
     collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
 
@@ -29,17 +23,5 @@ public static class ServiceCollectionExtensions {
     collection.AddTransient<AccountViewModel>();
     collection.AddTransient<ChatViewModel>();
     collection.AddTransient<NewVersionWindowViewModel>();
-    collection.AddTransient<ITwitchApiProxy, TwitchApiWrapper>(TwitchApiWrapperFactory);
-  }
-
-  /// <summary>
-  ///   A factory for generating twitch apis.
-  /// </summary>
-  /// <param name="_">not used.</param>
-  /// <returns>A new instance of the <see cref="TwitchApiWrapper" /> class.</returns>
-  private static TwitchApiWrapper TwitchApiWrapperFactory(IServiceProvider _) {
-    Task<TwitchApiWrapper> task = TwitchApiWrapper.CreateApi();
-    Task.WaitAll(task);
-    return task.Result;
   }
 }
