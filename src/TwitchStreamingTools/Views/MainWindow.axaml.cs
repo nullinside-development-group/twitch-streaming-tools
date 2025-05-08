@@ -2,15 +2,15 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Threading;
-
-using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Desktop;
 #if !DEBUG
+using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using TwitchStreamingTools.ViewModels;
+#else
+using Avalonia;
 #endif
 
 namespace TwitchStreamingTools.Views;
@@ -19,11 +19,6 @@ namespace TwitchStreamingTools.Views;
 ///   The main application window.
 /// </summary>
 public partial class MainWindow : Window {
-  /// <summary>
-  /// The service provider for DI.
-  /// </summary>
-  public IServiceProvider? ServiceProvider { get; set; }
-  
   /// <summary>
   ///   Initializes a new instance of the <see cref="MainWindow" /> class.
   /// </summary>
@@ -34,6 +29,11 @@ public partial class MainWindow : Window {
     this.AttachDevTools();
 #endif
   }
+
+  /// <summary>
+  ///   The service provider for DI.
+  /// </summary>
+  public IServiceProvider? ServiceProvider { get; set; }
 
   /// <summary>
   ///   Checks for a new version number of the application.
@@ -64,7 +64,7 @@ public partial class MainWindow : Window {
       if (null == vm) {
         return;
       }
-      
+
       vm.LocalVersion = localVersion;
       Dispatcher.UIThread.Post(async () => {
         var versionWindow = new NewVersionWindow {

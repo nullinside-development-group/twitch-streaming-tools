@@ -1,14 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Threading.Tasks;
 
 using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
 
 using TwitchLib.Client.Events;
-using TwitchLib.Client.Interfaces;
 
 using TwitchStreamingTools.Models;
 
@@ -19,14 +17,14 @@ namespace TwitchStreamingTools.ViewModels.Pages;
 /// </summary>
 public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <summary>
+  ///   The twitch chat client.
+  /// </summary>
+  private readonly ITwitchClientProxy _twitchClient;
+
+  /// <summary>
   ///   The list of chat names selected in the list.
   /// </summary>
   private ObservableCollection<string> _selectedTwitchChatNames = [];
-  
-  /// <summary>
-  /// The twitch chat client.
-  /// </summary>
-  private ITwitchClientProxy _twitchClient;
 
   /// <summary>
   ///   The current position of the cursor for the text box showing our chat logs, increment to move down.

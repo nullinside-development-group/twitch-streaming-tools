@@ -1,13 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
+using log4net;
 
 using Newtonsoft.Json;
 
 using Nullinside.Api.Common.Twitch;
-using Nullinside.Api.Common.Twitch.Json;
 
 using TwitchStreamingTools.Models;
 
@@ -18,14 +19,14 @@ namespace TwitchStreamingTools.Utilities;
 /// </summary>
 public class TwitchApiWrapper : TwitchApiProxy {
   /// <summary>
-  ///   Lock to prevent the creation of more than one API at a time.
+  ///   The logger.
   /// </summary>
-  private static readonly SemaphoreSlim _lock = new(1);
+  private static readonly ILog Log = LogManager.GetLogger(typeof(TwitchApiWrapper));
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="TwitchApiWrapper" /> class.
   /// </summary>
-  protected TwitchApiWrapper() : base(
+  public TwitchApiWrapper() : base(
     Configuration.Instance.OAuth?.Bearer ?? "",
     Configuration.Instance.OAuth?.Refresh ?? "",
     Configuration.Instance.OAuth?.ExpiresUtc ?? DateTime.MinValue,
@@ -35,55 +36,38 @@ public class TwitchApiWrapper : TwitchApiProxy {
   }
 
   /// <summary>
-  ///   Creates a new instance of the API.
-  /// </summary>
-  /// <returns>A new API instance.</returns>
-  public static async Task<TwitchApiWrapper> CreateApi() {
-    await _lock.WaitAsync();
-    try {
-      var api = new TwitchApiWrapper();
-      DateTime expiration = api.OAuth?.ExpiresUtc ?? DateTime.MaxValue;
-      TimeSpan timeUntil = expiration - (DateTime.UtcNow + TimeSpan.FromHours(1));
-      if (timeUntil.Ticks < 0) {
-        if (null != api.OAuth && !string.IsNullOrWhiteSpace(api.OAuth.AccessToken) &&
-            !string.IsNullOrWhiteSpace(api.OAuth.RefreshToken)) {
-          await api.RefreshAccessToken();
-          (string? id, string? username) userInfo = await api.GetUser();
-          Configuration.Instance.OAuth = new OAuthResponse {
-            Bearer = api.OAuth.AccessToken,
-            Refresh = api.OAuth.RefreshToken,
-            ExpiresUtc = api.OAuth.ExpiresUtc ?? DateTime.MinValue
-          };
-        }
-      }
-
-      return api;
-    }
-    finally {
-      _lock.Release();
-    }
-  }
-
-  /// <summary>
-  ///   Handles refreshing the twitch oauth token eithe through a local application or through the website.
+  ///   Handles refreshing the twitch oauth token either through a local application or through the website.
   /// </summary>
   /// <param name="token">The refresh token.</param>
   /// <returns>The new OAuth token information if successful, null otherwise.</returns>
   public override async Task<TwitchAccessToken?> RefreshAccessToken(CancellationToken token = new()) {
-    if (!string.IsNullOrWhiteSpace(TwitchAppConfig?.ClientSecret)) {
-      await base.RefreshAccessToken(token);
-    }
+    try {
+      // If the secret is specified, then this isn't using our API to authenticate, it's using the twitch api directly.
+      if (!string.IsNullOrWhiteSpace(TwitchAppConfig?.ClientSecret)) {
+        await base.RefreshAccessToken(token);
+      }
 
-    using var client = new HttpClient();
-    string url = $"{Constants.API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
-    var request = new HttpRequestMessage(HttpMethod.Post, url);
-    using HttpResponseMessage response =
-      await client.PostAsJsonAsync(request.RequestUri, $"{{\"refreshToken\":\"{OAuth?.RefreshToken}\"}}");
-    response.EnsureSuccessStatusCode();
-    string responseBody = await response.Content.ReadAsStringAsync();
-    var moderatedChannels = JsonConvert.DeserializeObject<TwitchModeratedChannelsResponse>(responseBody);
-    if (null == moderatedChannels) {
-      return null;
+      using var client = new HttpClient();
+      string url = $"{Constants.API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
+      var request = new HttpRequestMessage(HttpMethod.Post, url);
+      var values = new Dictionary<string, string> { { "refreshToken", OAuth?.RefreshToken ?? string.Empty } };
+      var content = new FormUrlEncodedContent(values);
+      using HttpResponseMessage response = await client.PostAsync(request.RequestUri, content, token);
+      response.EnsureSuccessStatusCode();
+      string responseBody = await response.Content.ReadAsStringAsync(token);
+      var oauthResp = JsonConvert.DeserializeObject<OAuthResponse>(responseBody);
+      if (null == oauthResp) {
+        return null;
+      }
+
+      return new TwitchAccessToken {
+        AccessToken = oauthResp.Bearer,
+        ExpiresUtc = oauthResp.ExpiresUtc,
+        RefreshToken = oauthResp.Refresh
+      };
+    }
+    catch (Exception e) {
+      Log.Error("Failed to refresh access token", e);
     }
 
     return null;

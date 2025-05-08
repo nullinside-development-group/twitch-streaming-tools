@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using Nullinside.Api.Common.Twitch;
 
 using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.Services;
 
@@ -19,11 +20,6 @@ public class AccountManager : IAccountManager {
   private readonly DispatcherTimer _timer;
 
   /// <summary>
-  ///   The twitch chat api.
-  /// </summary>
-  private readonly ITwitchApiProxy _twitchApi;
-
-  /// <summary>
   ///   The twitch chat client.
   /// </summary>
   private readonly ITwitchClientProxy _twitchClient;
@@ -32,10 +28,8 @@ public class AccountManager : IAccountManager {
   ///   Initializes a new instance of the <see cref="AccountManager" /> class.
   /// </summary>
   /// <param name="twitchClient">The twitch chat client.</param>
-  /// <param name="twitchApi">The twitch chat api.</param>
-  public AccountManager(ITwitchClientProxy twitchClient, ITwitchApiProxy twitchApi) {
+  public AccountManager(ITwitchClientProxy twitchClient) {
     _twitchClient = twitchClient;
-    _twitchApi = twitchApi;
     _timer = new DispatcherTimer {
       Interval = TimeSpan.FromSeconds(5)
     };
@@ -58,15 +52,17 @@ public class AccountManager : IAccountManager {
 
   /// <inheritdoc />
   public async Task UpdateCredentials(string bearer, string refresh, DateTime expires) {
-    _twitchApi.OAuth = new TwitchAccessToken {
-      AccessToken = bearer,
-      RefreshToken = refresh,
-      ExpiresUtc = expires
+    var twitchApi = new TwitchApiWrapper {
+      OAuth = new TwitchAccessToken {
+        AccessToken = bearer,
+        RefreshToken = refresh,
+        ExpiresUtc = expires
+      }
     };
 
     (string? id, string? username)? user = null;
     try {
-      user = await _twitchApi.GetUser();
+      user = await twitchApi.GetUser();
     }
     catch {
       // Do nothing
@@ -89,7 +85,6 @@ public class AccountManager : IAccountManager {
 
   /// <inheritdoc />
   public void DeleteCredentials() {
-    _twitchApi.OAuth = null;
     Configuration.Instance.OAuth = null;
     Configuration.Instance.TwitchUsername = null;
     _twitchClient.TwitchOAuthToken = null;
@@ -109,7 +104,11 @@ public class AccountManager : IAccountManager {
     _timer.Stop();
     try {
       bool previousValue = CredentialsAreValid;
-      string? username = (await _twitchApi.GetUser()).username;
+
+      await DoTokenRefreshIfNearExpiration();
+
+      var twitchApi = new TwitchApiWrapper();
+      string? username = (await twitchApi.GetUser()).username;
       CredentialsAreValid = !string.IsNullOrWhiteSpace(username);
       TwitchUsername = username;
 
@@ -123,5 +122,31 @@ public class AccountManager : IAccountManager {
     finally {
       _timer.Start();
     }
+  }
+
+  /// <summary>
+  ///   Checks the expiration of the OAuth token and refreshes if it's within 1 hour of the time.
+  /// </summary>
+  private async Task DoTokenRefreshIfNearExpiration() {
+    var twitchApi = new TwitchApiWrapper();
+    DateTime expiration = twitchApi.OAuth?.ExpiresUtc ?? DateTime.MaxValue;
+    TimeSpan timeUntil = expiration - (DateTime.UtcNow + TimeSpan.FromHours(1));
+    if (timeUntil.Ticks >= 0) {
+      return;
+    }
+
+    if (null == twitchApi.OAuth || string.IsNullOrWhiteSpace(twitchApi.OAuth.AccessToken) ||
+        string.IsNullOrWhiteSpace(twitchApi.OAuth.RefreshToken)) {
+      return;
+    }
+
+    await twitchApi.RefreshAccessToken();
+
+    Configuration.Instance.OAuth = new OAuthResponse {
+      Bearer = twitchApi.OAuth.AccessToken,
+      Refresh = twitchApi.OAuth.RefreshToken,
+      ExpiresUtc = twitchApi.OAuth.ExpiresUtc ?? DateTime.MinValue
+    };
+    Configuration.Instance.WriteConfiguration();
   }
 }
