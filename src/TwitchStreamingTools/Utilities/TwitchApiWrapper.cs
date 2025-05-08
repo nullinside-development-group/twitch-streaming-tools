@@ -21,7 +21,7 @@ public class TwitchApiWrapper : TwitchApiProxy {
   /// <summary>
   ///   The logger.
   /// </summary>
-  private static readonly ILog Log = LogManager.GetLogger(typeof(TwitchApiWrapper));
+  private static readonly ILog LOG = LogManager.GetLogger(typeof(TwitchApiWrapper));
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="TwitchApiWrapper" /> class.
@@ -67,7 +67,7 @@ public class TwitchApiWrapper : TwitchApiProxy {
       };
     }
     catch (Exception e) {
-      Log.Error("Failed to refresh access token", e);
+      LOG.Error("Failed to refresh access token", e);
     }
 
     return null;

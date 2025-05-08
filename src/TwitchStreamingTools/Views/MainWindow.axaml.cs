@@ -7,7 +7,9 @@ using Avalonia.Controls;
 using Nullinside.Api.Common.Desktop;
 #if !DEBUG
 using Avalonia.Threading;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using TwitchStreamingTools.ViewModels;
 #else
 using Avalonia;
@@ -24,7 +26,7 @@ public partial class MainWindow : Window {
   /// </summary>
   public MainWindow() {
     InitializeComponent();
-    Constants.CLIPBOARD = Clipboard;
+    Constants.Clipboard = Clipboard;
 #if DEBUG
     this.AttachDevTools();
 #endif
@@ -56,7 +58,6 @@ public partial class MainWindow : Window {
       }
 
       if (serverVersion.name?.Equals(localVersion, StringComparison.InvariantCultureIgnoreCase) ?? true) {
-        return;
       }
 
 #if !DEBUG

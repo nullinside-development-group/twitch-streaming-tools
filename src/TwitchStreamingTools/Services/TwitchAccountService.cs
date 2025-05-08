@@ -11,9 +11,9 @@ using TwitchStreamingTools.Utilities;
 namespace TwitchStreamingTools.Services;
 
 /// <summary>
-///   Manages the credentials in the application.
+///   Manages the credentials in the application, ensuring credentials are kept up-to-date.
 /// </summary>
-public class AccountManager : IAccountManager {
+public class TwitchAccountService : ITwitchAccountService {
   /// <summary>
   ///   The timer used to check the twitch OAuth token against the API.
   /// </summary>
@@ -25,10 +25,10 @@ public class AccountManager : IAccountManager {
   private readonly ITwitchClientProxy _twitchClient;
 
   /// <summary>
-  ///   Initializes a new instance of the <see cref="AccountManager" /> class.
+  ///   Initializes a new instance of the <see cref="TwitchAccountService" /> class.
   /// </summary>
   /// <param name="twitchClient">The twitch chat client.</param>
-  public AccountManager(ITwitchClientProxy twitchClient) {
+  public TwitchAccountService(ITwitchClientProxy twitchClient) {
     _twitchClient = twitchClient;
     _timer = new DispatcherTimer {
       Interval = TimeSpan.FromSeconds(5)

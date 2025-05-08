@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using ReactiveUI;
 
+using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Services;
 using TwitchStreamingTools.Utilities;
 
@@ -17,7 +18,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   Manages the account OAuth information.
   /// </summary>
-  private readonly IAccountManager _accountManager;
+  private readonly ITwitchAccountService _twitchAccountService;
 
   /// <summary>
   ///   Polls the clipboard waiting for an oAuth configuration.
@@ -37,16 +38,16 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   Initializes a new instance of the <see cref="AccountViewModel" /> class.
   /// </summary>
-  /// <param name="accountManager">Manages the account OAuth information.</param>
-  public AccountViewModel(IAccountManager accountManager) {
-    _accountManager = accountManager;
-    _accountManager.OnCredentialsStatusChanged += OnCredentialsStatusChanged;
+  /// <param name="twitchAccountService">Manages the account OAuth information.</param>
+  public AccountViewModel(ITwitchAccountService twitchAccountService) {
+    _twitchAccountService = twitchAccountService;
+    _twitchAccountService.OnCredentialsStatusChanged += OnCredentialsStatusChanged;
     OnLaunchBrowser = ReactiveCommand.Create(LaunchBrowser);
     OnLogout = ReactiveCommand.Create(ClearCredentials);
 
     // Set the initial state of the ui
-    HasValidOAuthToken = _accountManager.CredentialsAreValid;
-    TwitchUsername = _accountManager.TwitchUsername;
+    HasValidOAuthToken = _twitchAccountService.CredentialsAreValid;
+    TwitchUsername = _twitchAccountService.TwitchUsername;
   }
 
   /// <inheritdoc />
@@ -86,7 +87,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   }
 
   /// <summary>
-  ///   Invoked when the status of the credentials changes from the <seealso cref="IAccountManager" />.
+  ///   Invoked when the status of the credentials changes from the <seealso cref="ITwitchAccountService" />.
   /// </summary>
   /// <param name="valid">True if the credentials are valid, false otherwise.</param>
   private void OnCredentialsStatusChanged(bool valid) {
@@ -97,7 +98,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     }
 
     HasValidOAuthToken = true;
-    TwitchUsername = _accountManager.TwitchUsername;
+    TwitchUsername = _twitchAccountService.TwitchUsername;
   }
 
   /// <summary>
@@ -108,7 +109,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
       _clipboardPoller.Dispose();
     }
 
-    _clipboardPoller = new ClipboardPoller<OAuthResponse>(Constants.CLIPBOARD!, OnOAuthOnClipboard);
+    _clipboardPoller = new ClipboardPoller<OAuthResponse>(Constants.Clipboard!, OnOAuthOnClipboard);
 
     string url = $"https://id.twitch.tv/oauth2/authorize?client_id={Constants.TWITCH_CLIENT_ID}&" +
                  $"redirect_uri={Constants.TWITCH_CLIENT_REDIRECT}&" +
@@ -122,13 +123,13 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// </summary>
   /// <param name="obj"></param>
   private void OnOAuthOnClipboard(OAuthResponse obj) {
-    Task.WaitAll(_accountManager.UpdateCredentials(obj.Bearer, obj.Refresh, obj.ExpiresUtc));
+    Task.WaitAll(_twitchAccountService.UpdateCredentials(obj.Bearer, obj.Refresh, obj.ExpiresUtc));
   }
 
   /// <summary>
   ///   Clears the credentials out (logging out).
   /// </summary>
   private void ClearCredentials() {
-    _accountManager.DeleteCredentials();
+    _twitchAccountService.DeleteCredentials();
   }
 }

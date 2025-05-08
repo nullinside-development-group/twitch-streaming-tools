@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Runtime.Versioning;
 
 using Avalonia;
 using Avalonia.ReactiveUI;
+
+[assembly: SupportedOSPlatform("windows")]
 
 namespace TwitchStreamingTools;
 
