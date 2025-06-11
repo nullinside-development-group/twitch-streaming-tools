@@ -23,7 +23,7 @@
         <StackPanel Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" Margin="0 0 5 0">Add Chat:</TextBlock>
             <TextBox Text="{Binding TwitchChatName}" Width="100" />
-            <Button IsDefault="True" Command="{Binding OnAddChat}">+</Button>
+            <Button IsDefault="True" Command="{Binding OnAddChat}" Content="+" />
         </StackPanel>
 
         <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ChatItems}">

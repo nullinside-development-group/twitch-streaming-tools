@@ -8,7 +8,7 @@ namespace TwitchStreamingTools.Services;
 /// <summary>
 ///   The contract for management credentials in the application.
 /// </summary>
-public interface IAccountManager {
+public interface ITwitchAccountService {
   /// <summary>
   ///   The current OAuth's twitch username.
   /// </summary>

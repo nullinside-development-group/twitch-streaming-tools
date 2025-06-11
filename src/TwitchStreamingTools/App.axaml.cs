@@ -40,6 +40,7 @@ public class App : Application {
 
     // Creates a ServiceProvider containing services from the provided IServiceCollection
     ServiceProvider services = collection.BuildServiceProvider();
+    services.StartupServices();
     var vm = services.GetRequiredService<MainWindowViewModel>();
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
       desktop.MainWindow = new MainWindow {

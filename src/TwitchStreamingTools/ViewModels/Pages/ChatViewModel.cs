@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
+using System.Speech.Synthesis;
 
 using Nullinside.Api.Common.Twitch;
 
@@ -9,6 +11,7 @@ using ReactiveUI;
 using TwitchLib.Client.Events;
 
 using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.ViewModels.Pages;
 
@@ -46,32 +49,9 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   /// </summary>
   public ChatViewModel(ITwitchClientProxy twitchClient) {
     _twitchClient = twitchClient;
-    foreach (string channel in Configuration.Instance.TwitchChats ?? []) {
-      _selectedTwitchChatNames.Add(channel);
-      _twitchClient.AddMessageCallback(channel, OnChatMessage);
-    }
 
-    OnAddChat = ReactiveCommand.Create(() => {
-      string? username = TwitchChatName?.Trim();
-      if (string.IsNullOrWhiteSpace(username)) {
-        return;
-      }
-
-      _selectedTwitchChatNames.Remove(username);
-      _selectedTwitchChatNames.Add(username);
-      _ = _twitchClient.AddMessageCallback(username, OnChatMessage);
-
-      TwitchChatName = null;
-      Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
-      Configuration.Instance.WriteConfiguration();
-    });
-
-    OnRemoveChat = ReactiveCommand.Create<string>(channel => {
-      _selectedTwitchChatNames.Remove(channel);
-      _twitchClient.RemoveMessageCallback(channel, OnChatMessage);
-      Configuration.Instance.TwitchChats = _selectedTwitchChatNames;
-      Configuration.Instance.WriteConfiguration();
-    });
+    OnAddChat = ReactiveCommand.Create(OnAddChatCommand);
+    OnRemoveChat = ReactiveCommand.Create<string>(OnRemoveChatCommand);
   }
 
   /// <inheritdoc />
@@ -121,8 +101,56 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
   /// <inheritdoc />
   public void Dispose() {
+    foreach (Configuration.TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
+      if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
+        continue;
+      }
+
+      _twitchClient.RemoveMessageCallback(channel.TwitchChannel, OnChatMessage);
+    }
+
     OnAddChat.Dispose();
     OnRemoveChat.Dispose();
+  }
+
+  private void OnAddChatCommand() {
+    string? username = TwitchChatName?.Trim();
+    if (string.IsNullOrWhiteSpace(username) || _selectedTwitchChatNames.Contains(username)) {
+      return;
+    }
+
+    _selectedTwitchChatNames.Add(username);
+    _ = _twitchClient.AddMessageCallback(username, OnChatMessage);
+
+    using var speech = new SpeechSynthesizer();
+    TwitchChatName = null;
+    Configuration.Instance.TwitchChats = (
+      from user in _selectedTwitchChatNames
+      select new Configuration.TwitchChatConfiguration {
+        TwitchChannel = user,
+        OutputDevice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.OutputDevice ?? NAudioUtilities.GetDefaultOutputDevice(),
+        TtsOn = true,
+        TtsVoice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.TtsVoice ?? speech.GetInstalledVoices().FirstOrDefault()?.VoiceInfo.Name,
+        TtsVolume = 100
+      }).ToList();
+    Configuration.Instance.WriteConfiguration();
+  }
+
+  private void OnRemoveChatCommand(string channel) {
+    _selectedTwitchChatNames.Remove(channel);
+    _twitchClient.RemoveMessageCallback(channel, OnChatMessage);
+    using var speech = new SpeechSynthesizer();
+    Configuration.Instance.TwitchChats = (
+      from user in _selectedTwitchChatNames
+      select new Configuration.TwitchChatConfiguration {
+        TwitchChannel = user,
+        OutputDevice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.OutputDevice ?? NAudioUtilities.GetDefaultOutputDevice(),
+        TtsOn = true,
+        TtsVoice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.TtsVoice ?? speech.GetInstalledVoices().FirstOrDefault()?.VoiceInfo.Name,
+        TtsVolume = 100
+      }).ToList();
+
+    Configuration.Instance.WriteConfiguration();
   }
 
   private void OnChatMessage(OnMessageReceivedArgs msg) {
@@ -134,5 +162,29 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     }
 
     TextBoxCursorPosition = int.MaxValue;
+  }
+
+  /// <summary>
+  ///   Handles registering for twitch chat messages while the UI is open.
+  /// </summary>
+  public override void OnLoaded() {
+    base.OnLoaded();
+
+    foreach (Configuration.TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
+      if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
+        continue;
+      }
+
+      _selectedTwitchChatNames.Add(channel.TwitchChannel);
+      _twitchClient.AddMessageCallback(channel.TwitchChannel, OnChatMessage);
+    }
+  }
+
+  /// <summary>
+  ///   Handles unregistering for twitch chat messages while the UI is closed.
+  /// </summary>
+  public override void OnUnloaded() {
+    base.OnUnloaded();
+    Dispose();
   }
 }

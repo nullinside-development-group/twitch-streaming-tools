@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Twitch;
 
@@ -16,12 +18,23 @@ public static class ServiceCollectionExtensions {
   /// </summary>
   /// <param name="collection">The services collection to initialize.</param>
   public static void AddCommonServices(this IServiceCollection collection) {
-    collection.AddSingleton<IAccountManager, AccountManager>();
+    collection.AddSingleton<ITwitchAccountService, TwitchAccountService>();
     collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
+    collection.AddSingleton<TwitchTtsService>();
 
     collection.AddTransient<MainWindowViewModel>();
     collection.AddTransient<AccountViewModel>();
     collection.AddTransient<ChatViewModel>();
     collection.AddTransient<NewVersionWindowViewModel>();
+    collection.AddTransient<SettingsViewModel>();
+  }
+
+  /// <summary>
+  ///   Buffers the services for the top level services that live in the dependency injection framework.
+  /// </summary>
+  /// <param name="provider">The service provider.</param>
+  public static void StartupServices(this IServiceProvider provider) {
+    provider.GetRequiredService<ITwitchAccountService>();
+    provider.GetRequiredService<TwitchTtsService>();
   }
 }

@@ -12,34 +12,39 @@ public static class Constants {
   /// <summary>
   ///   The twitch app client id.
   /// </summary>
-  public static string TWITCH_CLIENT_ID = "cvipqhi9y6ri8yhv0w8ryxokxh0ebd";
+  public const string TWITCH_CLIENT_ID = "cvipqhi9y6ri8yhv0w8ryxokxh0ebd";
 
   /// <summary>
   ///   The domain that the api service is hosted at.
   /// </summary>
-  public static string API_SITE_DOMAIN = "http://localhost:5036";
+  public const string API_SITE_DOMAIN = "http://localhost:5036";
 #else
   /// <summary>
   ///   The twitch app client id.
   /// </summary>
-  public static string TWITCH_CLIENT_ID = "gi1eu8xu9tl6vkjqz4tjqkdzfmcq5h";
+  public const string TWITCH_CLIENT_ID = "gi1eu8xu9tl6vkjqz4tjqkdzfmcq5h";
 
   /// <summary>
   ///   The domain that the api service is hosted at.
   /// </summary>
-  public static string API_SITE_DOMAIN = "https://nullinside.com";
+  public const string API_SITE_DOMAIN = "https://nullinside.com";
 #endif
+
+  /// <summary>
+  ///   A regular expression for identifying a link.
+  /// </summary>
+  public const string REGEX_URL = @"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=,]*)";
 
   /// <summary>
   ///   The twitch app redirect link.
   /// </summary>
-  public static string TWITCH_CLIENT_REDIRECT = $"{API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
+  public const string TWITCH_CLIENT_REDIRECT = $"{API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
 
   /// <summary>
   ///   The reference to the clipboard API.
   /// </summary>
   /// <remarks>This is a hack because it's hard to get to.</remarks>
-  public static IClipboard? CLIPBOARD;
+  public static IClipboard? Clipboard;
 
   /// <summary>
   ///   The twitch permissions to request.

@@ -18,44 +18,44 @@ public partial class WindowsTitleBar : UserControl {
   /// <summary>
   ///   A flag indicating whether the system bar should be seemless with other content or have its own vertical space.
   /// </summary>
-  public static readonly StyledProperty<bool> IsSeamlessProperty =
+  public static readonly StyledProperty<bool> IS_SEAMLESS_PROPERTY =
     AvaloniaProperty.Register<WindowsTitleBar, bool>(nameof(IsSeamless));
 
-  private readonly Button closeButton;
-  private readonly NativeMenuBar defaultMenuBar;
-  private readonly Button maximizeButton;
-  private readonly Path maximizeIcon;
-  private readonly ToolTip maximizeToolTip;
-  private readonly Button minimizeButton;
-  private readonly NativeMenuBar seamlessMenuBar;
-  private readonly TextBlock systemChromeTitle;
+  private readonly Button _closeButton;
+  private readonly NativeMenuBar _defaultMenuBar;
+  private readonly Button _maximizeButton;
+  private readonly Path _maximizeIcon;
+  private readonly ToolTip _maximizeToolTip;
+  private readonly Button _minimizeButton;
+  private readonly NativeMenuBar _seamlessMenuBar;
+  private readonly TextBlock _systemChromeTitle;
 
-  private readonly DockPanel titleBar;
-  private readonly DockPanel titleBarBackground;
-  private readonly Image windowIcon;
+  private readonly DockPanel _titleBar;
+  private readonly DockPanel _titleBarBackground;
+  private readonly Image _windowIcon;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="WindowsTitleBar" /> class.
   /// </summary>
   public WindowsTitleBar() {
     InitializeComponent();
-    minimizeButton = this.FindControl<Button>("MinimizeButton")!;
-    maximizeButton = this.FindControl<Button>("MaximizeButton")!;
-    maximizeIcon = this.FindControl<Path>("MaximizeIcon")!;
-    maximizeToolTip = this.FindControl<ToolTip>("MaximizeToolTip")!;
-    closeButton = this.FindControl<Button>("CloseButton")!;
-    windowIcon = this.FindControl<Image>("WindowIcon")!;
+    _minimizeButton = this.FindControl<Button>("MinimizeButton")!;
+    _maximizeButton = this.FindControl<Button>("MaximizeButton")!;
+    _maximizeIcon = this.FindControl<Path>("MaximizeIcon")!;
+    _maximizeToolTip = this.FindControl<ToolTip>("MaximizeToolTip")!;
+    _closeButton = this.FindControl<Button>("CloseButton")!;
+    _windowIcon = this.FindControl<Image>("WindowIcon")!;
 
-    minimizeButton.Click += MinimizeWindow!;
-    maximizeButton.Click += MaximizeWindow!;
-    closeButton.Click += CloseWindow!;
-    windowIcon.DoubleTapped += CloseWindow!;
+    _minimizeButton.Click += MinimizeWindow!;
+    _maximizeButton.Click += MaximizeWindow!;
+    _closeButton.Click += CloseWindow!;
+    _windowIcon.DoubleTapped += CloseWindow!;
 
-    titleBar = this.FindControl<DockPanel>("TitleBar")!;
-    titleBarBackground = this.FindControl<DockPanel>("TitleBarBackground")!;
-    systemChromeTitle = this.FindControl<TextBlock>("SystemChromeTitle")!;
-    seamlessMenuBar = this.FindControl<NativeMenuBar>("SeamlessMenuBar")!;
-    defaultMenuBar = this.FindControl<NativeMenuBar>("DefaultMenuBar")!;
+    _titleBar = this.FindControl<DockPanel>("TitleBar")!;
+    _titleBarBackground = this.FindControl<DockPanel>("TitleBarBackground")!;
+    _systemChromeTitle = this.FindControl<TextBlock>("SystemChromeTitle")!;
+    _seamlessMenuBar = this.FindControl<NativeMenuBar>("SeamlessMenuBar")!;
+    _defaultMenuBar = this.FindControl<NativeMenuBar>("DefaultMenuBar")!;
 
     SubscribeToWindowState();
   }
@@ -64,20 +64,20 @@ public partial class WindowsTitleBar : UserControl {
   ///   A flag indicating whether the system bar should be seemless with other content or have its own vertical space.
   /// </summary>
   public bool IsSeamless {
-    get => GetValue(IsSeamlessProperty);
+    get => GetValue(IS_SEAMLESS_PROPERTY);
     set {
-      SetValue(IsSeamlessProperty, value);
-      if (titleBarBackground != null &&
-          systemChromeTitle != null &&
-          seamlessMenuBar != null &&
-          defaultMenuBar != null) {
-        titleBarBackground.IsVisible = IsSeamless ? false : true;
-        systemChromeTitle.IsVisible = IsSeamless ? false : true;
-        seamlessMenuBar.IsVisible = IsSeamless ? true : false;
-        defaultMenuBar.IsVisible = IsSeamless ? false : true;
+      SetValue(IS_SEAMLESS_PROPERTY, value);
+      if (_titleBarBackground != null &&
+          _systemChromeTitle != null &&
+          _seamlessMenuBar != null &&
+          _defaultMenuBar != null) {
+        _titleBarBackground.IsVisible = IsSeamless ? false : true;
+        _systemChromeTitle.IsVisible = IsSeamless ? false : true;
+        _seamlessMenuBar.IsVisible = IsSeamless ? true : false;
+        _defaultMenuBar.IsVisible = IsSeamless ? false : true;
 
         if (IsSeamless == false) {
-          titleBar.Resources["SystemControlForegroundBaseHighBrush"] =
+          _titleBar.Resources["SystemControlForegroundBaseHighBrush"] =
             new SolidColorBrush { Color = new Color(255, 0, 0, 0) };
         }
       }
@@ -115,17 +115,17 @@ public partial class WindowsTitleBar : UserControl {
 
     hostWindow.GetObservable(Window.WindowStateProperty).Subscribe(s => {
       if (s != WindowState.Maximized) {
-        maximizeIcon.Data = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
+        _maximizeIcon.Data = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
         hostWindow.Padding = new Thickness(0, 0, 0, 0);
-        maximizeToolTip.Content = "Maximize";
+        _maximizeToolTip.Content = "Maximize";
       }
 
       if (s == WindowState.Maximized) {
-        maximizeIcon.Data =
+        _maximizeIcon.Data =
           Geometry.Parse(
             "M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z");
         hostWindow.Padding = new Thickness(7, 7, 7, 7);
-        maximizeToolTip.Content = "Restore Down";
+        _maximizeToolTip.Content = "Restore Down";
 
         // This should be a more universal approach in both cases, but I found it to be less reliable, when for example double-clicking the title bar.
         /*hostWindow.Padding = new Thickness(
