@@ -31,6 +31,11 @@ public class MainWindowViewModel : ViewModelBase {
   private bool _isMenuOpen;
 
   /// <summary>
+  ///   True if the application is updating, false otherwise.
+  /// </summary>
+  private bool _isUpdating;
+
+  /// <summary>
   ///   The open page.
   /// </summary>
   private ViewModelBase _page;
@@ -100,6 +105,14 @@ public class MainWindowViewModel : ViewModelBase {
   public MenuItem SelectedMenuItem {
     get => _selectedMenuItem;
     set => this.RaiseAndSetIfChanged(ref _selectedMenuItem, value);
+  }
+
+  /// <summary>
+  ///   True if the application is updating, false otherwise.
+  /// </summary>
+  public bool IsUpdating {
+    get => _isUpdating;
+    set => this.RaiseAndSetIfChanged(ref _isUpdating, value);
   }
 
   /// <summary>
