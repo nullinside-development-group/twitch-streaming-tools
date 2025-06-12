@@ -18,6 +18,11 @@ namespace TwitchStreamingTools.ViewModels;
 /// </summary>
 public class NewVersionWindowViewModel : ViewModelBase {
   /// <summary>
+  ///   True if updating the application currently, false otherwise.
+  /// </summary>
+  private bool _isUpdating;
+
+  /// <summary>
   ///   The local version of the software.
   /// </summary>
   private string? _localVersion;
@@ -36,7 +41,7 @@ public class NewVersionWindowViewModel : ViewModelBase {
   ///   Initializes a new instance of the <see cref="NewVersionWindowViewModel" /> class.
   /// </summary>
   public NewVersionWindowViewModel() {
-    OpenBrowser = ReactiveCommand.Create(LaunchBrowser);
+    UpdateSoftware = ReactiveCommand.Create(StartUpdateSoftware);
     CloseWindow = ReactiveCommand.Create<Window>(CloseWindowCommand);
 
     Task.Factory.StartNew(async () => {
@@ -69,9 +74,17 @@ public class NewVersionWindowViewModel : ViewModelBase {
   }
 
   /// <summary>
-  ///   A command to open the browser window at the current update's location.
+  ///   True if updating the application currently, false otherwise.
   /// </summary>
-  public ICommand OpenBrowser { get; }
+  public bool IsUpdating {
+    get => _isUpdating;
+    set => this.RaiseAndSetIfChanged(ref _isUpdating, value);
+  }
+
+  /// <summary>
+  ///   A command to update the software.
+  /// </summary>
+  public ICommand UpdateSoftware { get; }
 
   /// <summary>
   ///   A command to close the current window.
@@ -89,7 +102,8 @@ public class NewVersionWindowViewModel : ViewModelBase {
   /// <summary>
   ///   Launches the web browser at the new release page.
   /// </summary>
-  private void LaunchBrowser() {
+  private void StartUpdateSoftware() {
+    IsUpdating = true;
     GitHubUpdateManager.PrepareUpdate()
       .ContinueWith(_ => {
         if (string.IsNullOrWhiteSpace(_newVersionUrl)) {
