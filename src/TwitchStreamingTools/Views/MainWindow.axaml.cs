@@ -58,6 +58,11 @@ public partial class MainWindow : Window {
       }
 
       if (serverVersion.name?.Equals(localVersion, StringComparison.InvariantCultureIgnoreCase) ?? true) {
+// Had to add this because code clean up tools were removing the "redundant" return statement.
+// which was causing the check to always be ignored.
+#if !DEBUG
+        return;
+#endif
       }
 
 #if !DEBUG
