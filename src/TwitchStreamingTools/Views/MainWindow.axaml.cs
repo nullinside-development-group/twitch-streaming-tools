@@ -1,19 +1,19 @@
+#if !DEBUG
+using Microsoft.Extensions.DependencyInjection;
+#else
+using Avalonia;
+#endif
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 using Avalonia.Controls;
-
-using Nullinside.Api.Common.Desktop;
-#if !DEBUG
 using Avalonia.Threading;
 
-using Microsoft.Extensions.DependencyInjection;
+using Nullinside.Api.Common.Desktop;
 
 using TwitchStreamingTools.ViewModels;
-#else
-using Avalonia;
-#endif
 
 namespace TwitchStreamingTools.Views;
 
@@ -42,6 +42,25 @@ public partial class MainWindow : Window {
   /// </summary>
   protected override void OnInitialized() {
     base.OnInitialized();
+
+    string[] args = Environment.GetCommandLineArgs();
+    if (args.Contains("--update")) {
+      _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "windows-x64.zip").ContinueWith(t => {
+        Dispatcher.UIThread.Invoke(() => {
+          var fuck = DataContext as MainWindowViewModel;
+          if (null == fuck) {
+            return;
+          }
+
+          fuck.Error = t.Exception?.Message ?? "No error message was provided.";
+        });
+      });
+      return;
+    }
+
+    if (args.Contains("--justUpdated")) {
+      _ = GitHubUpdateManager.CleanupUpdate();
+    }
 
     Task.Factory.StartNew(async () => {
       GithubLatestReleaseJson? serverVersion =
@@ -72,12 +91,19 @@ public partial class MainWindow : Window {
       }
 
       vm.LocalVersion = localVersion;
-      Dispatcher.UIThread.Post(async () => {
-        var versionWindow = new NewVersionWindow {
-          DataContext = vm
-        };
+      Dispatcher.UIThread.Post(async void () => {
+        try
+        {
+          var versionWindow = new NewVersionWindow {
+            DataContext = vm
+          };
 
-        await versionWindow.ShowDialog(this);
+          await versionWindow.ShowDialog(this);
+        }
+        catch
+        {
+          // do nothing, don't crash
+        }
       });
 #endif
     });

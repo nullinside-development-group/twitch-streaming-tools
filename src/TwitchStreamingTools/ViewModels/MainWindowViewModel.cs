@@ -40,6 +40,8 @@ public class MainWindowViewModel : ViewModelBase {
   /// </summary>
   private MenuItem _selectedMenuItem;
 
+  private string? _error;
+
   /// <summary>
   ///   Initializes a new instance of the <see cref="MainWindowViewModel" /> class.
   /// </summary>
@@ -100,6 +102,14 @@ public class MainWindowViewModel : ViewModelBase {
   public MenuItem SelectedMenuItem {
     get => _selectedMenuItem;
     set => this.RaiseAndSetIfChanged(ref _selectedMenuItem, value);
+  }
+
+  /// <summary>
+  /// fuck
+  /// </summary>
+  public string? Error {
+    get => _error;
+    set => this.RaiseAndSetIfChanged(ref _error, value);
   }
 
   /// <summary>

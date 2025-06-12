@@ -57,6 +57,7 @@
                 <SplitView.Pane>
                     <StackPanel Spacing="5"
                                 Margin="5">
+                        <TextBox Text="{Binding Error}"/>
                         <Button Command="{Binding OnToggleMenu}">
                             <PathIcon Data="{StaticResource LineHorizontal3Regular}" />
                         </Button>

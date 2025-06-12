@@ -90,10 +90,14 @@ public class NewVersionWindowViewModel : ViewModelBase {
   ///   Launches the web browser at the new release page.
   /// </summary>
   private void LaunchBrowser() {
-    if (string.IsNullOrWhiteSpace(_newVersionUrl)) {
-      return;
-    }
+    GitHubUpdateManager.PrepareUpdate()
+      .ContinueWith(_ => {
+        if (string.IsNullOrWhiteSpace(_newVersionUrl)) {
+          return;
+        }
 
-    Process.Start("explorer", _newVersionUrl);
+        Process.Start("explorer", _newVersionUrl);
+        GitHubUpdateManager.ExitApplicationToUpdate();
+      }).ConfigureAwait(false);
   }
 }
