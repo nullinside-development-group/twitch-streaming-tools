@@ -1,8 +1,3 @@
-#if !DEBUG
-using Microsoft.Extensions.DependencyInjection;
-#else
-using Avalonia;
-#endif
 using System;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +9,12 @@ using Avalonia.Threading;
 using Nullinside.Api.Common.Desktop;
 
 using TwitchStreamingTools.ViewModels;
+#if !DEBUG
+using Microsoft.Extensions.DependencyInjection;
+
+#else
+using Avalonia;
+#endif
 
 namespace TwitchStreamingTools.Views;
 
@@ -52,7 +53,14 @@ public partial class MainWindow : Window {
             return;
           }
 
-          fuck.Error = t.Exception?.Message ?? "No error message was provided.";
+          string message = "No error message was provided.";
+          if (null != t.Exception) {
+            message = t.Exception.Message;
+            message += "|";
+            message += t.Exception.StackTrace;
+          }
+
+          fuck.Error = message;
         });
       });
       return;
@@ -92,16 +100,14 @@ public partial class MainWindow : Window {
 
       vm.LocalVersion = localVersion;
       Dispatcher.UIThread.Post(async void () => {
-        try
-        {
+        try {
           var versionWindow = new NewVersionWindow {
             DataContext = vm
           };
 
           await versionWindow.ShowDialog(this);
         }
-        catch
-        {
+        catch {
           // do nothing, don't crash
         }
       });
