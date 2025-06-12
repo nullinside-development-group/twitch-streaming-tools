@@ -25,6 +25,8 @@ public class MainWindowViewModel : ViewModelBase {
   /// </summary>
   private readonly IServiceProvider _provider;
 
+  private string? _error;
+
   /// <summary>
   ///   A flag indicating whether the menu is open.
   /// </summary>
@@ -39,8 +41,6 @@ public class MainWindowViewModel : ViewModelBase {
   ///   The currently selected page.
   /// </summary>
   private MenuItem _selectedMenuItem;
-
-  private string? _error;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="MainWindowViewModel" /> class.
@@ -105,7 +105,7 @@ public class MainWindowViewModel : ViewModelBase {
   }
 
   /// <summary>
-  /// fuck
+  ///   fuck
   /// </summary>
   public string? Error {
     get => _error;
