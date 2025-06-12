@@ -21,6 +21,7 @@ public static class NAudioUtilities {
   public static WaveInCapabilities GetInputDevice(int index) {
     var caps = new WaveInCapabilities();
     int structSize = Marshal.SizeOf(caps);
+    // ReSharper disable once RedundantCast
     MmException.Try(WaveInterop.waveInGetDevCaps((IntPtr)index, out caps, structSize), "waveInGetDevCaps");
     return caps;
   }
@@ -33,6 +34,7 @@ public static class NAudioUtilities {
   public static WaveOutCapabilities GetOutputDevice(int index) {
     var caps = new WaveOutCapabilities();
     int structSize = Marshal.SizeOf(caps);
+    // ReSharper disable once RedundantCast
     MmException.Try(WaveInterop.waveOutGetDevCaps((IntPtr)index, out caps, structSize), "waveOutGetDevCaps");
     return caps;
   }
