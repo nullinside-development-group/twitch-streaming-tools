@@ -46,23 +46,7 @@ public partial class MainWindow : Window {
 
     string[] args = Environment.GetCommandLineArgs();
     if (args.Contains("--update")) {
-      _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "windows-x64.zip").ContinueWith(t => {
-        Dispatcher.UIThread.Invoke(() => {
-          var fuck = DataContext as MainWindowViewModel;
-          if (null == fuck) {
-            return;
-          }
-
-          string message = "No error message was provided.";
-          if (null != t.Exception) {
-            message = t.Exception.Message;
-            message += "|";
-            message += t.Exception.StackTrace;
-          }
-
-          fuck.Error = message;
-        });
-      });
+      _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "windows-x64.zip");
       return;
     }
 

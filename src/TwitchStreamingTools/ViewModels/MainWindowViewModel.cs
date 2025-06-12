@@ -25,8 +25,6 @@ public class MainWindowViewModel : ViewModelBase {
   /// </summary>
   private readonly IServiceProvider _provider;
 
-  private string? _error;
-
   /// <summary>
   ///   A flag indicating whether the menu is open.
   /// </summary>
@@ -102,14 +100,6 @@ public class MainWindowViewModel : ViewModelBase {
   public MenuItem SelectedMenuItem {
     get => _selectedMenuItem;
     set => this.RaiseAndSetIfChanged(ref _selectedMenuItem, value);
-  }
-
-  /// <summary>
-  ///   fuck
-  /// </summary>
-  public string? Error {
-    get => _error;
-    set => this.RaiseAndSetIfChanged(ref _error, value);
   }
 
   /// <summary>
