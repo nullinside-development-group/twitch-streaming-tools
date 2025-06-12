@@ -1,12 +1,8 @@
 #if !DEBUG
-using Avalonia.Threading;
-
 using Microsoft.Extensions.DependencyInjection;
-#endif
-using TwitchStreamingTools.ViewModels;
-
+#else
 using Avalonia;
-
+#endif
 using System;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +12,8 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 
 using Nullinside.Api.Common.Desktop;
+
+using TwitchStreamingTools.ViewModels;
 
 namespace TwitchStreamingTools.Views;
 
@@ -49,7 +47,7 @@ public partial class MainWindow : Window {
     if (args.Contains("--update")) {
       _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "windows-x64.zip").ContinueWith(t => {
         Dispatcher.UIThread.Invoke(() => {
-          var fuck = (this.DataContext as MainWindowViewModel);
+          var fuck = DataContext as MainWindowViewModel;
           if (null == fuck) {
             return;
           }
