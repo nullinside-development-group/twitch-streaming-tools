@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Reactive;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using ReactiveUI;
@@ -78,6 +79,11 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     get => _twitchUsername;
     set => this.RaiseAndSetIfChanged(ref _twitchUsername, value);
   }
+
+  /// <summary>
+  ///   The application version number.
+  /// </summary>
+  public string? Version => Assembly.GetEntryAssembly()?.GetName().Version?.ToString();
 
   /// <inheritdoc />
   public void Dispose() {

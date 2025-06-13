@@ -22,6 +22,15 @@
         Icon="/Assets/logo.ico"
         Title="Twitch Streaming Tools">
     <Window.Styles>
+        <Style Selector="Label">
+            <Setter Property="Foreground">rgb(204, 200, 175)</Setter>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Foreground">rgb(204, 200, 175)</Setter>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="Foreground">rgb(204, 200, 175)</Setter>
+        </Style>
         <Style Selector="TextBlock">
             <Setter Property="Foreground">rgb(204, 200, 175)</Setter>
         </Style>
