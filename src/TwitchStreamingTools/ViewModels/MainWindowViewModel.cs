@@ -52,6 +52,7 @@ public class MainWindowViewModel : ViewModelBase {
   public MainWindowViewModel(IServiceProvider provider) {
     _provider = provider;
     OnToggleMenu = ReactiveCommand.Create(() => IsMenuOpen = !IsMenuOpen);
+    _isUpdating = Environment.GetCommandLineArgs().Contains("--update");
 
     // Dynamically setup the pages
     MenuItems = new ObservableCollection<MenuItem>();
