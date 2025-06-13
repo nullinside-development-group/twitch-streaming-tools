@@ -4,10 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Twitch;
 
+using TwitchStreamingTools.Services;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.ViewModels.Pages;
 
-namespace TwitchStreamingTools.Services;
+namespace TwitchStreamingTools;
 
 /// <summary>
 ///   A wrapper that contains the registered services.

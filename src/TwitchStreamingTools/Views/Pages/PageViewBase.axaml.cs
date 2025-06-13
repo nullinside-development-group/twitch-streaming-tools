@@ -17,7 +17,7 @@ public partial class PageViewBase : UserControl {
   }
 
   /// <summary>
-  ///   Handles passing the <see cref="UserControl.Loaded" /> event down to the view model.
+  ///   Handles passing the Loaded event down to the view model.
   /// </summary>
   /// <param name="sender">The invoker.</param>
   /// <param name="e">The event arguments.</param>
@@ -27,7 +27,7 @@ public partial class PageViewBase : UserControl {
   }
 
   /// <summary>
-  ///   Handles passing the <see cref="UserControl.Unloaded" /> event down to the view model.
+  ///   Handles passing the Unloaded event down to the view model.
   /// </summary>
   /// <param name="sender">The invoker.</param>
   /// <param name="e">The event arguments.</param>

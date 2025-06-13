@@ -203,7 +203,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
           string chatMessage = $"{convertedChatEvent.Item1} says {convertedChatEvent.Item2}";
 
           // Converts the text to an audio stream and plays it.
-          InitializeAndPlayTts(chatMessage, e.ChatMessage.Username);
+          InitializeAndPlayTts(e.ChatMessage.Username, chatMessage);
         }
       }
       catch (Exception ex) {
@@ -218,12 +218,12 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// <param name="sender">The twitch chat login of the user that sent the message.</param>
   /// <param name="chatMessage">The chat message to convert to TTS.</param>
   private void InitializeAndPlayTts(string sender, string chatMessage) {
+    // Create a microsoft TTS object and a stream for outputting its audio file to.
+    using var synth = new SpeechSynthesizer();
+    using var stream = new MemoryStream();
+    
     WaveFileReader reader;
     try {
-      // Create a microsoft TTS object and a stream for outputting its audio file to.
-      using var synth = new SpeechSynthesizer();
-      using var stream = new MemoryStream();
-
       // Setup the microsoft TTS object according to the settings.
       synth.SetOutputToWaveStream(stream);
       synth.SelectVoice(ChatConfig?.TtsVoice);
