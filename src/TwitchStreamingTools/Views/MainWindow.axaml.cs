@@ -4,14 +4,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using Avalonia.Controls;
-using Avalonia.Threading;
 
 using Nullinside.Api.Common.Desktop;
-
-using TwitchStreamingTools.ViewModels;
 #if !DEBUG
 using Microsoft.Extensions.DependencyInjection;
 
+using Avalonia.Threading;
+
+using TwitchStreamingTools.ViewModels;
 #else
 using Avalonia;
 #endif

@@ -14,9 +14,14 @@
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
+        <Label HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               DockPanel.Dock="Top"
+               Content="{Binding Version, StringFormat='Version: {0}'}" />
         <StackPanel Orientation="Vertical"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
+                    DockPanel.Dock="Top"
                     Spacing="25">
             <Image Width="200" Source="/Assets/twitch-wordart.png" />
             <Button IsVisible="{Binding !HasValidOAuthToken}"
