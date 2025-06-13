@@ -83,7 +83,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   The application version number.
   /// </summary>
-  public string? Version => Assembly.GetEntryAssembly()?.GetName().Version?.ToString();
+  public string? Version => Constants.APP_VERSION;
 
   /// <inheritdoc />
   public void Dispose() {

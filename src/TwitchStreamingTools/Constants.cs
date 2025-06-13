@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 
 using Avalonia.Input.Platform;
 
@@ -39,6 +40,11 @@ public static class Constants {
   ///   The twitch app redirect link.
   /// </summary>
   public const string TWITCH_CLIENT_REDIRECT = $"{API_SITE_DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools";
+
+  /// <summary>
+  /// The version of the application being run right now.
+  /// </summary>
+  public static readonly string? APP_VERSION = Assembly.GetEntryAssembly()?.GetName().Version?.ToString()[..^2];
 
   /// <summary>
   ///   The reference to the clipboard API.

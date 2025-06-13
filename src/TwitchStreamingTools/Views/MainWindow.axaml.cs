@@ -57,7 +57,7 @@ public partial class MainWindow : Window {
     Task.Factory.StartNew(async () => {
       GithubLatestReleaseJson? serverVersion =
         await GitHubUpdateManager.GetLatestVersion("nullinside-development-group", "twitch-streaming-tools");
-      string? localVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString();
+      string? localVersion = Constants.APP_VERSION;
       if (null == serverVersion || string.IsNullOrWhiteSpace(serverVersion.name) ||
           string.IsNullOrWhiteSpace(localVersion)) {
         return;
