@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Speech.Synthesis;
+using System.Threading.Tasks;
 
 using Nullinside.Api.Common.Twitch;
 
@@ -176,7 +177,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
       }
 
       _selectedTwitchChatNames.Add(channel.TwitchChannel);
-      _twitchClient.AddMessageCallback(channel.TwitchChannel, OnChatMessage);
+      Task.Run(() => _twitchClient.AddMessageCallback(channel.TwitchChannel, OnChatMessage));
     }
   }
 
