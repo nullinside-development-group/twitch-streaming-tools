@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Twitch;
 
-using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Services;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.Views;
@@ -52,6 +51,11 @@ public class App : Application {
     base.OnFrameworkInitializationCompleted();
   }
 
+  /// <summary>
+  ///   The handler for the "show" button on the taskbar context menu.
+  /// </summary>
+  /// <param name="sender">The invoker.</param>
+  /// <param name="e">The event arguments.</param>
   private void ShowSettings_OnClick(object? sender, EventArgs e) {
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
       if (null == desktop.MainWindow) {
@@ -62,6 +66,11 @@ public class App : Application {
     }
   }
 
+  /// <summary>
+  ///   The handler for the "close" button on the taskbar context menu.
+  /// </summary>
+  /// <param name="sender">The invoker.</param>
+  /// <param name="e">The event arguments.</param>
   private void Close_OnClick(object? sender, EventArgs e) {
     Environment.Exit(0);
   }

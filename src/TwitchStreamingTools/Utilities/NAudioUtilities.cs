@@ -103,15 +103,30 @@ public static class NAudioUtilities {
   ///   pipeline necessary for simple playback scenarios
   /// </summary>
   public class AudioFileReader : WaveStream, ISampleProvider {
+    /// <summary>
+    ///   The number of bytes per sample in the destination.
+    /// </summary>
     private readonly int _destBytesPerSample;
 
+    /// <summary>
+    ///   Synchronization object.
+    /// </summary>
     private readonly object _lockObject;
 
-    private readonly SampleChannel _sampleChannel; // sample provider that gives us most stuff we need
+    /// <summary>
+    ///   Sample provider that gives us most stuff we need
+    /// </summary>
+    private readonly SampleChannel _sampleChannel;
 
+    /// <summary>
+    ///   The number of bytes per sample in the source.
+    /// </summary>
     private readonly int _sourceBytesPerSample;
 
-    private WaveStream? _readerStream; // the waveStream which we will use for all positioning
+    /// <summary>
+    ///   The wave stream which we will use for all positioning
+    /// </summary>
+    private WaveStream? _readerStream;
 
     /// <summary>
     ///   Initializes a new instance of AudioFileReader
@@ -245,7 +260,7 @@ public static class NAudioUtilities {
   /// <summary>
   ///   Class for reading from MP3 files
   /// </summary>
-  public class Mp3FileReader : Mp3FileReaderBase {
+  private class Mp3FileReader : Mp3FileReaderBase {
     /// <summary>Supports opening a MP3 file</summary>
     public Mp3FileReader(string mp3FileName)
       : base(File.OpenRead(mp3FileName), CreateAcmFrameDecompressor, true) {

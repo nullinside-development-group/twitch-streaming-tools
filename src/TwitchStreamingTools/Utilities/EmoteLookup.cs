@@ -35,9 +35,9 @@ public static class EmoteLookup {
     // Query the API for the list of shared emotes
     var client = new HttpClient();
     Task<HttpResponseMessage> httpRequest = client.GetAsync($"https://api.frankerfacez.com/v1/room/{channel}");
-    Task.WaitAny(httpRequest);
+    httpRequest.Wait();
     Task<string> pageContent = httpRequest.Result.Content.ReadAsStringAsync();
-    Task.WaitAny(pageContent);
+    pageContent.Wait();
     JObject pageContentJson = JObject.Parse(pageContent.Result);
 
     FRANKERZ_FACE_CACHE[channel] = pageContentJson["sets"]?.FirstOrDefault()?.FirstOrDefault()?["emoticons"]?
@@ -61,9 +61,9 @@ public static class EmoteLookup {
     // Query the API for the list of personal and shared emotes
     var client = new HttpClient();
     Task<HttpResponseMessage> httpRequest = client.GetAsync($"https://api.betterttv.net/3/cached/users/twitch/{roomId}");
-    Task.WaitAny(httpRequest);
+    httpRequest.Wait();
     Task<string> pageContent = httpRequest.Result.Content.ReadAsStringAsync();
-    Task.WaitAny(pageContent);
+    pageContent.Wait();
     JObject pageContentJson = JObject.Parse(pageContent.Result);
     IEnumerable<string?> channelEmotes = pageContentJson["channelEmotes"]?.Select(e => e["code"]?.Value<string>()) ?? Enumerable.Empty<string>();
     IEnumerable<string?> sharedEmotes = pageContentJson["sharedEmotes"]?.Select(e => e["code"]?.Value<string>()) ?? Enumerable.Empty<string>();

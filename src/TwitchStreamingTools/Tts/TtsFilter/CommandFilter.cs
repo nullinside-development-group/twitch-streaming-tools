@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 using TwitchLib.Client.Events;
 
@@ -11,16 +9,6 @@ namespace TwitchStreamingTools.Tts.TtsFilter;
 /// </summary>
 public class CommandFilter : ITtsFilter {
   /// <summary>
-  ///   Matches on ! commands in chat.
-  /// </summary>
-  private readonly Regex _commandRegex = new(@"[!]{1}[\S]+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-  /// <summary>
-  ///   The commands to always speak anyway.
-  /// </summary>
-  private readonly string[] _commandWhitelist = { "!lurk", "!tts", "!unlurk" };
-
-  /// <summary>
   ///   Handles filtering commands from being spoken in chat.
   /// </summary>
   /// <param name="twitchInfo">The information on the original chat message.</param>
@@ -29,10 +17,7 @@ public class CommandFilter : ITtsFilter {
   /// <returns>The new TTS message and username.</returns>
   public Tuple<string, string> Filter(OnMessageReceivedArgs twitchInfo, string username, string currentMessage) {
     if (currentMessage.StartsWith("!")) {
-      Match command = _commandRegex.Match(currentMessage);
-      if (!_commandWhitelist.Contains(command.Value.ToLowerInvariant())) {
-        currentMessage = "";
-      }
+      currentMessage = "";
     }
 
     return new Tuple<string, string>(username, currentMessage);

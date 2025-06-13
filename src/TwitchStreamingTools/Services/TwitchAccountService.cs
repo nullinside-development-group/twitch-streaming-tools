@@ -103,15 +103,21 @@ public class TwitchAccountService : ITwitchAccountService {
   private async Task OnCheckCredentials() {
     _timer.Stop();
     try {
+      // Grab the value so we can check if the value changed
       bool previousValue = CredentialsAreValid;
 
+      // Refresh the token
       await DoTokenRefreshIfNearExpiration();
 
+      // Make sure the new token works
       var twitchApi = new TwitchApiWrapper();
       string? username = (await twitchApi.GetUser()).username;
+
+      // Update the credentials
       CredentialsAreValid = !string.IsNullOrWhiteSpace(username);
       TwitchUsername = username;
 
+      // Fire off the event if something changed
       if (previousValue != CredentialsAreValid) {
         OnCredentialsStatusChanged?.Invoke(CredentialsAreValid);
       }
@@ -129,6 +135,8 @@ public class TwitchAccountService : ITwitchAccountService {
   /// </summary>
   private async Task DoTokenRefreshIfNearExpiration() {
     var twitchApi = new TwitchApiWrapper();
+
+    // Don't wait until the token is expired, refresh it ~1 hour before it expires 
     DateTime expiration = twitchApi.OAuth?.ExpiresUtc ?? DateTime.MaxValue;
     TimeSpan timeUntil = expiration - (DateTime.UtcNow + TimeSpan.FromHours(1));
     if (timeUntil.Ticks >= 0) {
@@ -140,8 +148,10 @@ public class TwitchAccountService : ITwitchAccountService {
       return;
     }
 
+    // Refresh the token
     await twitchApi.RefreshAccessToken();
 
+    // Update the configuration
     Configuration.Instance.OAuth = new OAuthResponse {
       Bearer = twitchApi.OAuth.AccessToken,
       Refresh = twitchApi.OAuth.RefreshToken,

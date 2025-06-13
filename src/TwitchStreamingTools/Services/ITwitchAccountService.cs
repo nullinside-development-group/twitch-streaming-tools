@@ -6,11 +6,11 @@ using Nullinside.Api.Common.Twitch;
 namespace TwitchStreamingTools.Services;
 
 /// <summary>
-///   The contract for management credentials in the application.
+///   The contract for credential management in the application.
 /// </summary>
 public interface ITwitchAccountService {
   /// <summary>
-  ///   The current OAuth's twitch username.
+  ///   The current oauth token's twitch username.
   /// </summary>
   string? TwitchUsername { get; set; }
 

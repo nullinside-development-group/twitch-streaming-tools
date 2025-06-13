@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Speech.Synthesis;
 
 using Newtonsoft.Json;
 
 using Nullinside.Api.Common.Twitch;
 
-namespace TwitchStreamingTools.Models;
+using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Utilities;
+
+namespace TwitchStreamingTools;
 
 /// <summary>
 ///   The configuration of the application.
@@ -16,6 +21,9 @@ public class Configuration {
     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nullinside",
       "twitch-streaming-tools", "config.json");
 
+  /// <summary>
+  ///   The singleton instance.
+  /// </summary>
   private static Configuration? s_instance;
 
   /// <summary>
@@ -62,6 +70,31 @@ public class Configuration {
   public IDictionary<string, string>? TtsPhoneticUsernames { get; set; }
 
   /// <summary>
+  ///   Retrieves the default audio device configured in the application.
+  /// </summary>
+  /// <returns>The default audio device, if any audio device exists.</returns>
+  public static string? GetDefaultAudioDevice() {
+    return Instance.TwitchChats?.FirstOrDefault()?.OutputDevice ?? NAudioUtilities.GetDefaultOutputDevice();
+  }
+
+  /// <summary>
+  ///   Retrieves the default TTS voice configured in the application.
+  /// </summary>
+  /// <returns>The default tts voice, if any tts voice exists.</returns>
+  public static string? GetDefaultTtsVoice() {
+    using var speech = new SpeechSynthesizer();
+    return Instance.TwitchChats?.FirstOrDefault()?.TtsVoice ?? speech.GetInstalledVoices().FirstOrDefault()?.VoiceInfo.Name;
+  }
+
+  /// <summary>
+  ///   Retrieves the default TTS volume configured in the application.
+  /// </summary>
+  /// <returns>The default tts voice, if any tts voice exists.</returns>
+  public static uint? GetDefaultTtsVolume() {
+    return Instance.TwitchChats?.FirstOrDefault()?.TtsVolume;
+  }
+
+  /// <summary>
   ///   Reads the configuration from disk.
   /// </summary>
   /// <returns>The configuration if successful, null otherwise.</returns>
@@ -88,35 +121,5 @@ public class Configuration {
     catch {
       return false;
     }
-  }
-
-  /// <summary>
-  ///   Represents a single connection to a twitch chat by a single user.
-  /// </summary>
-  public class TwitchChatConfiguration {
-    /// <summary>
-    ///   Gets or sets the output device to send audio to.
-    /// </summary>
-    public string? OutputDevice { get; set; }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether text to speech is on.
-    /// </summary>
-    public bool TtsOn { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the selected Microsoft Text to Speech voice.
-    /// </summary>
-    public string? TtsVoice { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the volume of the text to speech voice.
-    /// </summary>
-    public uint TtsVolume { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the twitch channel to read chat from.
-    /// </summary>
-    public string? TwitchChannel { get; set; }
   }
 }

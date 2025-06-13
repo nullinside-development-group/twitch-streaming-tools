@@ -12,7 +12,6 @@ using ReactiveUI;
 using TwitchLib.Client.Events;
 
 using TwitchStreamingTools.Models;
-using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.ViewModels.Pages;
 
@@ -102,7 +101,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
   /// <inheritdoc />
   public void Dispose() {
-    foreach (Configuration.TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
+    foreach (TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
       if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
         continue;
       }
@@ -114,24 +113,31 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     OnRemoveChat.Dispose();
   }
 
+  /// <summary>
+  ///   Handles adding a new chat to monitor.
+  /// </summary>
   private void OnAddChatCommand() {
+    // Ensure we have a username
     string? username = TwitchChatName?.Trim();
     if (string.IsNullOrWhiteSpace(username) || _selectedTwitchChatNames.Contains(username)) {
       return;
     }
 
     _selectedTwitchChatNames.Add(username);
+
+    // Add the callback, we don't need to wait for it to return it can run in the background.
     _ = _twitchClient.AddMessageCallback(username, OnChatMessage);
+
 
     using var speech = new SpeechSynthesizer();
     TwitchChatName = null;
     Configuration.Instance.TwitchChats = (
       from user in _selectedTwitchChatNames
-      select new Configuration.TwitchChatConfiguration {
+      select new TwitchChatConfiguration {
         TwitchChannel = user,
-        OutputDevice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.OutputDevice ?? NAudioUtilities.GetDefaultOutputDevice(),
+        OutputDevice = Configuration.GetDefaultAudioDevice(),
         TtsOn = true,
-        TtsVoice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.TtsVoice ?? speech.GetInstalledVoices().FirstOrDefault()?.VoiceInfo.Name,
+        TtsVoice = Configuration.GetDefaultTtsVoice(),
         TtsVolume = 100
       }).ToList();
     Configuration.Instance.WriteConfiguration();
@@ -143,11 +149,11 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     using var speech = new SpeechSynthesizer();
     Configuration.Instance.TwitchChats = (
       from user in _selectedTwitchChatNames
-      select new Configuration.TwitchChatConfiguration {
+      select new TwitchChatConfiguration {
         TwitchChannel = user,
-        OutputDevice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.OutputDevice ?? NAudioUtilities.GetDefaultOutputDevice(),
+        OutputDevice = Configuration.GetDefaultAudioDevice(),
         TtsOn = true,
-        TtsVoice = Configuration.Instance.TwitchChats?.FirstOrDefault()?.TtsVoice ?? speech.GetInstalledVoices().FirstOrDefault()?.VoiceInfo.Name,
+        TtsVoice = Configuration.GetDefaultTtsVoice(),
         TtsVolume = 100
       }).ToList();
 
@@ -171,7 +177,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   public override void OnLoaded() {
     base.OnLoaded();
 
-    foreach (Configuration.TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
+    foreach (TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
       if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
         continue;
       }
