@@ -7,16 +7,22 @@ using log4net;
 
 using Nullinside.Api.Common.Twitch;
 
-using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Tts;
 
 namespace TwitchStreamingTools.Services;
 
 /// <summary>
-///   Connects twitch chats to the TTS player.
+///   Connects twitch chats to the TTS player whenever the configuration is updated.
 /// </summary>
-public class TwitchTtsService {
-  private const int LOOP_DURATION_MILLISECONDS = 500;
+public class TwitchTtsService : ITwitchTtsService {
+  /// <summary>
+  ///   The length of time to wait between polls with nothing to do.
+  /// </summary>
+  private const int POLL_MILLISECONDS = 500;
+
+  /// <summary>
+  ///   The fully configured objects responsible for reading TTS chats.
+  /// </summary>
   private readonly IList<TwitchChatTts> _chats = new List<TwitchChatTts>();
 
   /// <summary>
@@ -24,7 +30,14 @@ public class TwitchTtsService {
   /// </summary>
   private readonly ILog _logger = LogManager.GetLogger(typeof(TwitchTtsService));
 
+  /// <summary>
+  ///   The thread that polls for updates to the configuration file.
+  /// </summary>
   private readonly Thread _thread;
+
+  /// <summary>
+  ///   The twitch chat client to forward chat messages from.
+  /// </summary>
   private readonly ITwitchClientProxy _twitchClientProxy;
 
   /// <summary>
@@ -46,44 +59,64 @@ public class TwitchTtsService {
   private void Main() {
     do {
       try {
-        List<string?>? shouldNotExist = _chats?
-          .Select(c => c.ChatConfig?.TwitchChannel)
-          .Except(Configuration.Instance.TwitchChats?.Select(c => c?.TwitchChannel) ?? [])
-          .Where(i => !string.IsNullOrWhiteSpace(i))
-          .ToList();
+        // Any chat we're currently connected to that isn't in the configuration file should be disconnected from.
+        DisconnectChatsNotInConfig();
 
-        if (null != shouldNotExist && shouldNotExist.Count > 0) {
-          foreach (string? disconnect in shouldNotExist) {
-            TwitchChatTts? chat = _chats?.FirstOrDefault(c => c.ChatConfig?.TwitchChannel == disconnect);
-            if (null == chat) {
-              continue;
-            }
+        // Any chat we're not currently connected to we should be.
+        ConnectChatsInConfig();
 
-            chat.Dispose();
-            _chats?.Remove(chat);
-          }
-        }
-
-        List<string?>? missing = Configuration.Instance.TwitchChats?
-          .Select(c => c.TwitchChannel)
-          .Except(_chats?.Select(c => c.ChatConfig?.TwitchChannel) ?? [])
-          .Where(i => !string.IsNullOrWhiteSpace(i))
-          .ToList();
-
-        if (null == missing || missing.Count == 0) {
-          Thread.Sleep(LOOP_DURATION_MILLISECONDS);
-          continue;
-        }
-
-        foreach (string? newChat in missing) {
-          var tts = new TwitchChatTts(_twitchClientProxy, Configuration.Instance.TwitchChats?.FirstOrDefault(t => t.TwitchChannel == newChat));
-          tts.Connect();
-          _chats?.Add(tts);
-        }
+        // Wait for a bit before checking again.
+        Thread.Sleep(POLL_MILLISECONDS);
       }
       catch (Exception ex) {
         _logger.Error("Failed a TTS loop", ex);
       }
     } while (true);
+  }
+
+  /// <summary>
+  ///   Connects to any configuration found in the config file that we are not currently connected to.
+  /// </summary>
+  private void ConnectChatsInConfig() {
+    List<string?>? missing = Configuration.Instance.TwitchChats?
+      .Select(c => c.TwitchChannel)
+      .Except(_chats?.Select(c => c.ChatConfig?.TwitchChannel) ?? [])
+      .Where(i => !string.IsNullOrWhiteSpace(i))
+      .ToList();
+
+    if (null == missing || missing.Count == 0) {
+      return;
+    }
+
+    foreach (string? newChat in missing) {
+      var tts = new TwitchChatTts(_twitchClientProxy, Configuration.Instance.TwitchChats?.FirstOrDefault(t => t.TwitchChannel == newChat));
+      tts.Connect();
+      _chats?.Add(tts);
+    }
+  }
+
+  /// <summary>
+  ///   Disconnects the twitch chats no longer in the configuration.
+  /// </summary>
+  private void DisconnectChatsNotInConfig() {
+    List<string?>? chatsNotInConfig = _chats?
+      .Select(c => c.ChatConfig?.TwitchChannel)
+      .Except(Configuration.Instance.TwitchChats?.Select(c => c?.TwitchChannel) ?? [])
+      .Where(i => !string.IsNullOrWhiteSpace(i))
+      .ToList();
+
+    if (null == chatsNotInConfig || chatsNotInConfig.Count <= 0) {
+      return;
+    }
+
+    foreach (string? disconnect in chatsNotInConfig) {
+      TwitchChatTts? chat = _chats?.FirstOrDefault(c => c.ChatConfig?.TwitchChannel == disconnect);
+      if (null == chat) {
+        continue;
+      }
+
+      chat.Dispose();
+      _chats?.Remove(chat);
+    }
   }
 }

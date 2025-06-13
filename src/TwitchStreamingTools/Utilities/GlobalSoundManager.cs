@@ -18,7 +18,7 @@ public class GlobalSoundManager {
   private static GlobalSoundManager? s_instance;
 
   /// <summary>
-  ///   The sentinel that indicates its time to exit the <see cref="_soundPlayThread" /> thread.
+  ///   The sentinel that indicates it's time to exit the <see cref="_soundPlayThread" /> thread.
   /// </summary>
   private readonly SoundPlayingWrapper _exitSentinel;
 
@@ -57,7 +57,7 @@ public class GlobalSoundManager {
   }
 
   /// <summary>
-  ///   Gets or sets a value indicating whether we are currently playing sound.
+  ///   Gets or sets a value indicating whether we are currently playing a sound.
   /// </summary>
   public bool CurrentlyPlayingSound { get; set; }
 

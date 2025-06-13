@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,17 +13,17 @@ namespace TwitchStreamingTools.ViewModels.Pages;
 /// <summary>
 ///   Handles binding your application settings.
 /// </summary>
-public class SettingsViewModel : PageViewModelBase, IDisposable {
-  private ObservableCollection<string> _outputDevices = new();
+public class SettingsViewModel : PageViewModelBase {
+  private ObservableCollection<string> _outputDevices;
   private string? _selectedOutputDevice;
   private string? _selectedTtsVoice;
-  private ObservableCollection<string> _ttsVoices = new();
+  private ObservableCollection<string> _ttsVoices;
 
   /// <summary>
   ///   The volume to play the TTS messages at.
   /// </summary>
   /// <remarks>0 is silent, 100 is full volume.</remarks>
-  public uint _ttsVolume;
+  private uint _ttsVolume;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="SettingsViewModel" /> class.
@@ -35,14 +34,13 @@ public class SettingsViewModel : PageViewModelBase, IDisposable {
       outputDevices.Add(NAudioUtilities.GetOutputDevice(i).ProductName);
     }
 
-    Configuration.TwitchChatConfiguration? example = Configuration.Instance.TwitchChats?.FirstOrDefault();
     _outputDevices = new ObservableCollection<string>(outputDevices);
-    _selectedOutputDevice = example?.OutputDevice ?? NAudioUtilities.GetDefaultOutputDevice();
+    _selectedOutputDevice = Configuration.GetDefaultAudioDevice();
 
     using var speech = new SpeechSynthesizer();
     _ttsVoices = new ObservableCollection<string>(speech.GetInstalledVoices().Select(v => v.VoiceInfo.Name));
-    _selectedTtsVoice = example?.TtsVoice ?? speech.GetInstalledVoices().FirstOrDefault()?.VoiceInfo.Name;
-    _ttsVolume = example?.TtsVolume ?? 50;
+    _selectedTtsVoice = Configuration.GetDefaultTtsVoice();
+    _ttsVolume = Configuration.GetDefaultTtsVolume() ?? 50u;
   }
 
   /// <inheritdoc />
@@ -64,7 +62,8 @@ public class SettingsViewModel : PageViewModelBase, IDisposable {
     set {
       this.RaiseAndSetIfChanged(ref _selectedOutputDevice, value);
 
-      foreach (Configuration.TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
+      // Go through each twitch chat and update their property
+      foreach (TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
         chat.OutputDevice = value;
       }
 
@@ -88,7 +87,8 @@ public class SettingsViewModel : PageViewModelBase, IDisposable {
     set {
       this.RaiseAndSetIfChanged(ref _selectedTtsVoice, value);
 
-      foreach (Configuration.TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
+      // Go through each twitch chat and update their property
+      foreach (TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
         chat.TtsVoice = value;
       }
 
@@ -105,17 +105,12 @@ public class SettingsViewModel : PageViewModelBase, IDisposable {
     set {
       this.RaiseAndSetIfChanged(ref _ttsVolume, value);
 
-      foreach (Configuration.TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
+      // Go through each twitch chat and update their property
+      foreach (TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
         chat.TtsVolume = value > 0 ? value : 0;
       }
 
       Configuration.Instance.WriteConfiguration();
     }
-  }
-
-
-  /// <inheritdoc />
-  public void Dispose() {
-    // TODO release managed resources here
   }
 }

@@ -44,6 +44,7 @@ public class NewVersionWindowViewModel : ViewModelBase {
     UpdateSoftware = ReactiveCommand.Create(StartUpdateSoftware);
     CloseWindow = ReactiveCommand.Create<Window>(CloseWindowCommand);
 
+    // asynchronously determine the current version number.
     Task.Factory.StartNew(async () => {
       GithubLatestReleaseJson? version =
         await GitHubUpdateManager.GetLatestVersion("nullinside-development-group", "twitch-streaming-tools");

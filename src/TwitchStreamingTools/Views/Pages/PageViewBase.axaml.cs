@@ -16,11 +16,21 @@ public partial class PageViewBase : UserControl {
     InitializeComponent();
   }
 
+  /// <summary>
+  ///   Handles passing the <see cref="UserControl.Loaded" /> event down to the view model.
+  /// </summary>
+  /// <param name="sender">The invoker.</param>
+  /// <param name="e">The event arguments.</param>
   private void Control_OnLoaded(object? sender, RoutedEventArgs e) {
     var dataContext = (DataContext as PageViewModelBase)!;
     dataContext.OnLoaded();
   }
 
+  /// <summary>
+  ///   Handles passing the <see cref="UserControl.Unloaded" /> event down to the view model.
+  /// </summary>
+  /// <param name="sender">The invoker.</param>
+  /// <param name="e">The event arguments.</param>
   private void Control_OnUnloaded(object? sender, RoutedEventArgs e) {
     var dataContext = (DataContext as PageViewModelBase)!;
     dataContext.OnUnloaded();

@@ -53,17 +53,15 @@ public class MainWindowViewModel : ViewModelBase {
     _provider = provider;
     OnToggleMenu = ReactiveCommand.Create(() => IsMenuOpen = !IsMenuOpen);
     _isUpdating = Environment.GetCommandLineArgs().Contains("--update");
-
-    // Dynamically setup the pages
     MenuItems = new ObservableCollection<MenuItem>();
-    List<MenuItem>? pages = AppDomain.CurrentDomain.GetAssemblies()
-      .SelectMany(a => a.GetTypes())
-      .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
-                  typeof(PageViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
-      .Select(t => new MenuItem(t, (_provider.GetRequiredService(t) as PageViewModelBase)!.IconResourceKey))
-      .ToList();
-    MenuItems.AddRange(pages);
-    _selectedMenuItem = pages.First(p => typeof(AccountViewModel).IsAssignableTo(p.ModelType));
+
+    // Setup the left menu items.
+    InitializeMenuItems();
+
+    // Set the default page to the account page
+    _selectedMenuItem = MenuItems.First(p => typeof(AccountViewModel).IsAssignableTo(p.ModelType));
+
+    // Map the selected item changing to its event
     PropertyChanged += (_, e) => {
       if (nameof(SelectedMenuItem).Equals(e.PropertyName)) {
         OnSelectedMenuItemChanged();
@@ -114,6 +112,22 @@ public class MainWindowViewModel : ViewModelBase {
   public bool IsUpdating {
     get => _isUpdating;
     set => this.RaiseAndSetIfChanged(ref _isUpdating, value);
+  }
+
+  /// <summary>
+  ///   Initializes the menu items.
+  /// </summary>
+  private void InitializeMenuItems() {
+    // Get all the PageViewModelBase views and map them to their PageViewModelBase
+    List<MenuItem>? pages = AppDomain.CurrentDomain.GetAssemblies()
+      .SelectMany(a => a.GetTypes())
+      .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
+                  typeof(PageViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
+      .Select(t => new MenuItem(t, (_provider.GetRequiredService(t) as PageViewModelBase)!.IconResourceKey))
+      .ToList();
+
+    // Add the menu items for display
+    MenuItems.AddRange(pages);
   }
 
   /// <summary>

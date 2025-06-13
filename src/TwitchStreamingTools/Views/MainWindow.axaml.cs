@@ -1,11 +1,3 @@
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-
-using Avalonia.Controls;
-
-using Nullinside.Api.Common.Desktop;
 #if !DEBUG
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +7,13 @@ using TwitchStreamingTools.ViewModels;
 #else
 using Avalonia;
 #endif
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Avalonia.Controls;
+
+using Nullinside.Api.Common.Desktop;
 
 namespace TwitchStreamingTools.Views;
 
@@ -44,6 +43,7 @@ public partial class MainWindow : Window {
   protected override void OnInitialized() {
     base.OnInitialized();
 
+    // handle the command line arguments for updating the application if applicable.
     string[] args = Environment.GetCommandLineArgs();
     if (args.Contains("--update")) {
       _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "windows-x64.zip");
@@ -54,6 +54,7 @@ public partial class MainWindow : Window {
       _ = GitHubUpdateManager.CleanupUpdate();
     }
 
+    // check for a new version of the application.
     Task.Factory.StartNew(async () => {
       GithubLatestReleaseJson? serverVersion =
         await GitHubUpdateManager.GetLatestVersion("nullinside-development-group", "twitch-streaming-tools");

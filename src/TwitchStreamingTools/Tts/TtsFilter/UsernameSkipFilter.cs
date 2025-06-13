@@ -2,8 +2,6 @@
 
 using TwitchLib.Client.Events;
 
-using TwitchStreamingTools.Models;
-
 namespace TwitchStreamingTools.Tts.TtsFilter;
 
 /// <summary>

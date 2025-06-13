@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Reactive;
-using System.Reflection;
-using System.Threading.Tasks;
 
 using ReactiveUI;
 
@@ -127,9 +125,9 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   Invoked when the clipboard finds OAuth credential on it.
   /// </summary>
-  /// <param name="obj"></param>
+  /// <param name="obj">The response from twitch.</param>
   private void OnOAuthOnClipboard(OAuthResponse obj) {
-    Task.WaitAll(_twitchAccountService.UpdateCredentials(obj.Bearer, obj.Refresh, obj.ExpiresUtc));
+    _twitchAccountService.UpdateCredentials(obj.Bearer, obj.Refresh, obj.ExpiresUtc).Wait();
   }
 
   /// <summary>
