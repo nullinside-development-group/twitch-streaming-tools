@@ -57,18 +57,11 @@ public partial class MainWindow : Window {
     Task.Factory.StartNew(async () => {
       GithubLatestReleaseJson? serverVersion =
         await GitHubUpdateManager.GetLatestVersion("nullinside-development-group", "twitch-streaming-tools");
-      string? localVersion = Constants.APP_VERSION;
-      if (null == serverVersion || string.IsNullOrWhiteSpace(serverVersion.name) ||
-          string.IsNullOrWhiteSpace(localVersion)) {
+      if (null == serverVersion || string.IsNullOrWhiteSpace(serverVersion.name)) {
         return;
       }
 
-      localVersion = localVersion.Substring(0, localVersion.LastIndexOf('.'));
-      if (string.IsNullOrWhiteSpace(localVersion)) {
-        return;
-      }
-
-      if (serverVersion.name?.Equals(localVersion, StringComparison.InvariantCultureIgnoreCase) ?? true) {
+      if (serverVersion.name?.Equals(Constants.APP_VERSION, StringComparison.InvariantCultureIgnoreCase) ?? true) {
 // Had to add this because code clean up tools were removing the "redundant" return statement.
 // which was causing the check to always be ignored.
 #if !DEBUG
@@ -82,7 +75,7 @@ public partial class MainWindow : Window {
         return;
       }
 
-      vm.LocalVersion = localVersion;
+      vm.LocalVersion = Constants.APP_VERSION;
       Dispatcher.UIThread.Post(async void () => {
         try {
           var versionWindow = new NewVersionWindow {
