@@ -44,7 +44,6 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding }" Padding="0" />
                         <Button Grid.Column="1"
-                                Content="-"
                                 FontWeight="Bold"
                                 Command="{Binding $parent[UserControl].((pages:ChatViewModel)DataContext).OnRemoveChat, FallbackValue=null}"
                                 CommandParameter="{Binding }">
@@ -56,6 +55,8 @@
                                     <Setter Property="Background" Value="#963332" />
                                 </Style>
                             </Button.Styles>
+                            <PathIcon Padding="0"
+                                      Data="{Binding $parent[UserControl].((pages:ChatViewModel)DataContext).DeleteIcon, FallbackValue=null}" />
                         </Button>
                     </Grid>
                 </DataTemplate>
