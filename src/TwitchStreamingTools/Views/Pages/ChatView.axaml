@@ -44,9 +44,18 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding }" Padding="0" />
                         <Button Grid.Column="1"
+                                Content="-"
+                                FontWeight="Bold"
                                 Command="{Binding $parent[UserControl].((pages:ChatViewModel)DataContext).OnRemoveChat, FallbackValue=null}"
                                 CommandParameter="{Binding }">
-                            -
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="Background" Value="#643332" />
+                                </Style>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="#963332" />
+                                </Style>
+                            </Button.Styles>
                         </Button>
                     </Grid>
                 </DataTemplate>
