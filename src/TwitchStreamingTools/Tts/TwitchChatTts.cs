@@ -76,9 +76,15 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   private ManualResetEvent? _ttsSoundOutputSignal;
 
   /// <summary>
+  ///   The twitch chat log.
+  /// </summary>
+  public ITwitchChatLog _twitchChatLog;
+
+  /// <summary>
   ///   Initializes a new instance of the <see cref="TwitchChatTts" /> class.
   /// </summary>
-  public TwitchChatTts(IConfiguration configuration, ITwitchClientProxy twitchClient, TwitchChatConfiguration? config) {
+  public TwitchChatTts(IConfiguration configuration, ITwitchClientProxy twitchClient, TwitchChatConfiguration? config, ITwitchChatLog twitchChatLog) {
+    _twitchChatLog = twitchChatLog;
     _configuration = configuration;
     _twitchClient = twitchClient;
     ChatConfig = config;
@@ -321,6 +327,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
     Console.WriteLine($"Adding: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
     try {
       _soundsToPlay.Add(e);
+      _twitchChatLog.AddMessage(new TwitchChatMessage(e.ChatMessage.Channel, e.ChatMessage.Username, e.ChatMessage.Message, e.GetTimestamp() ?? DateTime.UtcNow));
     }
     catch (Exception ex) {
       Console.WriteLine($"Failed to add: {e.ChatMessage.Username} says {e.ChatMessage.Message}\r\n{ex}");

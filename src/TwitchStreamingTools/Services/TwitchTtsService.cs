@@ -8,6 +8,7 @@ using log4net;
 using Nullinside.Api.Common.Twitch;
 
 using TwitchStreamingTools.Tts;
+using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.Services;
 
@@ -41,6 +42,11 @@ public class TwitchTtsService : ITwitchTtsService {
   private readonly Thread _thread;
 
   /// <summary>
+  ///   The twitch chat log.
+  /// </summary>
+  private readonly ITwitchChatLog _twitchChatLog;
+
+  /// <summary>
   ///   The twitch chat client to forward chat messages from.
   /// </summary>
   private readonly ITwitchClientProxy _twitchClientProxy;
@@ -50,9 +56,11 @@ public class TwitchTtsService : ITwitchTtsService {
   /// </summary>
   /// <param name="twitchClientProxy">The twitch chat client.</param>
   /// <param name="configuration">The application configuration.</param>
-  public TwitchTtsService(ITwitchClientProxy twitchClientProxy, IConfiguration configuration) {
+  /// <param name="twitchChatLog">The twitch chat log.</param>
+  public TwitchTtsService(ITwitchClientProxy twitchClientProxy, IConfiguration configuration, ITwitchChatLog twitchChatLog) {
     _configuration = configuration;
     _twitchClientProxy = twitchClientProxy;
+    _twitchChatLog = twitchChatLog;
     _thread = new Thread(Main) {
       IsBackground = true
     };
@@ -96,7 +104,7 @@ public class TwitchTtsService : ITwitchTtsService {
     }
 
     foreach (string? newChat in missing) {
-      var tts = new TwitchChatTts(_configuration, _twitchClientProxy, _configuration.TwitchChats?.FirstOrDefault(t => t.TwitchChannel == newChat));
+      var tts = new TwitchChatTts(_configuration, _twitchClientProxy, _configuration.TwitchChats?.FirstOrDefault(t => t.TwitchChannel == newChat), _twitchChatLog);
       tts.Connect();
       _chats?.Add(tts);
     }

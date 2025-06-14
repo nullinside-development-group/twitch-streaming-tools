@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Text;
 using System.Threading.Tasks;
 
 using Avalonia;
@@ -15,6 +17,7 @@ using ReactiveUI;
 using TwitchLib.Client.Events;
 
 using TwitchStreamingTools.Models;
+using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.ViewModels.Pages;
 
@@ -26,6 +29,11 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   ///   The application configuration;
   /// </summary>
   private readonly IConfiguration _configuration;
+
+  /// <summary>
+  ///   The twitch chat log.
+  /// </summary>
+  private readonly ITwitchChatLog _twitchChatLog;
 
   /// <summary>
   ///   The twitch chat client.
@@ -57,7 +65,9 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   /// </summary>
   /// <param name="twitchClient">The twitch chat client.</param>
   /// <param name="configuration">The application configuration.</param>
-  public ChatViewModel(ITwitchClientProxy twitchClient, IConfiguration configuration) {
+  /// <param name="twitchChatLog">The twitch chat log.</param>
+  public ChatViewModel(ITwitchClientProxy twitchClient, IConfiguration configuration, ITwitchChatLog twitchChatLog) {
+    _twitchChatLog = twitchChatLog;
     _twitchClient = twitchClient;
     _configuration = configuration;
 
@@ -196,14 +206,26 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <param name="msg">The message received.</param>
   private void OnChatMessage(OnMessageReceivedArgs msg) {
     if (_selectedTwitchChatNames.Count > 1) {
-      TwitchChat = (TwitchChat + $"({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+      TwitchChat = (TwitchChat + FormatChatMessage(msg.ChatMessage.Username, msg.ChatMessage.Message, msg.GetTimestamp() ?? DateTime.UtcNow, msg.ChatMessage.Channel)).Trim();
     }
     else {
-      TwitchChat = (TwitchChat + $"{msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+      TwitchChat = (TwitchChat + FormatChatMessage(msg.ChatMessage.Username, msg.ChatMessage.Message, msg.GetTimestamp() ?? DateTime.UtcNow)).Trim();
     }
 
     TwitchChat += "\n";
     TextBoxCursorPosition = int.MaxValue;
+  }
+
+  /// <summary>
+  ///   Formats a chat message for display.
+  /// </summary>
+  /// <param name="username">The username of the user that sent the message.</param>
+  /// <param name="message">The chat message sent by the user.</param>
+  /// <param name="timestamp">The timestamp of the message, in UTC.</param>
+  /// <param name="channel">The channel the message was sent in, if you want it included.</param>
+  /// <returns>The formatted message.</returns>
+  private string FormatChatMessage(string username, string message, DateTime timestamp, string? channel = null) {
+    return null == channel ? $"[{timestamp:MM/dd/yy H:mm:ss}] {username}: {message}" : $"[{timestamp:MM/dd/yy H:mm:ss}] ({channel}) {username}: {message}";
   }
 
   /// <summary>
@@ -212,6 +234,33 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   public override void OnLoaded() {
     base.OnLoaded();
 
+    // Connect to the twitch chats from the configuration.
+    InitializeTwitchChatConnections();
+
+    // Loads the 
+    PopulateChatHistory();
+  }
+
+  /// <summary>
+  ///   Populates the UI with the historic list of chat messages.
+  /// </summary>
+  private void PopulateChatHistory() {
+    // Get the history of messages
+    IEnumerable<TwitchChatMessage> messages = _twitchChatLog.GetMessages();
+
+    // Convert them into a string
+    var sb = new StringBuilder();
+    sb.AppendJoin('\n', messages.Select(l => FormatChatMessage(l.Username, l.Message, l.Timestamp, l.Channel)));
+    sb.Append('\n');
+
+    // Update the UI
+    TwitchChat = sb.ToString();
+  }
+
+  /// <summary>
+  ///   Connects to the twitch chats in the configuration file.
+  /// </summary>
+  private void InitializeTwitchChatConnections() {
     foreach (TwitchChatConfiguration channel in _configuration.TwitchChats ?? []) {
       if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
         continue;
