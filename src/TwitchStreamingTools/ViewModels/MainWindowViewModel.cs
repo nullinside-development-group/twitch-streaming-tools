@@ -28,7 +28,7 @@ public class MainWindowViewModel : ViewModelBase {
   /// <summary>
   ///   A flag indicating whether the menu is open.
   /// </summary>
-  private bool _isMenuOpen;
+  private bool _isMenuOpen = true;
 
   /// <summary>
   ///   True if the application is updating, false otherwise.
