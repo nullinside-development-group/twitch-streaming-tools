@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions {
     collection.AddSingleton<ITwitchAccountService, TwitchAccountService>();
     collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
     collection.AddSingleton<ITwitchTtsService, TwitchTtsService>();
+    collection.AddSingleton<IConfiguration, Configuration>(_ => Configuration.Instance);
 
     collection.AddTransient<MainWindowViewModel>();
     collection.AddTransient<AccountViewModel>();

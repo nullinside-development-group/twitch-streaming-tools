@@ -11,9 +11,14 @@ using TwitchStreamingTools.Utilities;
 namespace TwitchStreamingTools.Services;
 
 /// <summary>
-///   Manages the credentials in the application, ensuring credentials are kept up-to-date.
+///   Manages the credentials in the application, ensuring credentials are kept up to date.
 /// </summary>
 public class TwitchAccountService : ITwitchAccountService {
+  /// <summary>
+  ///   The application configuration.
+  /// </summary>
+  private readonly IConfiguration _configuration;
+
   /// <summary>
   ///   The timer used to check the twitch OAuth token against the API.
   /// </summary>
@@ -28,7 +33,9 @@ public class TwitchAccountService : ITwitchAccountService {
   ///   Initializes a new instance of the <see cref="TwitchAccountService" /> class.
   /// </summary>
   /// <param name="twitchClient">The twitch chat client.</param>
-  public TwitchAccountService(ITwitchClientProxy twitchClient) {
+  /// <param name="configuration">The application configuration.</param>
+  public TwitchAccountService(ITwitchClientProxy twitchClient, IConfiguration configuration) {
+    _configuration = configuration;
     _twitchClient = twitchClient;
     _timer = new DispatcherTimer {
       Interval = TimeSpan.FromSeconds(5)
@@ -68,14 +75,14 @@ public class TwitchAccountService : ITwitchAccountService {
       // Do nothing
     }
 
-    Configuration.Instance.OAuth = new OAuthResponse {
+    _configuration.OAuth = new OAuthResponse {
       Bearer = bearer,
       Refresh = refresh,
       ExpiresUtc = expires
     };
 
-    Configuration.Instance.TwitchUsername = user?.username;
-    Configuration.Instance.WriteConfiguration();
+    _configuration.TwitchUsername = user?.username;
+    _configuration.WriteConfiguration();
     _twitchClient.TwitchOAuthToken = bearer;
     _twitchClient.TwitchUsername = user?.username;
 
@@ -85,13 +92,13 @@ public class TwitchAccountService : ITwitchAccountService {
 
   /// <inheritdoc />
   public void DeleteCredentials() {
-    Configuration.Instance.OAuth = null;
-    Configuration.Instance.TwitchUsername = null;
+    _configuration.OAuth = null;
+    _configuration.TwitchUsername = null;
     _twitchClient.TwitchOAuthToken = null;
     _twitchClient.TwitchUsername = null;
     CredentialsAreValid = false;
     TwitchUsername = null;
-    Configuration.Instance.WriteConfiguration();
+    _configuration.WriteConfiguration();
 
     OnCredentialsChanged?.Invoke(null);
     OnCredentialsStatusChanged?.Invoke(false);
@@ -152,11 +159,11 @@ public class TwitchAccountService : ITwitchAccountService {
     await twitchApi.RefreshAccessToken();
 
     // Update the configuration
-    Configuration.Instance.OAuth = new OAuthResponse {
+    _configuration.OAuth = new OAuthResponse {
       Bearer = twitchApi.OAuth.AccessToken,
       Refresh = twitchApi.OAuth.RefreshToken,
       ExpiresUtc = twitchApi.OAuth.ExpiresUtc ?? DateTime.MinValue
     };
-    Configuration.Instance.WriteConfiguration();
+    _configuration.WriteConfiguration();
   }
 }

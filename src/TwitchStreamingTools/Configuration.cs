@@ -16,7 +16,10 @@ namespace TwitchStreamingTools;
 /// <summary>
 ///   The configuration of the application.
 /// </summary>
-public class Configuration {
+public class Configuration : IConfiguration {
+  /// <summary>
+  ///   The location of the configuration file.
+  /// </summary>
   private static readonly string CONFIG_LOCATION =
     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nullinside",
       "twitch-streaming-tools", "config.json");
@@ -25,6 +28,12 @@ public class Configuration {
   ///   The singleton instance.
   /// </summary>
   private static Configuration? s_instance;
+
+  /// <summary>
+  ///   Do not allow other people to create instances of our class.
+  /// </summary>
+  protected Configuration() {
+  }
 
   /// <summary>
   ///   The singleton instance of the class.
@@ -70,6 +79,23 @@ public class Configuration {
   public IDictionary<string, string>? TtsPhoneticUsernames { get; set; }
 
   /// <summary>
+  ///   Writes the configuration file to disk.
+  /// </summary>
+  /// <returns>True if successful, false otherwise.</returns>
+  public bool WriteConfiguration() {
+    try {
+      Directory.CreateDirectory(Path.GetDirectoryName(CONFIG_LOCATION)!);
+
+      string json = JsonConvert.SerializeObject(this);
+      File.WriteAllText(CONFIG_LOCATION, json);
+      return true;
+    }
+    catch {
+      return false;
+    }
+  }
+
+  /// <summary>
   ///   Retrieves the default audio device configured in the application.
   /// </summary>
   /// <returns>The default audio device, if any audio device exists.</returns>
@@ -104,22 +130,5 @@ public class Configuration {
       return JsonConvert.DeserializeObject<Configuration>(json);
     }
     catch { return null; }
-  }
-
-  /// <summary>
-  ///   Writes the configuration file to disk.
-  /// </summary>
-  /// <returns>True if successful, false otherwise.</returns>
-  public bool WriteConfiguration() {
-    try {
-      Directory.CreateDirectory(Path.GetDirectoryName(CONFIG_LOCATION)!);
-
-      string json = JsonConvert.SerializeObject(this);
-      File.WriteAllText(CONFIG_LOCATION, json);
-      return true;
-    }
-    catch {
-      return false;
-    }
   }
 }

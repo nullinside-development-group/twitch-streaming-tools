@@ -21,6 +21,11 @@ namespace TwitchStreamingTools.Tts;
 /// </summary>
 public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// <summary>
+  ///   The application configuration.
+  /// </summary>
+  private readonly IConfiguration _configuration;
+
+  /// <summary>
   ///   The ordered list of chat messages to play.
   /// </summary>
   private readonly BlockingCollection<OnMessageReceivedArgs> _soundsToPlay;
@@ -73,7 +78,8 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// <summary>
   ///   Initializes a new instance of the <see cref="TwitchChatTts" /> class.
   /// </summary>
-  public TwitchChatTts(ITwitchClientProxy twitchClient, TwitchChatConfiguration? config) {
+  public TwitchChatTts(IConfiguration configuration, ITwitchClientProxy twitchClient, TwitchChatConfiguration? config) {
+    _configuration = configuration;
     _twitchClient = twitchClient;
     ChatConfig = config;
     _soundsToPlay = new BlockingCollection<OnMessageReceivedArgs>();
@@ -221,7 +227,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
     // Create a microsoft TTS object and a stream for outputting its audio file to.
     using var synth = new SpeechSynthesizer();
     using var stream = new MemoryStream();
-    
+
     WaveFileReader reader;
     try {
       // Setup the microsoft TTS object according to the settings.
@@ -296,7 +302,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
     var chatMessageInfo = new Tuple<string, string>(chatEvent.ChatMessage.DisplayName, chatEvent.ChatMessage.Message);
     foreach (ITtsFilter filter in _ttsFilters) {
       try {
-        chatMessageInfo = filter.Filter(chatEvent, chatMessageInfo.Item1, chatMessageInfo.Item2);
+        chatMessageInfo = filter.Filter(_configuration, chatEvent, chatMessageInfo.Item1, chatMessageInfo.Item2);
       }
       catch (Exception ex) {
         // Do not let a single filter fail the loop for all filters.
