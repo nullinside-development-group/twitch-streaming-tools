@@ -26,6 +26,11 @@ public class TwitchTtsService : ITwitchTtsService {
   private readonly IList<TwitchChatTts> _chats = new List<TwitchChatTts>();
 
   /// <summary>
+  ///   The application configuration.
+  /// </summary>
+  private readonly IConfiguration _configuration;
+
+  /// <summary>
   ///   The logger.
   /// </summary>
   private readonly ILog _logger = LogManager.GetLogger(typeof(TwitchTtsService));
@@ -44,7 +49,9 @@ public class TwitchTtsService : ITwitchTtsService {
   ///   Initializes a new instance of the <see cref="TwitchTtsService" /> class.
   /// </summary>
   /// <param name="twitchClientProxy">The twitch chat client.</param>
-  public TwitchTtsService(ITwitchClientProxy twitchClientProxy) {
+  /// <param name="configuration">The application configuration.</param>
+  public TwitchTtsService(ITwitchClientProxy twitchClientProxy, IConfiguration configuration) {
+    _configuration = configuration;
     _twitchClientProxy = twitchClientProxy;
     _thread = new Thread(Main) {
       IsBackground = true
@@ -78,7 +85,7 @@ public class TwitchTtsService : ITwitchTtsService {
   ///   Connects to any configuration found in the config file that we are not currently connected to.
   /// </summary>
   private void ConnectChatsInConfig() {
-    List<string?>? missing = Configuration.Instance.TwitchChats?
+    List<string?>? missing = _configuration.TwitchChats?
       .Select(c => c.TwitchChannel)
       .Except(_chats?.Select(c => c.ChatConfig?.TwitchChannel) ?? [])
       .Where(i => !string.IsNullOrWhiteSpace(i))
@@ -89,7 +96,7 @@ public class TwitchTtsService : ITwitchTtsService {
     }
 
     foreach (string? newChat in missing) {
-      var tts = new TwitchChatTts(_twitchClientProxy, Configuration.Instance.TwitchChats?.FirstOrDefault(t => t.TwitchChannel == newChat));
+      var tts = new TwitchChatTts(_configuration, _twitchClientProxy, _configuration.TwitchChats?.FirstOrDefault(t => t.TwitchChannel == newChat));
       tts.Connect();
       _chats?.Add(tts);
     }
@@ -101,7 +108,7 @@ public class TwitchTtsService : ITwitchTtsService {
   private void DisconnectChatsNotInConfig() {
     List<string?>? chatsNotInConfig = _chats?
       .Select(c => c.ChatConfig?.TwitchChannel)
-      .Except(Configuration.Instance.TwitchChats?.Select(c => c?.TwitchChannel) ?? [])
+      .Except(_configuration.TwitchChats?.Select(c => c?.TwitchChannel) ?? [])
       .Where(i => !string.IsNullOrWhiteSpace(i))
       .ToList();
 

@@ -20,6 +20,11 @@ namespace TwitchStreamingTools.ViewModels.Pages;
 /// </summary>
 public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <summary>
+  ///   The application configuration;
+  /// </summary>
+  private readonly IConfiguration _configuration;
+
+  /// <summary>
   ///   The twitch chat client.
   /// </summary>
   private readonly ITwitchClientProxy _twitchClient;
@@ -47,8 +52,11 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   Initializes a new instance of the <see cref="ChatViewModel" /> class.
   /// </summary>
-  public ChatViewModel(ITwitchClientProxy twitchClient) {
+  /// <param name="twitchClient">The twitch chat client.</param>
+  /// <param name="configuration">The application configuration.</param>
+  public ChatViewModel(ITwitchClientProxy twitchClient, IConfiguration configuration) {
     _twitchClient = twitchClient;
+    _configuration = configuration;
 
     OnAddChat = ReactiveCommand.Create(OnAddChatCommand);
     OnRemoveChat = ReactiveCommand.Create<string>(OnRemoveChatCommand);
@@ -101,7 +109,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
   /// <inheritdoc />
   public void Dispose() {
-    foreach (TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
+    foreach (TwitchChatConfiguration channel in _configuration.TwitchChats ?? []) {
       if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
         continue;
       }
@@ -131,7 +139,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
     using var speech = new SpeechSynthesizer();
     TwitchChatName = null;
-    Configuration.Instance.TwitchChats = (
+    _configuration.TwitchChats = (
       from user in _selectedTwitchChatNames
       select new TwitchChatConfiguration {
         TwitchChannel = user,
@@ -140,14 +148,14 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         TtsVoice = Configuration.GetDefaultTtsVoice(),
         TtsVolume = 100
       }).ToList();
-    Configuration.Instance.WriteConfiguration();
+    _configuration.WriteConfiguration();
   }
 
   private void OnRemoveChatCommand(string channel) {
     _selectedTwitchChatNames.Remove(channel);
     _twitchClient.RemoveMessageCallback(channel, OnChatMessage);
     using var speech = new SpeechSynthesizer();
-    Configuration.Instance.TwitchChats = (
+    _configuration.TwitchChats = (
       from user in _selectedTwitchChatNames
       select new TwitchChatConfiguration {
         TwitchChannel = user,
@@ -157,7 +165,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         TtsVolume = 100
       }).ToList();
 
-    Configuration.Instance.WriteConfiguration();
+    _configuration.WriteConfiguration();
   }
 
   private void OnChatMessage(OnMessageReceivedArgs msg) {
@@ -177,7 +185,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   public override void OnLoaded() {
     base.OnLoaded();
 
-    foreach (TwitchChatConfiguration channel in Configuration.Instance.TwitchChats ?? []) {
+    foreach (TwitchChatConfiguration channel in _configuration.TwitchChats ?? []) {
       if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
         continue;
       }

@@ -14,6 +14,11 @@ namespace TwitchStreamingTools.ViewModels.Pages;
 ///   Handles binding your application settings.
 /// </summary>
 public class SettingsViewModel : PageViewModelBase {
+  /// <summary>
+  ///   The application configuration.
+  /// </summary>
+  private readonly IConfiguration _configuration;
+
   private ObservableCollection<string> _outputDevices;
   private string? _selectedOutputDevice;
   private string? _selectedTtsVoice;
@@ -28,7 +33,8 @@ public class SettingsViewModel : PageViewModelBase {
   /// <summary>
   ///   Initializes a new instance of the <see cref="SettingsViewModel" /> class.
   /// </summary>
-  public SettingsViewModel() {
+  public SettingsViewModel(IConfiguration configuration) {
+    _configuration = configuration;
     var outputDevices = new List<string>();
     for (int i = 0; i < NAudioUtilities.GetTotalOutputDevices(); i++) {
       outputDevices.Add(NAudioUtilities.GetOutputDevice(i).ProductName);
@@ -63,11 +69,11 @@ public class SettingsViewModel : PageViewModelBase {
       this.RaiseAndSetIfChanged(ref _selectedOutputDevice, value);
 
       // Go through each twitch chat and update their property
-      foreach (TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
+      foreach (TwitchChatConfiguration chat in _configuration.TwitchChats ?? []) {
         chat.OutputDevice = value;
       }
 
-      Configuration.Instance.WriteConfiguration();
+      _configuration.WriteConfiguration();
     }
   }
 
@@ -88,11 +94,11 @@ public class SettingsViewModel : PageViewModelBase {
       this.RaiseAndSetIfChanged(ref _selectedTtsVoice, value);
 
       // Go through each twitch chat and update their property
-      foreach (TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
+      foreach (TwitchChatConfiguration chat in _configuration.TwitchChats ?? []) {
         chat.TtsVoice = value;
       }
 
-      Configuration.Instance.WriteConfiguration();
+      _configuration.WriteConfiguration();
     }
   }
 
@@ -106,11 +112,11 @@ public class SettingsViewModel : PageViewModelBase {
       this.RaiseAndSetIfChanged(ref _ttsVolume, value);
 
       // Go through each twitch chat and update their property
-      foreach (TwitchChatConfiguration chat in Configuration.Instance.TwitchChats ?? []) {
+      foreach (TwitchChatConfiguration chat in _configuration.TwitchChats ?? []) {
         chat.TtsVolume = value > 0 ? value : 0;
       }
 
-      Configuration.Instance.WriteConfiguration();
+      _configuration.WriteConfiguration();
     }
   }
 }

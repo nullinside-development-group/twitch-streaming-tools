@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Twitch;
 
-using TwitchStreamingTools.Services;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.Views;
 

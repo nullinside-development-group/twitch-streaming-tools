@@ -28,11 +28,12 @@ public class WordSpamFilter : ITtsFilter {
   /// <summary>
   ///   Removes duplicate emotes from a message.
   /// </summary>
+  /// <param name="configuration">The application configuration.</param>
   /// <param name="twitchInfo">The information on the original chat message.</param>
   /// <param name="username">The username of the twitch chatter for TTS to say.</param>
   /// <param name="currentMessage">The message from twitch chat.</param>
   /// <returns>The new TTS message and username.</returns>
-  public Tuple<string, string> Filter(OnMessageReceivedArgs twitchInfo, string username, string currentMessage) {
+  public Tuple<string, string> Filter(IConfiguration configuration, OnMessageReceivedArgs twitchInfo, string username, string currentMessage) {
     // See if a letter is being spammed over and over again in a single word
     string[] parts = currentMessage.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     for (int i = 0; i < parts.Length; i++) {
