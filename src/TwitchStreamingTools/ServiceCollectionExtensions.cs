@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nullinside.Api.Common.Twitch;
 
 using TwitchStreamingTools.Services;
+using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.ViewModels.Pages;
 
@@ -19,11 +20,16 @@ public static class ServiceCollectionExtensions {
   /// </summary>
   /// <param name="collection">The services collection to initialize.</param>
   public static void AddCommonServices(this IServiceCollection collection) {
-    collection.AddSingleton<ITwitchAccountService, TwitchAccountService>();
-    collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
-    collection.AddSingleton<ITwitchTtsService, TwitchTtsService>();
+    // Regular stuff
     collection.AddSingleton<IConfiguration, Configuration>(_ => Configuration.Instance);
+    collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
+    collection.AddSingleton<ITwitchChatLog, TwitchChatLog>();
 
+    // Services
+    collection.AddSingleton<ITwitchAccountService, TwitchAccountService>();
+    collection.AddSingleton<ITwitchTtsService, TwitchTtsService>();
+
+    // View models
     collection.AddTransient<MainWindowViewModel>();
     collection.AddTransient<AccountViewModel>();
     collection.AddTransient<ChatViewModel>();
