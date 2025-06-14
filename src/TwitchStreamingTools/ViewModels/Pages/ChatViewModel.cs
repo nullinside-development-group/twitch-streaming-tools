@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Speech.Synthesis;
 using System.Threading.Tasks;
 
 using Nullinside.Api.Common.Twitch;
@@ -131,14 +130,16 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
       return;
     }
 
+    // Add it to the list.
     _selectedTwitchChatNames.Add(username);
 
     // Add the callback, we don't need to wait for it to return it can run in the background.
     _ = _twitchClient.AddMessageCallback(username, OnChatMessage);
 
-
-    using var speech = new SpeechSynthesizer();
+    // Clear out the textbox so the user knows we took their input
     TwitchChatName = null;
+
+    // Update and write the configuration
     _configuration.TwitchChats = (
       from user in _selectedTwitchChatNames
       select new TwitchChatConfiguration {
@@ -148,13 +149,22 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         TtsVoice = Configuration.GetDefaultTtsVoice(),
         TtsVolume = 100
       }).ToList();
+
     _configuration.WriteConfiguration();
   }
 
+  /// <summary>
+  ///   Handles removing a chat we were monitoring.
+  /// </summary>
+  /// <param name="channel">The chat to remove.</param>
   private void OnRemoveChatCommand(string channel) {
+    // Remove it from the list
     _selectedTwitchChatNames.Remove(channel);
+
+    // Remove the callback
     _twitchClient.RemoveMessageCallback(channel, OnChatMessage);
-    using var speech = new SpeechSynthesizer();
+
+    // Update and write the configuration
     _configuration.TwitchChats = (
       from user in _selectedTwitchChatNames
       select new TwitchChatConfiguration {
@@ -168,6 +178,10 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     _configuration.WriteConfiguration();
   }
 
+  /// <summary>
+  ///   Handles a new chat message being received from <see cref="_twitchClient" />.
+  /// </summary>
+  /// <param name="msg">The message received.</param>
   private void OnChatMessage(OnMessageReceivedArgs msg) {
     if (_selectedTwitchChatNames.Count > 1) {
       TwitchChat = (TwitchChat + $"\n({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
