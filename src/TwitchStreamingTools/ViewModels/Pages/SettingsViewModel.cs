@@ -19,9 +19,24 @@ public class SettingsViewModel : PageViewModelBase {
   /// </summary>
   private readonly IConfiguration _configuration;
 
+  /// <summary>
+  ///   The list of possible output devices that exist on the machine.
+  /// </summary>
   private ObservableCollection<string> _outputDevices;
+
+  /// <summary>
+  ///   The selected output device to send TTS to.
+  /// </summary>
   private string? _selectedOutputDevice;
+
+  /// <summary>
+  ///   The TTS voice selected to send TTS to.
+  /// </summary>
   private string? _selectedTtsVoice;
+
+  /// <summary>
+  ///   The list of installed TTS voices on the machine.
+  /// </summary>
   private ObservableCollection<string> _ttsVoices;
 
   /// <summary>
@@ -35,6 +50,9 @@ public class SettingsViewModel : PageViewModelBase {
   /// </summary>
   public SettingsViewModel(IConfiguration configuration) {
     _configuration = configuration;
+
+    // Get the list of output devices and set the default to either what we have in the configuration or the system 
+    // default whichever is more appropriate.
     var outputDevices = new List<string>();
     for (int i = 0; i < NAudioUtilities.GetTotalOutputDevices(); i++) {
       outputDevices.Add(NAudioUtilities.GetOutputDevice(i).ProductName);
@@ -43,9 +61,15 @@ public class SettingsViewModel : PageViewModelBase {
     _outputDevices = new ObservableCollection<string>(outputDevices);
     _selectedOutputDevice = Configuration.GetDefaultAudioDevice();
 
+    // Get the list of TTS voices and set the default to either what we have in the configuration or the system 
+    // default whichever is more appropriate.
     using var speech = new SpeechSynthesizer();
     _ttsVoices = new ObservableCollection<string>(speech.GetInstalledVoices().Select(v => v.VoiceInfo.Name));
     _selectedTtsVoice = Configuration.GetDefaultTtsVoice();
+
+    // Get the volume and set the default to either what we have in the configuration or to half-volume. Why half-volume?
+    // No one knows. I just figured I'd at least try not to blow anyone's eardrums out. I'm sure this decision will haunt
+    // me one day.
     _ttsVolume = Configuration.GetDefaultTtsVolume() ?? 50u;
   }
 
