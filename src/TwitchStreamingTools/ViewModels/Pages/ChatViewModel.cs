@@ -196,12 +196,13 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   /// <param name="msg">The message received.</param>
   private void OnChatMessage(OnMessageReceivedArgs msg) {
     if (_selectedTwitchChatNames.Count > 1) {
-      TwitchChat = (TwitchChat + $"\n({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+      TwitchChat = (TwitchChat + $"({msg.ChatMessage.Channel}) {msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
     }
     else {
-      TwitchChat = (TwitchChat + $"\n{msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
+      TwitchChat = (TwitchChat + $"{msg.ChatMessage.Username}: {msg.ChatMessage.Message}").Trim();
     }
 
+    TwitchChat += "\n";
     TextBoxCursorPosition = int.MaxValue;
   }
 
