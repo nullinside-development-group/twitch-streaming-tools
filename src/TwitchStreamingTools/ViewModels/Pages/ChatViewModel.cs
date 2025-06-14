@@ -4,6 +4,10 @@ using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+
 using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
@@ -59,10 +63,18 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
     OnAddChat = ReactiveCommand.Create(OnAddChatCommand);
     OnRemoveChat = ReactiveCommand.Create<string>(OnRemoveChatCommand);
+
+    Application.Current!.TryFindResource("DeleteRegular", out object? icon);
+    DeleteIcon = (StreamGeometry)icon!;
   }
 
   /// <inheritdoc />
   public override string IconResourceKey { get; } = "ChatRegular";
+
+  /// <summary>
+  ///   The delete icon graphic for the UI.
+  /// </summary>
+  public StreamGeometry DeleteIcon { get; set; }
 
   /// <summary>
   ///   Called when adding a chat.
