@@ -169,7 +169,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         OutputDevice = Configuration.GetDefaultAudioDevice(),
         TtsOn = true,
         TtsVoice = Configuration.GetDefaultTtsVoice(),
-        TtsVolume = 100
+        TtsVolume = 50
       }).ToList();
 
     _configuration.WriteConfiguration();
@@ -194,7 +194,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         OutputDevice = Configuration.GetDefaultAudioDevice(),
         TtsOn = true,
         TtsVoice = Configuration.GetDefaultTtsVoice(),
-        TtsVolume = 100
+        TtsVolume = 50
       }).ToList();
 
     _configuration.WriteConfiguration();
@@ -267,6 +267,10 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
   ///   Connects to the twitch chats in the configuration file.
   /// </summary>
   private void InitializeTwitchChatConnections() {
+    if (Design.IsDesignMode) {
+      return;
+    }
+
     foreach (TwitchChatConfiguration channel in _configuration.TwitchChats ?? []) {
       if (string.IsNullOrWhiteSpace(channel.TwitchChannel)) {
         continue;
