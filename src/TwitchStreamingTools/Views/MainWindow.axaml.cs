@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Avalonia.Threading;
 
 using TwitchStreamingTools.ViewModels;
+
 #else
 using Avalonia;
 #endif

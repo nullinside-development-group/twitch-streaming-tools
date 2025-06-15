@@ -79,6 +79,11 @@ public class Configuration : IConfiguration {
   public IDictionary<string, string>? TtsPhonetics { get; set; }
 
   /// <summary>
+  ///   The arguments to pass to Sound Stretcher to manipulate the TTS audio.
+  /// </summary>
+  public SoundStretchArgs? SoundStretchArgs { get; set; }
+
+  /// <summary>
   ///   Writes the configuration file to disk.
   /// </summary>
   /// <returns>True if successful, false otherwise.</returns>

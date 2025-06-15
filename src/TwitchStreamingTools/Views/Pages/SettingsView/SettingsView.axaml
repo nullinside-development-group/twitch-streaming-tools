@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -73,25 +74,101 @@
                     IsSnapToTickEnabled="True"
                     Value="{Binding TtsVolume}" />
         </Grid>
+
+
         <Label Grid.Row="3"
                Grid.Column="0"
                HorizontalAlignment="Right"
                VerticalAlignment="Top"
                Margin="0 5 0 0">
-            Skip User TTS:
+            Advanced TTS Playback:
         </Label>
         <Grid Grid.Row="3"
               Grid.Column="1">
-            <settingsView:TtsSkipUsernamesControl Margin="0,0,5,0" DataContext="{Binding TtsSkipUsernamesViewModel}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0"
+                       Grid.Column="0">
+                    Tempo:
+                </Label>
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Text="{Binding Tempo}" />
+                <Label Grid.Row="1"
+                       Grid.Column="0">
+                    Pitch:
+                </Label>
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Text="{Binding Pitch}" />
+                <Label Grid.Row="2"
+                       Grid.Column="0">
+                    Rate:
+                </Label>
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Text="{Binding Rate}" />
+                <Label Grid.Row="3"
+                       Grid.Column="0">
+                    Bpm:
+                </Label>
+                <TextBox Grid.Row="3"
+                         Grid.Column="1"
+                         Text="{Binding Bpm}" />
+                <Label Grid.Row="4"
+                       Grid.Column="0">
+                    Quick:
+                </Label>
+                <CheckBox Grid.Row="4"
+                          Grid.Column="1"
+                          IsChecked="{Binding Quick}" />
+                <Label Grid.Row="5"
+                       Grid.Column="0">
+                    Turn off anti-alias:
+                </Label>
+                <CheckBox Grid.Row="5"
+                          Grid.Column="1"
+                          IsChecked="{Binding AntiAliasingOff}" />
+                <Label Grid.Row="6"
+                       Grid.Column="0">
+                    Tune for Speech:
+                </Label>
+                <CheckBox Grid.Row="6"
+                          Grid.Column="1"
+                          IsChecked="{Binding TurnOnSpeech}" />
+            </Grid>
         </Grid>
         <Label Grid.Row="4"
                Grid.Column="0"
                HorizontalAlignment="Right"
                VerticalAlignment="Top"
                Margin="0 5 0 0">
-            Phonetic Spellings:
+            Skip User TTS:
         </Label>
         <Grid Grid.Row="4"
+              Grid.Column="1">
+            <settingsView:TtsSkipUsernamesControl Margin="0,0,5,0" DataContext="{Binding TtsSkipUsernamesViewModel}" />
+        </Grid>
+        <Label Grid.Row="5"
+               Grid.Column="0"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               Margin="0 5 0 0">
+            Phonetic Spellings:
+        </Label>
+        <Grid Grid.Row="5"
               Grid.Column="1">
             <settingsView:TtsPhoneticWordsControl Margin="0,0,5,0" DataContext="{Binding TtsPhoneticWordsViewModel}" />
         </Grid>

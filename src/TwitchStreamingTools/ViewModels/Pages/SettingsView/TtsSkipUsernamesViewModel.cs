@@ -134,7 +134,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
 
       var usernames = new HashSet<string>();
       foreach (TwitchChatConfiguration chat in _configuration.TwitchChats ?? []) {
-        if (string.IsNullOrWhiteSpace(chat.TwitchChannel)) {
+        if (string.IsNullOrWhiteSpace(chat.TwitchChannel) || _doNotScanChat.Contains(chat.TwitchChannel)) {
           continue;
         }
 

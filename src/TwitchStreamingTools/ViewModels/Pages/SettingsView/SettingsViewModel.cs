@@ -20,9 +20,34 @@ public class SettingsViewModel : PageViewModelBase {
   private readonly IConfiguration _configuration;
 
   /// <summary>
+  ///   Don't use anti-alias filtering (gain speed, lose quality)
+  /// </summary>
+  private bool _antiAliasingOff;
+
+  /// <summary>
+  ///   Detect the BPM rate of sound and adjust tempo to meet 'n' BPMs. If value not specified, just detects the BPM rate.
+  /// </summary>
+  private int _bpm;
+
+  /// <summary>
   ///   The list of possible output devices that exist on the machine.
   /// </summary>
   private ObservableCollection<string> _outputDevices;
+
+  /// <summary>
+  ///   Change sound pitch by n semitones (-60 to +60 semitones)
+  /// </summary>
+  private int _pitch;
+
+  /// <summary>
+  ///   Use quicker tempo change algorithm (gain speed, lose quality)
+  /// </summary>
+  private bool _quick;
+
+  /// <summary>
+  ///   Change sound rate by n percents (-95 to +5000 %)
+  /// </summary>
+  private int _rate;
 
   /// <summary>
   ///   The selected output device to send TTS to.
@@ -33,6 +58,11 @@ public class SettingsViewModel : PageViewModelBase {
   ///   The TTS voice selected to send TTS to.
   /// </summary>
   private string? _selectedTtsVoice;
+
+  /// <summary>
+  ///   Change sound tempo by n percents (-95 to +5000 %)
+  /// </summary>
+  private int _tempo;
 
   /// <summary>
   ///   The view model for the phonetic words list.
@@ -56,12 +86,18 @@ public class SettingsViewModel : PageViewModelBase {
   private uint _ttsVolume;
 
   /// <summary>
+  ///   Tune algorithm for speech processing (default is for music)
+  /// </summary>
+  private bool _turnOnSpeech;
+
+  /// <summary>
   ///   Initializes a new instance of the <see cref="SettingsViewModel" /> class.
   /// </summary>
   public SettingsViewModel(IConfiguration configuration, TtsPhoneticWordsViewModel ttsPhoneticWordsViewModel, TtsSkipUsernamesViewModel ttsSkipUsernamesViewModel) {
     _configuration = configuration;
     _ttsPhoneticWordsViewModel = ttsPhoneticWordsViewModel;
     _ttsSkipUsernamesViewModel = ttsSkipUsernamesViewModel;
+    _configuration.SoundStretchArgs ??= new SoundStretchArgs();
 
     // Get the list of output devices and set the default to either what we have in the configuration or the system 
     // default whichever is more appropriate.
@@ -170,5 +206,103 @@ public class SettingsViewModel : PageViewModelBase {
   public TtsSkipUsernamesViewModel TtsSkipUsernamesViewModel {
     get => _ttsSkipUsernamesViewModel;
     set => this.RaiseAndSetIfChanged(ref _ttsSkipUsernamesViewModel, value);
+  }
+
+  /// <summary>
+  ///   Change sound tempo by n percents (-95 to +5000 %)
+  /// </summary>
+  public int Tempo {
+    get => _tempo;
+    set {
+      this.RaiseAndSetIfChanged(ref _tempo, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.Tempo = value;
+        _configuration.WriteConfiguration();
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Change sound pitch by n semitones (-60 to +60 semitones)
+  /// </summary>
+  public int Pitch {
+    get => _pitch;
+    set {
+      this.RaiseAndSetIfChanged(ref _pitch, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.Pitch = value;
+        _configuration.WriteConfiguration();
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Change sound rate by n percents (-95 to +5000 %)
+  /// </summary>
+  public int Rate {
+    get => _rate;
+    set {
+      this.RaiseAndSetIfChanged(ref _rate, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.Rate = value;
+        _configuration.WriteConfiguration();
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Detect the BPM rate of sound and adjust tempo to meet 'n' BPMs. If value not specified, just detects the BPM rate.
+  /// </summary>
+  public int Bpm {
+    get => _bpm;
+    set {
+      this.RaiseAndSetIfChanged(ref _bpm, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.Bpm = value;
+        _configuration.WriteConfiguration();
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Use quicker tempo change algorithm (gain speed, lose quality)
+  /// </summary>
+  public bool Quick {
+    get => _quick;
+    set {
+      this.RaiseAndSetIfChanged(ref _quick, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.Quick = value;
+        _configuration.WriteConfiguration();
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Don't use anti-alias filtering (gain speed, lose quality)
+  /// </summary>
+  public bool AntiAliasingOff {
+    get => _antiAliasingOff;
+    set {
+      this.RaiseAndSetIfChanged(ref _antiAliasingOff, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.AntiAliasingOff = value;
+        _configuration.WriteConfiguration();
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Tune algorithm for speech processing (default is for music)
+  /// </summary>
+  public bool TurnOnSpeech {
+    get => _turnOnSpeech;
+    set {
+      this.RaiseAndSetIfChanged(ref _turnOnSpeech, value);
+      if (_configuration.SoundStretchArgs != null) {
+        _configuration.SoundStretchArgs.TurnOnSpeech = value;
+        _configuration.WriteConfiguration();
+      }
+    }
   }
 }
