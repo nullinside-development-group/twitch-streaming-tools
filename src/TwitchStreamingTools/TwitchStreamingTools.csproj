@@ -35,6 +35,14 @@
         <Content Include="3rdParty\soundstretch.exe">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <None Remove="log4net.config"/>
+        <Content Include="log4net.config">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="log4net.debug.config"/>
+        <Content Include="log4net.debug.config">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -46,6 +54,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1"/>
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.1"/>
         <PackageReference Include="DynamicData" Version="9.4.1"/>
+        <PackageReference Include="log4net" Version="3.1.0"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6"/>
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1"/>
         <PackageReference Include="NAudio.WinMM" Version="2.2.1"/>
