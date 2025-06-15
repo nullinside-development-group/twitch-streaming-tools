@@ -11,19 +11,16 @@ namespace TwitchStreamingTools.Tts.TtsFilter;
 /// </summary>
 public class WordSpamFilter : ITtsFilter {
   /// <summary>
-  ///   The maximum number of emotes to allow.
+  ///   The maximum number of duplicate letters to allow.
   /// </summary>
+  /// <remarks>Very few words have a single letter repeated 3+ times in a row.</remarks>
   private const int MAXIMUM_LETTER_OCCURANCES = 2;
 
   /// <summary>
-  ///   The maximum number of emotes to allow.
+  ///   The maximum number of consecutive words that are the same.
   /// </summary>
+  /// <remarks>Very few sentences require the use of the same word more than twice in a row.</remarks>
   private const int MAXIMUM_CONSECUTIVE_SAME_WORDS = 2;
-
-  /// <summary>
-  ///   Replacement text so I know something was said that Cathy didn't like.
-  /// </summary>
-  private const string SPAM_REPLACEMENT = "I am a fucking moron that spams the chat";
 
   /// <summary>
   ///   Removes duplicate emotes from a message.
@@ -35,8 +32,8 @@ public class WordSpamFilter : ITtsFilter {
   /// <returns>The new TTS message and username.</returns>
   public Tuple<string, string> Filter(IConfiguration configuration, OnMessageReceivedArgs twitchInfo, string username, string currentMessage) {
     // See if a letter is being spammed over and over again in a single word
-    string[] parts = currentMessage.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    for (int i = 0; i < parts.Length; i++) {
+    List<string> parts = currentMessage.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    for (int i = 0; i < parts.Count; i++) {
       List<char> part = parts[i].ToList();
       char previousLetter = ' ';
       uint consecutiveLetterCount = 1;
@@ -62,12 +59,13 @@ public class WordSpamFilter : ITtsFilter {
     // Check the words in order and see if they spammed the same word more than once.
     uint wordRun = 0;
     string previous = string.Empty;
-    foreach (string part in parts) {
+    for (int i = parts.Count - 1; i >= 0; i--) {
+      string part = parts[i];
       if (part.Equals(previous)) {
         ++wordRun;
 
-        if (wordRun > MAXIMUM_CONSECUTIVE_SAME_WORDS) {
-          return new Tuple<string, string>(username, SPAM_REPLACEMENT);
+        if (wordRun >= MAXIMUM_CONSECUTIVE_SAME_WORDS) {
+          parts.RemoveAt(i);
         }
       }
       else {
@@ -76,30 +74,6 @@ public class WordSpamFilter : ITtsFilter {
 
       previous = part;
     }
-
-    //// Check for phrases that are repeated
-    //var allEmotes = new List<string>();
-    //allEmotes.AddRange(EmoteLookup.GetBetterTtvEmotes(twitchInfo.ChatMessage.Channel));
-    //allEmotes.AddRange(EmoteLookup.GetFrankerzFaceEmotes(twitchInfo.ChatMessage.Channel));
-
-    //foreach (var emote in allEmotes) {
-    //    currentMessage = currentMessage.Replace(emote, "");
-    //}
-
-    //for (int i = 0; i < parts.Length; i++) {
-    //    var startingWord = parts[i];
-    //    var currentPhrase = parts[i];
-
-    //    int x;
-    //    for (x = i; x < parts.Length; x++) {
-    //        var nextWord = parts[x];
-    //        if (startingWord.Equals(nextWord)) {
-    //            currentPhrase.Count()
-    //        }
-
-    //        currentPhrase += $" {nextWord}";
-    //    }
-    //}
 
     return new Tuple<string, string>(username, string.Join(" ", parts));
   }
