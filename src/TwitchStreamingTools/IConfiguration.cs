@@ -46,7 +46,7 @@ public interface IConfiguration {
   SoundStretchArgs? SoundStretchArgs { get; set; }
 
   /// <summary>
-  /// True if "username says message" should be used as the template for TTS messages, false to read just the message.
+  ///   True if "username says message" should be used as the template for TTS messages, false to read just the message.
   /// </summary>
   bool SayUsernameWithMessage { get; set; }
 
