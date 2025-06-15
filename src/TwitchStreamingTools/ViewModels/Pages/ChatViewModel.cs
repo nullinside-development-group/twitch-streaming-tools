@@ -237,8 +237,11 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
     // Connect to the twitch chats from the configuration.
     InitializeTwitchChatConnections();
 
-    // Loads the 
+    // Loads the chat history from the log file.
     PopulateChatHistory();
+
+    // Move the textbox to the end
+    TextBoxCursorPosition = int.MaxValue;
   }
 
   /// <summary>
@@ -255,6 +258,9 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
 
     // Update the UI
     TwitchChat = sb.ToString();
+
+    // Move the textbox to the end
+    TextBoxCursorPosition = int.MaxValue;
   }
 
   /// <summary>

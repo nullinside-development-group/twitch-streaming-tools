@@ -8,7 +8,7 @@ using ReactiveUI;
 using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Utilities;
 
-namespace TwitchStreamingTools.ViewModels.Pages;
+namespace TwitchStreamingTools.ViewModels.Pages.SettingsView;
 
 /// <summary>
 ///   Handles binding your application settings.
@@ -35,6 +35,16 @@ public class SettingsViewModel : PageViewModelBase {
   private string? _selectedTtsVoice;
 
   /// <summary>
+  ///   The view model for the phonetic words list.
+  /// </summary>
+  private TtsPhoneticWordsViewModel _ttsPhoneticWordsViewModel;
+
+  /// <summary>
+  ///   The control responsible for managing the list of usernames to skip.
+  /// </summary>
+  private TtsSkipUsernamesViewModel _ttsSkipUsernamesViewModel;
+
+  /// <summary>
   ///   The list of installed TTS voices on the machine.
   /// </summary>
   private ObservableCollection<string> _ttsVoices;
@@ -48,8 +58,10 @@ public class SettingsViewModel : PageViewModelBase {
   /// <summary>
   ///   Initializes a new instance of the <see cref="SettingsViewModel" /> class.
   /// </summary>
-  public SettingsViewModel(IConfiguration configuration) {
+  public SettingsViewModel(IConfiguration configuration, TtsPhoneticWordsViewModel ttsPhoneticWordsViewModel, TtsSkipUsernamesViewModel ttsSkipUsernamesViewModel) {
     _configuration = configuration;
+    _ttsPhoneticWordsViewModel = ttsPhoneticWordsViewModel;
+    _ttsSkipUsernamesViewModel = ttsSkipUsernamesViewModel;
 
     // Get the list of output devices and set the default to either what we have in the configuration or the system 
     // default whichever is more appropriate.
@@ -142,5 +154,21 @@ public class SettingsViewModel : PageViewModelBase {
 
       _configuration.WriteConfiguration();
     }
+  }
+
+  /// <summary>
+  ///   Gets or sets the  view model for the phonetic words list.
+  /// </summary>
+  public TtsPhoneticWordsViewModel TtsPhoneticWordsViewModel {
+    get => _ttsPhoneticWordsViewModel;
+    set => this.RaiseAndSetIfChanged(ref _ttsPhoneticWordsViewModel, value);
+  }
+
+  /// <summary>
+  ///   Gets or sets the  view responsible for managing the list of usernames to skip.
+  /// </summary>
+  public TtsSkipUsernamesViewModel TtsSkipUsernamesViewModel {
+    get => _ttsSkipUsernamesViewModel;
+    set => this.RaiseAndSetIfChanged(ref _ttsSkipUsernamesViewModel, value);
   }
 }

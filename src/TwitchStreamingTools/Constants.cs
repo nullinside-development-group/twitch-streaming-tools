@@ -53,6 +53,26 @@ public static class Constants {
   public static IClipboard? Clipboard;
 
   /// <summary>
+  ///   The default bot list to populate when a user doesn't any have bots configured.
+  /// </summary>
+  public static readonly IEnumerable<string> TWITCH_DEFAULT_BOT_LIST = new[] {
+    "streamelements",
+    "nightbot",
+    "sery_bot",
+    "wizebot",
+    "kofistreambot",
+    "tangiabot",
+    "botrixoficial",
+    "moobot",
+    "own3d",
+    "creatisbot",
+    "frostytoolsdotcom",
+    "streamlabs",
+    "pokemoncommunitygame",
+    "fossabot"
+  };
+
+  /// <summary>
   ///   The twitch permissions to request.
   /// </summary>
   public static readonly IEnumerable<string> TWITCH_SCOPES = new[] {
@@ -78,6 +98,7 @@ public static class Constants {
     "clips:edit",
     "moderation:read",
     "moderator:manage:automod",
+    "moderator:read:chatters",
     "user:edit",
     "user:edit:follows",
     "user:manage:blocked_users",

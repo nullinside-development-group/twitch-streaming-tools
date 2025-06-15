@@ -19,6 +19,10 @@ internal sealed class Program {
   /// <param name="args">The arguments passed to the application.</param>
   [STAThread]
   public static void Main(string[] args) {
+    AppDomain.CurrentDomain.UnhandledException += (sender, args) => {
+      Console.Error.WriteLine(args.ExceptionObject);
+    };
+
     BuildAvaloniaApp()
       .StartWithClassicDesktopLifetime(args);
   }

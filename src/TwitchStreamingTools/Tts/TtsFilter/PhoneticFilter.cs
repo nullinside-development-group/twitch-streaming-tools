@@ -21,12 +21,12 @@ internal class PhoneticFilter : ITtsFilter {
   public Tuple<string, string> Filter(IConfiguration configuration, OnMessageReceivedArgs twitchInfo, string username, string currentMessage) {
     string message = currentMessage;
 
-    if (null != configuration.TtsPhoneticUsernames) {
-      foreach (KeyValuePair<string, string> usernameToPhonetic in configuration.TtsPhoneticUsernames) {
+    if (null != configuration.TtsPhonetics) {
+      foreach (KeyValuePair<string, string> usernameToPhonetic in configuration.TtsPhonetics) {
         message = message.Replace(usernameToPhonetic.Key, usernameToPhonetic.Value, StringComparison.InvariantCultureIgnoreCase);
       }
 
-      KeyValuePair<string, string> foundUsername = configuration.TtsPhoneticUsernames.FirstOrDefault(k => twitchInfo.ChatMessage.DisplayName.Equals(k.Key, StringComparison.InvariantCultureIgnoreCase));
+      KeyValuePair<string, string> foundUsername = configuration.TtsPhonetics.FirstOrDefault(k => twitchInfo.ChatMessage.DisplayName.Equals(k.Key, StringComparison.InvariantCultureIgnoreCase));
       if (!default(KeyValuePair<string, string>).Equals(foundUsername)) {
         username = foundUsername.Value;
       }

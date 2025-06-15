@@ -35,6 +35,7 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1"/>
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.1"/>
+        <PackageReference Include="DynamicData" Version="9.4.1"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6"/>
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1"/>
         <PackageReference Include="NAudio.WinMM" Version="2.2.1"/>
@@ -60,12 +61,28 @@
             <DependentUpon>WindowsTitleBar.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Pages\SettingsView.axaml.cs">
-            <DependentUpon>SettingsView.axaml</DependentUpon>
-            <SubType>Code</SubType>
-        </Compile>
         <Compile Update="Views\Pages\PageViewBase.axaml.cs">
             <DependentUpon>PageViewBase.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Controls\Loading.axaml.cs">
+            <DependentUpon>Loading.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Pages\ChatView\TtsPhoneticWordsControl.axaml.cs">
+            <DependentUpon>TtsPhoneticWordsView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Pages\ChatView\TtsSkipUsernamesControl.axaml.cs">
+            <DependentUpon>TtsSkipUsernamesView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Pages\ChatView.axaml.cs">
+            <DependentUpon>ChatView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Pages\SettingsView\SettingsView.axaml.cs">
+            <DependentUpon>SettingsView.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
     </ItemGroup>

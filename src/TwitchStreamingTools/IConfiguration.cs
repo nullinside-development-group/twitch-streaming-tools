@@ -38,7 +38,7 @@ public interface IConfiguration {
   /// <summary>
   ///   The collection of phonetic pronunciations of words.
   /// </summary>
-  IDictionary<string, string>? TtsPhoneticUsernames { get; set; }
+  IDictionary<string, string>? TtsPhonetics { get; set; }
 
   /// <summary>
   ///   Writes the configuration file to disk.

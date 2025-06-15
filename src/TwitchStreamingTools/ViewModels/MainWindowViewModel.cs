@@ -124,6 +124,7 @@ public class MainWindowViewModel : ViewModelBase {
       .Where(t => (t.FullName?.StartsWith("TwitchStreamingTools.ViewModels.Pages") ?? false) &&
                   typeof(PageViewModelBase).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
       .Select(t => new MenuItem(t, (_provider.GetRequiredService(t) as PageViewModelBase)!.IconResourceKey))
+      .OrderBy(t => t.Label)
       .ToList();
 
     // Add the menu items for display

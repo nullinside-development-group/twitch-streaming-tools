@@ -33,7 +33,7 @@ public class TwitchChatLog : ITwitchChatLog {
   }
 
   /// <inheritdoc />
-  public int MaximumMessageCount { get; set; } = 100000;
+  public int MaximumMessageCount { get; set; } = 250;
 
   /// <inheritdoc />
   public TimeSpan MaximumMessageAge { get; set; } = TimeSpan.FromDays(7);
