@@ -28,6 +28,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Remove="3rdParty\soundstretch.exe"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="3rdParty\soundstretch.exe">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.1"/>
         <PackageReference Include="Avalonia.Desktop" Version="11.3.1"/>
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.1"/>
