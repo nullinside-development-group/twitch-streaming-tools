@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Speech.Synthesis;
 using System.Threading;
@@ -230,71 +231,101 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// <param name="sender">The twitch chat login of the user that sent the message.</param>
   /// <param name="chatMessage">The chat message to convert to TTS.</param>
   private void InitializeAndPlayTts(string sender, string chatMessage) {
-    // Create a microsoft TTS object and a stream for outputting its audio file to.
-    using var synth = new SpeechSynthesizer();
-    using var stream = new MemoryStream();
-
-    WaveFileReader reader;
+    string filename = Path.GetTempFileName();
+    string filename2 = Path.GetTempFileName();
+    
     try {
-      // Setup the microsoft TTS object according to the settings.
-      synth.SetOutputToWaveStream(stream);
-      synth.SelectVoice(ChatConfig?.TtsVoice);
-      synth.Volume = (int)(ChatConfig?.TtsVolume ?? 50);
-      synth.Speak(chatMessage);
+      string fileToPlay = filename;
 
-      // Now that we filled the stream, seek to the beginning so we can play it.
-      stream.Seek(0, SeekOrigin.Begin);
-      reader = new WaveFileReader(stream);
-    }
-    catch (Exception ex) {
-      Console.WriteLine($"Exception initializing a new microsoft speech object: {ex}");
-      return;
-    }
+      WaveFileReader reader;
+      try {
+        // Create a microsoft TTS object and a stream for outputting its audio file to.
+        using var synth = new SpeechSynthesizer();
 
-    // This is only meant to ensure we don't play TTS over a sound alert. It can still happen but this
-    // fixes most of the issues with very little investment.
-    while (GlobalSoundManager.Instance.CurrentlyPlayingSound) {
-      Thread.Sleep(100);
-    }
-
-    try {
-      // Make sure we lock the objects used on multiple threads and play the file.
-      lock (_ttsSoundOutputLock)
-      lock (_ttsSoundOutputSignalLock) {
-        _ttsSoundOutput = new WaveOutEvent();
-        _ttsSoundOutputSignal = new ManualResetEvent(false);
-
-        _ttsSoundOutput.DeviceNumber = NAudioUtilities.GetOutputDeviceIndex(ChatConfig?.OutputDevice);
-        _ttsSoundOutput.Volume = (ChatConfig?.TtsVolume ?? 50.0f) / 100.0f;
-
-        _ttsSoundOutput.Init(reader);
-
-        // Play is async so we will make it synchronous here so we don't have to deal with
-        // queueing. We can improve this to remove the hack in the future.
-        _ttsSoundOutput.PlaybackStopped += delegate {
-          lock (_ttsSoundOutputSignalLock) {
-            _ttsSoundOutputSignal?.Set();
-          }
-        };
-
-        // Play it.
-        _ttsSoundOutput.Play();
+        // Setup the microsoft TTS object according to the settings.
+        synth.SetOutputToWaveFile(filename);
+        synth.SelectVoice(ChatConfig?.TtsVoice);
+        synth.Volume = (int)(ChatConfig?.TtsVolume ?? 50);
+        synth.Speak(chatMessage);
+      }
+      catch (Exception ex) {
+        Console.WriteLine($"Exception initializing a new microsoft speech object: {ex}");
+        return;
       }
 
-      // Wait for the play to finish, we will get signaled.
-      CurrentUsername = sender;
-      ManualResetEvent? signal = _ttsSoundOutputSignal;
-      signal?.WaitOne();
-      CurrentUsername = null;
+      var startInfo = new ProcessStartInfo {
+        FileName = @"3rdParty\soundstretch.exe",
+        Arguments = $"\"{filename}\" \"{filename2}\" -tempo=+100 -speech",
+        UseShellExecute = false,
+        CreateNoWindow = true
+      };
+
+      using var process = new Process { StartInfo = startInfo };
+      process.Start();
+      process.WaitForExit();
+      if (0 == process.ExitCode) {
+        fileToPlay = filename2;
+      }
+
+      // This is only meant to ensure we don't play TTS over a sound alert. It can still happen but this
+      // fixes most of the issues with very little investment.
+      while (GlobalSoundManager.Instance.CurrentlyPlayingSound) {
+        Thread.Sleep(100);
+      }
+
+      try {
+        // Make sure we lock the objects used on multiple threads and play the file.
+        lock (_ttsSoundOutputLock)
+        lock (_ttsSoundOutputSignalLock) {
+          _ttsSoundOutput = new WaveOutEvent();
+          _ttsSoundOutputSignal = new ManualResetEvent(false);
+
+          _ttsSoundOutput.DeviceNumber = NAudioUtilities.GetOutputDeviceIndex(ChatConfig?.OutputDevice);
+          _ttsSoundOutput.Volume = (ChatConfig?.TtsVolume ?? 50.0f) / 100.0f;
+
+          reader = new WaveFileReader(fileToPlay);
+          _ttsSoundOutput.Init(reader);
+
+          // Play is async so we will make it synchronous here so we don't have to deal with
+          // queueing. We can improve this to remove the hack in the future.
+          _ttsSoundOutput.PlaybackStopped += delegate {
+            lock (_ttsSoundOutputSignalLock) {
+              _ttsSoundOutputSignal?.Set();
+            }
+          };
+
+          // Play it.
+          _ttsSoundOutput.Play();
+        }
+
+        // Wait for the play to finish, we will get signaled.
+        CurrentUsername = sender;
+        ManualResetEvent? signal = _ttsSoundOutputSignal;
+        signal?.WaitOne();
+        CurrentUsername = null;
+      }
+      finally {
+        // Finally dispose of everything safely in the lock.
+        lock (_ttsSoundOutputLock)
+        lock (_ttsSoundOutputSignalLock) {
+          _ttsSoundOutput?.Dispose();
+          _ttsSoundOutput = null;
+          _ttsSoundOutputSignal?.Dispose();
+          _ttsSoundOutputSignal = null;
+        }
+      }
     }
     finally {
-      // Finally dispose of everything safely in the lock.
-      lock (_ttsSoundOutputLock)
-      lock (_ttsSoundOutputSignalLock) {
-        _ttsSoundOutput?.Dispose();
-        _ttsSoundOutput = null;
-        _ttsSoundOutputSignal?.Dispose();
-        _ttsSoundOutputSignal = null;
+      string[] filesToDelete = { filename, filename2 };
+      foreach (string file in filesToDelete) {
+        try {
+          if (File.Exists(file)) {
+            File.Delete(file);
+          }
+        }
+        catch {
+          // Do nothing, just try to clean up the best you can.
+        }
       }
     }
   }
