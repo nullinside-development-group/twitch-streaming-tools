@@ -52,6 +52,11 @@ public class SettingsViewModel : PageViewModelBase {
   private int _rate;
 
   /// <summary>
+  ///   True if "username says message" should be used as the template for TTS messages, false to read just the message.
+  /// </summary>
+  private bool _sayUsernameWithMessage;
+
+  /// <summary>
   ///   The selected output device to send TTS to.
   /// </summary>
   private string? _selectedOutputDevice;
@@ -356,6 +361,19 @@ public class SettingsViewModel : PageViewModelBase {
         Tempo = (int)Math.Round(tempo);
       }
 
+      _configuration.WriteConfiguration();
+    }
+  }
+
+  /// <summary>
+  ///   True if "username says message" should be used as the template for TTS messages, false to read just the message.
+  /// </summary>
+  public bool SayUsernameWithMessage {
+    get => _sayUsernameWithMessage;
+    set {
+      this.RaiseAndSetIfChanged(ref _sayUsernameWithMessage, value);
+
+      _configuration.SayUsernameWithMessage = true;
       _configuration.WriteConfiguration();
     }
   }
