@@ -8,6 +8,7 @@ using TwitchStreamingTools.Services;
 using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels;
 using TwitchStreamingTools.ViewModels.Pages;
+using TwitchStreamingTools.ViewModels.Pages.SettingsView;
 
 namespace TwitchStreamingTools;
 
@@ -35,6 +36,8 @@ public static class ServiceCollectionExtensions {
     collection.AddTransient<ChatViewModel>();
     collection.AddTransient<NewVersionWindowViewModel>();
     collection.AddTransient<SettingsViewModel>();
+    collection.AddTransient<TtsPhoneticWordsViewModel>();
+    collection.AddTransient<TtsSkipUsernamesViewModel>();
   }
 
   /// <summary>

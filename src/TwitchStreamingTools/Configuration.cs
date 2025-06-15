@@ -76,7 +76,7 @@ public class Configuration : IConfiguration {
   /// <summary>
   ///   The collection of phonetic pronunciations of words.
   /// </summary>
-  public IDictionary<string, string>? TtsPhoneticUsernames { get; set; }
+  public IDictionary<string, string>? TtsPhonetics { get; set; }
 
   /// <summary>
   ///   Writes the configuration file to disk.
@@ -86,7 +86,7 @@ public class Configuration : IConfiguration {
     try {
       Directory.CreateDirectory(Path.GetDirectoryName(CONFIG_LOCATION)!);
 
-      string json = JsonConvert.SerializeObject(this);
+      string json = JsonConvert.SerializeObject(this, Formatting.Indented);
       File.WriteAllText(CONFIG_LOCATION, json);
       return true;
     }

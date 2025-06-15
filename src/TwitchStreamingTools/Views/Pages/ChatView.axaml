@@ -2,13 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:pages="clr-namespace:TwitchStreamingTools.ViewModels.Pages"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:chatView="clr-namespace:TwitchStreamingTools.ViewModels.Pages"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TwitchStreamingTools.Views.Pages.ChatView"
-             x:DataType="pages:ChatViewModel">
+             x:DataType="chatView:ChatViewModel">
     <Design.DataContext>
-        <pages:ChatViewModel />
+        <chatView:ChatViewModel />
     </Design.DataContext>
 
     <Grid>
@@ -45,7 +45,7 @@
                         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding }" Padding="0" />
                         <Button Grid.Column="1"
                                 FontWeight="Bold"
-                                Command="{Binding $parent[UserControl].((pages:ChatViewModel)DataContext).OnRemoveChat, FallbackValue=null}"
+                                Command="{Binding $parent[UserControl].((chatView:ChatViewModel)DataContext).OnRemoveChat, FallbackValue=null}"
                                 CommandParameter="{Binding }">
                             <Button.Styles>
                                 <Style Selector="Button">
@@ -56,7 +56,7 @@
                                 </Style>
                             </Button.Styles>
                             <PathIcon Padding="0"
-                                      Data="{Binding $parent[UserControl].((pages:ChatViewModel)DataContext).DeleteIcon, FallbackValue=null}" />
+                                      Data="{Binding $parent[UserControl].((chatView:ChatViewModel)DataContext).DeleteIcon, FallbackValue=null}" />
                         </Button>
                     </Grid>
                 </DataTemplate>

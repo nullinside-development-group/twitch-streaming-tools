@@ -5,13 +5,14 @@
         xmlns:viewModels="clr-namespace:TwitchStreamingTools.ViewModels"
         xmlns:m="clr-namespace:TwitchStreamingTools.Models"
         xmlns:views="clr-namespace:TwitchStreamingTools.Views"
+        xmlns:controls="clr-namespace:TwitchStreamingTools.Controls"
         mc:Ignorable="d"
         d:DesignWidth="475"
         d:DesignHeight="300"
         MinWidth="475"
         MinHeight="300"
-        Width="625"
-        Height="625"
+        Width="900"
+        Height="650"
         CanResize="True"
         WindowStartupLocation="CenterScreen"
         ExtendClientAreaToDecorationsHint="True"
@@ -70,7 +71,7 @@
                        Padding="0 50 0 0">
                     Updating
                 </Label>
-                <views:Loading Width="100" Height="100" />
+                <controls:Loading Width="100" Height="100" />
             </StackPanel>
         </DockPanel>
         <!-- The normal application: This must come last because the last item always fills. -->

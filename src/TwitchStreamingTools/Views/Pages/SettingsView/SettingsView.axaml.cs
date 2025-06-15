@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace TwitchStreamingTools.Views.Pages;
+namespace TwitchStreamingTools.Views.Pages.SettingsView;
 
 /// <summary>
 ///   The view for program settings

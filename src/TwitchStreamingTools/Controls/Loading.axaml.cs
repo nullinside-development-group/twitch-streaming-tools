@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 
-namespace TwitchStreamingTools.Views;
+namespace TwitchStreamingTools.Controls;
 
 /// <summary>
 ///   A loading icon.

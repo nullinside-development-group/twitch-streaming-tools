@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:TwitchStreamingTools.ViewModels"
         xmlns:views="clr-namespace:TwitchStreamingTools.Views"
+        xmlns:controls="clr-namespace:TwitchStreamingTools.Controls"
         x:Name="Window"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
         x:Class="TwitchStreamingTools.Views.NewVersionWindow"
@@ -54,7 +55,7 @@
                        Foreground="rgb(204, 200, 175)">
                     Updating
                 </Label>
-                <views:Loading Width="100" Height="100" />
+                <controls:Loading Width="100" Height="100" />
             </StackPanel>
         </StackPanel>
     </DockPanel>
