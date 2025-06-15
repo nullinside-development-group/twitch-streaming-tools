@@ -41,6 +41,11 @@ public interface IConfiguration {
   IDictionary<string, string>? TtsPhonetics { get; set; }
 
   /// <summary>
+  ///   The arguments to pass to sound stretch to manipulate TTS audio.
+  /// </summary>
+  SoundStretchArgs? SoundStretchArgs { get; set; }
+
+  /// <summary>
   ///   Writes the configuration file to disk.
   /// </summary>
   /// <returns>True if successful, false otherwise.</returns>

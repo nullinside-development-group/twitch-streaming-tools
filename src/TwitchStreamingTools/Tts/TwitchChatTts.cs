@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Speech.Synthesis;
+using System.Text;
 using System.Threading;
 
 using NAudio.Wave;
@@ -233,7 +234,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   private void InitializeAndPlayTts(string sender, string chatMessage) {
     string filename = Path.GetTempFileName();
     string filename2 = Path.GetTempFileName();
-    
+
     try {
       string fileToPlay = filename;
 
@@ -255,7 +256,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
 
       var startInfo = new ProcessStartInfo {
         FileName = @"3rdParty\soundstretch.exe",
-        Arguments = $"\"{filename}\" \"{filename2}\" -tempo=+100 -speech",
+        Arguments = $"\"{filename}\" \"{filename2}\" {GetSoundStretcherArgs()}",
         UseShellExecute = false,
         CreateNoWindow = true
       };
@@ -363,5 +364,42 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
     catch (Exception ex) {
       Console.WriteLine($"Failed to add: {e.ChatMessage.Username} says {e.ChatMessage.Message}\r\n{ex}");
     }
+  }
+
+  /// <summary>
+  ///   Converts the configuration arguments to command line arguments for sound stretcher.
+  /// </summary>
+  /// <returns>The command line arguments.</returns>
+  private string GetSoundStretcherArgs() {
+    StringBuilder sb = new();
+    if (null != _configuration.SoundStretchArgs?.Tempo) {
+      sb.Append($" -tempo={(_configuration.SoundStretchArgs.Tempo > 0 ? "+" : "")}{_configuration.SoundStretchArgs.Tempo}");
+    }
+
+    if (null != _configuration.SoundStretchArgs?.Pitch) {
+      sb.Append($" -pitch={(_configuration.SoundStretchArgs.Pitch > 0 ? "+" : "")}{_configuration.SoundStretchArgs.Pitch}");
+    }
+
+    if (null != _configuration.SoundStretchArgs?.Rate) {
+      sb.Append($" -rate={(_configuration.SoundStretchArgs.Rate > 0 ? "+" : "")}{_configuration.SoundStretchArgs.Rate}");
+    }
+
+    if (null != _configuration.SoundStretchArgs?.Bpm) {
+      sb.Append($" -bpm={_configuration.SoundStretchArgs.Bpm}");
+    }
+
+    if (_configuration.SoundStretchArgs?.Quick ?? false) {
+      sb.Append(" -quick");
+    }
+
+    if (_configuration.SoundStretchArgs?.AntiAliasingOff ?? false) {
+      sb.Append(" -naa");
+    }
+
+    if (_configuration.SoundStretchArgs?.TurnOnSpeech ?? false) {
+      sb.Append(" -speech");
+    }
+
+    return sb.ToString().Trim();
   }
 }
