@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Speech.Synthesis;
 
 using ReactiveUI;
@@ -60,6 +62,16 @@ public class SettingsViewModel : PageViewModelBase {
   private string? _selectedTtsVoice;
 
   /// <summary>
+  ///   True if the advanced Text-to-Speech (TTS) settings are displayed.
+  /// </summary>
+  private bool _showAdvancedTts;
+
+  /// <summary>
+  ///   The speed (as a multiplicative).
+  /// </summary>
+  private double _speed;
+
+  /// <summary>
   ///   Change sound tempo by n percents (-95 to +5000 %)
   /// </summary>
   private int _tempo;
@@ -98,6 +110,16 @@ public class SettingsViewModel : PageViewModelBase {
     _ttsPhoneticWordsViewModel = ttsPhoneticWordsViewModel;
     _ttsSkipUsernamesViewModel = ttsSkipUsernamesViewModel;
     _configuration.SoundStretchArgs ??= new SoundStretchArgs();
+    _tempo = _configuration.SoundStretchArgs.Tempo ?? 0;
+    _pitch = _configuration.SoundStretchArgs.Pitch ?? 0;
+    _rate = _configuration.SoundStretchArgs.Rate ?? 0;
+    _bpm = _configuration.SoundStretchArgs.Bpm ?? 0;
+    _quick = _configuration.SoundStretchArgs.Quick;
+    _antiAliasingOff = _configuration.SoundStretchArgs.AntiAliasingOff;
+    _turnOnSpeech = _configuration.SoundStretchArgs.TurnOnSpeech;
+    _speed = (Tempo / 50.0) + 1.0;
+
+    ToggleAdvancedTtsCommand = ReactiveCommand.Create(() => ShowAdvancedTts = !ShowAdvancedTts);
 
     // Get the list of output devices and set the default to either what we have in the configuration or the system 
     // default whichever is more appropriate.
@@ -303,6 +325,38 @@ public class SettingsViewModel : PageViewModelBase {
         _configuration.SoundStretchArgs.TurnOnSpeech = value;
         _configuration.WriteConfiguration();
       }
+    }
+  }
+
+  /// <summary>
+  ///   True if we are displaying the advanced TTS settings, false otherwise.
+  /// </summary>
+  public bool ShowAdvancedTts {
+    get => _showAdvancedTts;
+    set => this.RaiseAndSetIfChanged(ref _showAdvancedTts, value);
+  }
+
+  /// <summary>
+  ///   Called when the show advanced settings is clicked.
+  /// </summary>
+  public ReactiveCommand<Unit, bool> ToggleAdvancedTtsCommand { protected set; get; }
+
+  /// <summary>
+  ///   The speed to play the TTS
+  /// </summary>
+  public double Speed {
+    get => _speed;
+    set {
+      this.RaiseAndSetIfChanged(ref _speed, value);
+
+      // In terms of tempo, 50 is 100% faster (2x speed). Scaling that equation linearly, we get:
+      double tempo = (value - 1.0) * 50;
+
+      if (_configuration.SoundStretchArgs != null) {
+        Tempo = (int)Math.Round(tempo);
+      }
+
+      _configuration.WriteConfiguration();
     }
   }
 }
