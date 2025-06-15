@@ -4,6 +4,8 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Timers;
 
+using log4net;
+
 using ReactiveUI;
 
 using TwitchLib.Api.Core.Exceptions;
@@ -21,6 +23,11 @@ namespace TwitchStreamingTools.ViewModels.Pages.SettingsView;
 ///   Handles managing the list of users to skip in TTS.
 /// </summary>
 public class TtsSkipUsernamesViewModel : ViewModelBase {
+  /// <summary>
+  ///   The logger.
+  /// </summary>
+  private static readonly ILog Log = LogManager.GetLogger(typeof(TtsSkipUsernamesViewModel));
+
   /// <summary>
   ///   The application configuration.
   /// </summary>
@@ -153,8 +160,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
           _doNotScanChat.Add(chat.TwitchChannel);
         }
         catch (Exception ex) {
-          Console.Error.WriteLine($"Failed to get chatters for {chat.TwitchChannel}:");
-          Console.Error.WriteLine(ex);
+          Log.Error($"Failed to get chatters for {chat.TwitchChannel}:", ex);
         }
       }
 
@@ -174,7 +180,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
     }
     catch (Exception ex) {
       // do nothing don't crash
-      Console.Error.WriteLine(ex);
+      Log.Error("Failed to refresh user list", ex);
     }
   }
 }

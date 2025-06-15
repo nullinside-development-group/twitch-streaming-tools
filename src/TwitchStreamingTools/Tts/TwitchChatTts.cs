@@ -6,6 +6,8 @@ using System.Speech.Synthesis;
 using System.Text;
 using System.Threading;
 
+using log4net;
+
 using NAudio.Wave;
 
 using Nullinside.Api.Common.Twitch;
@@ -22,6 +24,11 @@ namespace TwitchStreamingTools.Tts;
 ///   A twitch chat text-to-speech client.
 /// </summary>
 public class TwitchChatTts : IDisposable, ITwitchChatTts {
+  /// <summary>
+  ///   The logger.
+  /// </summary>
+  private static readonly ILog Log = LogManager.GetLogger(typeof(TwitchChatTts));
+
   /// <summary>
   ///   The application configuration.
   /// </summary>
@@ -197,12 +204,12 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
           // If we are currently skipping messages, skip them and decrement the skipper.
           if (_messageToSkip > 0) {
             --_messageToSkip;
-            Console.WriteLine($"Skipping: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
+            Log.Debug($"Skipping: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
             continue;
           }
 
           // Debug
-          Console.WriteLine($"Running: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
+          Log.Debug($"Running: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
 
           // Go through the TTS filters which modify the chat message before it is passed to TTS.
           Tuple<string, string> convertedChatEvent = ConvertChatMessage(e);
@@ -221,7 +228,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
         }
       }
       catch (Exception ex) {
-        Console.WriteLine($"Got expection playing message: {ex}");
+        Log.Error("Got expection playing message", ex);
       }
     }
   }
@@ -250,7 +257,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
         synth.Speak(chatMessage);
       }
       catch (Exception ex) {
-        Console.WriteLine($"Exception initializing a new microsoft speech object: {ex}");
+        Log.Error("Exception initializing a new microsoft speech object", ex);
         return;
       }
 
@@ -344,7 +351,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
       }
       catch (Exception ex) {
         // Do not let a single filter fail the loop for all filters.
-        Console.WriteLine($"Got expection evaluating filters on message: {ex}");
+        Log.Error("Got expection evaluating filters on message", ex);
       }
     }
 
@@ -356,13 +363,13 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// </summary>
   /// <param name="e">The chat message information.</param>
   private void Client_OnMessageReceived(OnMessageReceivedArgs e) {
-    Console.WriteLine($"Adding: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
+    Log.Debug($"Adding: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
     try {
       _soundsToPlay.Add(e);
       _twitchChatLog.AddMessage(new TwitchChatMessage(e.ChatMessage.Channel, e.ChatMessage.Username, e.ChatMessage.Message, e.GetTimestamp() ?? DateTime.UtcNow));
     }
     catch (Exception ex) {
-      Console.WriteLine($"Failed to add: {e.ChatMessage.Username} says {e.ChatMessage.Message}\r\n{ex}");
+      Log.Error($"Failed to add {e.ChatMessage.Username} says {e.ChatMessage.Message}", ex);
     }
   }
 
