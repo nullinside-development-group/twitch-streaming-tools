@@ -83,6 +83,9 @@ public class Configuration : IConfiguration {
   /// </summary>
   public SoundStretchArgs? SoundStretchArgs { get; set; }
 
+  /// <inheritdoc />
+  public bool SayUsernameWithMessage { get; set; }
+
   /// <summary>
   ///   Writes the configuration file to disk.
   /// </summary>

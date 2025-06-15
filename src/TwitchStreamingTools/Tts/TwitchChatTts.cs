@@ -220,8 +220,10 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
             continue;
           }
 
-          // todo: #51 make this a configuration option and a filter.
-          string chatMessage = $"{convertedChatEvent.Item1} says {convertedChatEvent.Item2}";
+          string chatMessage = convertedChatEvent.Item2;
+          if (_configuration.SayUsernameWithMessage) {
+            chatMessage = $"{convertedChatEvent.Item1} says {convertedChatEvent.Item2}";
+          }
 
           // Converts the text to an audio stream and plays it.
           InitializeAndPlayTts(e.ChatMessage.Username, chatMessage);
