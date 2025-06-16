@@ -96,7 +96,7 @@ public class Configuration : IConfiguration {
     if (Design.IsDesignMode) {
       return false;
     }
-    
+
     try {
       Directory.CreateDirectory(Path.GetDirectoryName(CONFIG_LOCATION)!);
 

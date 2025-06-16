@@ -26,7 +26,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
   /// <summary>
   ///   The logger.
   /// </summary>
-  private static readonly ILog Log = LogManager.GetLogger(typeof(TtsSkipUsernamesViewModel));
+  private static readonly ILog LOG = LogManager.GetLogger(typeof(TtsSkipUsernamesViewModel));
 
   /// <summary>
   ///   The application configuration.
@@ -160,7 +160,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
           _doNotScanChat.Add(chat.TwitchChannel);
         }
         catch (Exception ex) {
-          Log.Error($"Failed to get chatters for {chat.TwitchChannel}:", ex);
+          LOG.Error($"Failed to get chatters for {chat.TwitchChannel}:", ex);
         }
       }
 
@@ -180,7 +180,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
     }
     catch (Exception ex) {
       // do nothing don't crash
-      Log.Error("Failed to refresh user list", ex);
+      LOG.Error("Failed to refresh user list", ex);
     }
   }
 }

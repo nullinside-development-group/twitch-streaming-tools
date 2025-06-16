@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions {
     collection.AddSingleton<IConfiguration, Configuration>(_ => Configuration.Instance);
     collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
     collection.AddSingleton<ITwitchChatLog, TwitchChatLog>();
+    collection.AddSingleton<GlobalKeyPressService>();
 
     // Services
     collection.AddSingleton<ITwitchAccountService, TwitchAccountService>();
@@ -47,5 +48,6 @@ public static class ServiceCollectionExtensions {
   public static void StartupServices(this IServiceProvider provider) {
     provider.GetRequiredService<ITwitchAccountService>();
     provider.GetRequiredService<ITwitchTtsService>();
+    provider.GetRequiredService<GlobalKeyPressService>();
   }
 }
