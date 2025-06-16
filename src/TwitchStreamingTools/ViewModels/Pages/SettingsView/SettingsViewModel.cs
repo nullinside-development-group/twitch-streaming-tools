@@ -123,6 +123,7 @@ public class SettingsViewModel : PageViewModelBase {
     _antiAliasingOff = _configuration.SoundStretchArgs.AntiAliasingOff;
     _turnOnSpeech = _configuration.SoundStretchArgs.TurnOnSpeech;
     _speed = (Tempo / 50.0) + 1.0;
+    _sayUsernameWithMessage = _configuration.SayUsernameWithMessage;
 
     ToggleAdvancedTtsCommand = ReactiveCommand.Create(() => ShowAdvancedTts = !ShowAdvancedTts);
 
@@ -373,7 +374,7 @@ public class SettingsViewModel : PageViewModelBase {
     set {
       this.RaiseAndSetIfChanged(ref _sayUsernameWithMessage, value);
 
-      _configuration.SayUsernameWithMessage = true;
+      _configuration.SayUsernameWithMessage = value;
       _configuration.WriteConfiguration();
     }
   }
