@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+using Avalonia.Controls;
+
 using log4net;
 
 using Nullinside.Api.Common.Twitch;
@@ -93,6 +95,10 @@ public class TwitchTtsService : ITwitchTtsService {
   ///   Connects to any configuration found in the config file that we are not currently connected to.
   /// </summary>
   private void ConnectChatsInConfig() {
+    if (Design.IsDesignMode) {
+      return;
+    } 
+    
     List<string?>? missing = _configuration.TwitchChats?
       .Select(c => c.TwitchChannel)
       .Except(_chats?.Select(c => c.ChatConfig?.TwitchChannel) ?? [])
