@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Speech.Synthesis;
 
+using Avalonia.Controls;
+
 using Newtonsoft.Json;
 
 using Nullinside.Api.Common.Twitch;
@@ -91,6 +93,10 @@ public class Configuration : IConfiguration {
   /// </summary>
   /// <returns>True if successful, false otherwise.</returns>
   public bool WriteConfiguration() {
+    if (Design.IsDesignMode) {
+      return false;
+    }
+    
     try {
       Directory.CreateDirectory(Path.GetDirectoryName(CONFIG_LOCATION)!);
 
