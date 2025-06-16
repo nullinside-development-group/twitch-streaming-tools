@@ -12,6 +12,7 @@
         <RepositoryUrl>https://github.com/nullinside-development-group/twitch-streaming-tools</RepositoryUrl>
         <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
         <LangVersion>default</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <DocumentationFile>bin\Debug\TwitchStreamingTools.xml</DocumentationFile>
@@ -60,6 +61,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1"/>
         <PackageReference Include="NAudio.WinMM" Version="2.2.1"/>
+        <PackageReference Include="PInvoke.User32" Version="0.7.124"/>
         <PackageReference Include="System.Speech" Version="9.0.8" />
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2"/>
         <PackageReference Include="Xaml.Behaviors.Interactivity" Version="11.3.2"/>

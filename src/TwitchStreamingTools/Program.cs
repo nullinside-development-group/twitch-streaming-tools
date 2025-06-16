@@ -26,7 +26,7 @@ internal sealed class Program {
   /// <summary>
   ///   The logger.
   /// </summary>
-  private static readonly ILog Log = LogManager.GetLogger(typeof(Program));
+  private static readonly ILog LOG = LogManager.GetLogger(typeof(Program));
 
   /// <summary>
   ///   Used to prevent multiple instances of the application from running.
@@ -45,10 +45,10 @@ internal sealed class Program {
       XmlConfigurator.Configure(new FileInfo("log4net.config"));
 #endif
 
-    Log.Info("Started application");
+    LOG.Info("Started application");
 
     AppDomain.CurrentDomain.UnhandledException += (_, exceptArgs) => {
-      Log.Fatal("Unhandled exception", exceptArgs.ExceptionObject as Exception);
+      LOG.Fatal("Unhandled exception", exceptArgs.ExceptionObject as Exception);
     };
 
     // We only allow a single instance of the application to be launched at once (due to having only a single config

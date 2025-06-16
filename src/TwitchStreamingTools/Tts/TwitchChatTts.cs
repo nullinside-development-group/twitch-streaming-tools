@@ -27,7 +27,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// <summary>
   ///   The logger.
   /// </summary>
-  private static readonly ILog Log = LogManager.GetLogger(typeof(TwitchChatTts));
+  private static readonly ILog LOG = LogManager.GetLogger(typeof(TwitchChatTts));
 
   /// <summary>
   ///   The application configuration.
@@ -65,6 +65,11 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   private readonly ITwitchClientProxy _twitchClient;
 
   /// <summary>
+  ///   The twitch chat log.
+  /// </summary>
+  private readonly ITwitchChatLog TwitchChatLog;
+
+  /// <summary>
   ///   The number of messages to skip in the message queue.
   /// </summary>
   private int _messageToSkip;
@@ -85,15 +90,10 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   private ManualResetEvent? _ttsSoundOutputSignal;
 
   /// <summary>
-  ///   The twitch chat log.
-  /// </summary>
-  public ITwitchChatLog _twitchChatLog;
-
-  /// <summary>
   ///   Initializes a new instance of the <see cref="TwitchChatTts" /> class.
   /// </summary>
   public TwitchChatTts(IConfiguration configuration, ITwitchClientProxy twitchClient, TwitchChatConfiguration? config, ITwitchChatLog twitchChatLog) {
-    _twitchChatLog = twitchChatLog;
+    TwitchChatLog = twitchChatLog;
     _configuration = configuration;
     _twitchClient = twitchClient;
     ChatConfig = config;
@@ -204,12 +204,12 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
           // If we are currently skipping messages, skip them and decrement the skipper.
           if (_messageToSkip > 0) {
             --_messageToSkip;
-            Log.Debug($"Skipping: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
+            LOG.Debug($"Skipping: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
             continue;
           }
 
           // Debug
-          Log.Debug($"Running: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
+          LOG.Debug($"Running: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
 
           // Go through the TTS filters which modify the chat message before it is passed to TTS.
           Tuple<string, string> convertedChatEvent = ConvertChatMessage(e);
@@ -230,7 +230,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
         }
       }
       catch (Exception ex) {
-        Log.Error("Got expection playing message", ex);
+        LOG.Error("Got expection playing message", ex);
       }
     }
   }
@@ -259,7 +259,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
         synth.Speak(chatMessage);
       }
       catch (Exception ex) {
-        Log.Error("Exception initializing a new microsoft speech object", ex);
+        LOG.Error("Exception initializing a new microsoft speech object", ex);
         return;
       }
 
@@ -353,7 +353,7 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
       }
       catch (Exception ex) {
         // Do not let a single filter fail the loop for all filters.
-        Log.Error("Got expection evaluating filters on message", ex);
+        LOG.Error("Got expection evaluating filters on message", ex);
       }
     }
 
@@ -365,13 +365,13 @@ public class TwitchChatTts : IDisposable, ITwitchChatTts {
   /// </summary>
   /// <param name="e">The chat message information.</param>
   private void Client_OnMessageReceived(OnMessageReceivedArgs e) {
-    Log.Debug($"Adding: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
+    LOG.Debug($"Adding: {e.ChatMessage.Username} says {e.ChatMessage.Message}");
     try {
       _soundsToPlay.Add(e);
-      _twitchChatLog.AddMessage(new TwitchChatMessage(e.ChatMessage.Channel, e.ChatMessage.Username, e.ChatMessage.Message, e.GetTimestamp() ?? DateTime.UtcNow));
+      TwitchChatLog.AddMessage(new TwitchChatMessage(e.ChatMessage.Channel, e.ChatMessage.Username, e.ChatMessage.Message, e.GetTimestamp() ?? DateTime.UtcNow));
     }
     catch (Exception ex) {
-      Log.Error($"Failed to add {e.ChatMessage.Username} says {e.ChatMessage.Message}", ex);
+      LOG.Error($"Failed to add {e.ChatMessage.Username} says {e.ChatMessage.Message}", ex);
     }
   }
 
