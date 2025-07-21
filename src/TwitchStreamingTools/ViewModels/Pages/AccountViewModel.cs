@@ -1,12 +1,19 @@
 using System;
 using System.Diagnostics;
+using System.Net.WebSockets;
 using System.Reactive;
+using System.Threading;
+
+using log4net;
+
+using Newtonsoft.Json;
+
+using Nullinside.Api.Common.Extensions;
+using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
 
-using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Services;
-using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.ViewModels.Pages;
 
@@ -15,14 +22,14 @@ namespace TwitchStreamingTools.ViewModels.Pages;
 /// </summary>
 public class AccountViewModel : PageViewModelBase, IDisposable {
   /// <summary>
+  ///   The logger.
+  /// </summary>
+  private readonly ILog _logger = LogManager.GetLogger(typeof(AccountViewModel));
+
+  /// <summary>
   ///   Manages the account OAuth information.
   /// </summary>
   private readonly ITwitchAccountService _twitchAccountService;
-
-  /// <summary>
-  ///   Polls the clipboard waiting for an oAuth configuration.
-  /// </summary>
-  private IDisposable? _clipboardPoller;
 
   /// <summary>
   ///   True if we have a valid OAuth token, false otherwise.
@@ -85,7 +92,6 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
 
   /// <inheritdoc />
   public void Dispose() {
-    _clipboardPoller?.Dispose();
     OnLaunchBrowser.Dispose();
     OnLogout.Dispose();
   }
@@ -108,26 +114,46 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// <summary>
   ///   Launches the computer's default browser to generate an OAuth token.
   /// </summary>
-  private void LaunchBrowser() {
-    if (null != _clipboardPoller) {
-      _clipboardPoller.Dispose();
+  private async void LaunchBrowser() {
+    try {
+      var token = CancellationToken.None;
+      
+      // Create an identifier for this credential request.
+      var guid = Guid.NewGuid();
+      
+      // Create a web socket connection to the api which will provide us with the credentials from twitch.
+      ClientWebSocket webSocket = new();
+      await webSocket.ConnectAsync(new Uri($"ws://{Constants.DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools/ws"), token);
+      await webSocket.SendTextAsync(guid.ToString(), token);
+
+      // Launch the web browser to twitch to ask for account permissions. Twitch will be instructed to callback to our
+      // api (redirect_uri) which will give us the credentials on the web socket above.
+      string url = $"https://id.twitch.tv/oauth2/authorize?client_id={Constants.TWITCH_CLIENT_ID}&" +
+                   $"redirect_uri={Constants.TWITCH_CLIENT_REDIRECT}&" +
+                   "response_type=code&" +
+                   $"scope={string.Join("%20", Constants.TWITCH_SCOPES)}&" +
+                   $"state={guid}";
+      Process.Start(new ProcessStartInfo("cmd", $"/c start {url.Replace("&", "^&")}") { CreateNoWindow = true });
+
+      // Wait for the user to finish giving us permission on the website. Once they provide us access we will receive
+      // a response on the web socket containing a JSON with our OAuth information.
+      string json = await webSocket.ReceiveTextAsync(token);
+      
+      // Close the connection, both sides will be waiting to do this so we do it immediately.
+      await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Completed Successfully!", token);
+      
+      // Update the oauth token in the twitch account service. 
+      var oauthResp = JsonConvert.DeserializeObject<TwitchAccessToken>(json);
+      if (null == oauthResp || null == oauthResp.AccessToken || null == oauthResp.RefreshToken || null == oauthResp.ExpiresUtc) {
+        _logger.Error($"Failed to get a valid oauth token, got: {json}");
+        return;
+      }
+
+      await _twitchAccountService.UpdateCredentials(oauthResp.AccessToken, oauthResp.RefreshToken, oauthResp.ExpiresUtc.Value);
     }
-
-    _clipboardPoller = new ClipboardPoller<OAuthResponse>(Constants.Clipboard!, OnOAuthOnClipboard);
-
-    string url = $"https://id.twitch.tv/oauth2/authorize?client_id={Constants.TWITCH_CLIENT_ID}&" +
-                 $"redirect_uri={Constants.TWITCH_CLIENT_REDIRECT}&" +
-                 "response_type=code&" +
-                 $"scope={string.Join("%20", Constants.TWITCH_SCOPES)}";
-    Process.Start(new ProcessStartInfo("cmd", $"/c start {url.Replace("&", "^&")}") { CreateNoWindow = true });
-  }
-
-  /// <summary>
-  ///   Invoked when the clipboard finds OAuth credential on it.
-  /// </summary>
-  /// <param name="obj">The response from twitch.</param>
-  private void OnOAuthOnClipboard(OAuthResponse obj) {
-    _twitchAccountService.UpdateCredentials(obj.Bearer, obj.Refresh, obj.ExpiresUtc).Wait();
+    catch (Exception ex) {
+      _logger.Error("Failed to launch browser to login", ex);
+    }
   }
 
   /// <summary>

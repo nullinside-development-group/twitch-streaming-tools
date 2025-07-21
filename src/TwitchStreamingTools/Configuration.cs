@@ -58,7 +58,7 @@ public class Configuration : IConfiguration {
   /// <summary>
   ///   The twitch OAuth token.
   /// </summary>
-  public OAuthResponse? OAuth { get; set; }
+  public TwitchAccessToken? OAuth { get; set; }
 
   /// <summary>
   ///   The twitch application configuration for getting OAuth tokens.
@@ -96,7 +96,7 @@ public class Configuration : IConfiguration {
     if (Design.IsDesignMode) {
       return false;
     }
-    
+
     try {
       Directory.CreateDirectory(Path.GetDirectoryName(CONFIG_LOCATION)!);
 

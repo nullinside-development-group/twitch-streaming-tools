@@ -10,8 +10,6 @@ using Newtonsoft.Json;
 
 using Nullinside.Api.Common.Twitch;
 
-using TwitchStreamingTools.Models;
-
 namespace TwitchStreamingTools.Utilities;
 
 /// <summary>
@@ -27,8 +25,8 @@ public class TwitchApiWrapper : TwitchApiProxy {
   ///   Initializes a new instance of the <see cref="TwitchApiWrapper" /> class.
   /// </summary>
   public TwitchApiWrapper() : base(
-    Configuration.Instance.OAuth?.Bearer ?? "",
-    Configuration.Instance.OAuth?.Refresh ?? "",
+    Configuration.Instance.OAuth?.AccessToken ?? "",
+    Configuration.Instance.OAuth?.RefreshToken ?? "",
     Configuration.Instance.OAuth?.ExpiresUtc ?? DateTime.MinValue,
     Configuration.Instance.TwitchAppConfig?.ClientId ?? Constants.TWITCH_CLIENT_ID,
     Configuration.Instance.TwitchAppConfig?.ClientSecret,
@@ -55,15 +53,15 @@ public class TwitchApiWrapper : TwitchApiProxy {
       using HttpResponseMessage response = await client.PostAsync(request.RequestUri, content, token);
       response.EnsureSuccessStatusCode();
       string responseBody = await response.Content.ReadAsStringAsync(token);
-      var oauthResp = JsonConvert.DeserializeObject<OAuthResponse>(responseBody);
+      var oauthResp = JsonConvert.DeserializeObject<TwitchAccessToken>(responseBody);
       if (null == oauthResp) {
         return null;
       }
 
       return new TwitchAccessToken {
-        AccessToken = oauthResp.Bearer,
+        AccessToken = oauthResp.AccessToken,
         ExpiresUtc = oauthResp.ExpiresUtc,
-        RefreshToken = oauthResp.Refresh
+        RefreshToken = oauthResp.RefreshToken
       };
     }
     catch (Exception e) {

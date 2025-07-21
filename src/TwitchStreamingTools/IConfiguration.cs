@@ -18,7 +18,7 @@ public interface IConfiguration {
   /// <summary>
   ///   The twitch OAuth token.
   /// </summary>
-  OAuthResponse? OAuth { get; set; }
+  TwitchAccessToken? OAuth { get; set; }
 
   /// <summary>
   ///   The twitch application configuration for getting OAuth tokens.

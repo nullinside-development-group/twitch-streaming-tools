@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-using Avalonia.Input.Platform;
-
 namespace TwitchStreamingTools;
 
 /// <summary>
@@ -18,7 +16,12 @@ public static class Constants {
   /// <summary>
   ///   The domain that the api service is hosted at.
   /// </summary>
-  public const string API_SITE_DOMAIN = "http://localhost:5036";
+  public const string API_SITE_DOMAIN = $"http://{DOMAIN}";
+
+  /// <summary>
+  ///   The domain that the api service is hosted at.
+  /// </summary>
+  public const string DOMAIN = "localhost:5036";
 #else
   /// <summary>
   ///   The twitch app client id.
@@ -28,7 +31,12 @@ public static class Constants {
   /// <summary>
   ///   The domain that the api service is hosted at.
   /// </summary>
-  public const string API_SITE_DOMAIN = "https://nullinside.com";
+  public const string API_SITE_DOMAIN = "https://{DOMAIN}";
+  
+  /// <summary>
+  ///   The domain that the api service is hosted at.
+  /// </summary>
+  public const string DOMAIN = "nullinside.com";
 #endif
 
   /// <summary>
@@ -45,12 +53,6 @@ public static class Constants {
   ///   The version of the application being run right now.
   /// </summary>
   public static readonly string? APP_VERSION = Assembly.GetEntryAssembly()?.GetName().Version?.ToString()[..^2];
-
-  /// <summary>
-  ///   The reference to the clipboard API.
-  /// </summary>
-  /// <remarks>This is a hack because it's hard to get to.</remarks>
-  public static IClipboard? Clipboard;
 
   /// <summary>
   ///   The default bot list to populate when a user doesn't any have bots configured.

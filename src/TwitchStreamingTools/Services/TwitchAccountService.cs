@@ -5,7 +5,6 @@ using Avalonia.Threading;
 
 using Nullinside.Api.Common.Twitch;
 
-using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.Services;
@@ -75,9 +74,9 @@ public class TwitchAccountService : ITwitchAccountService {
       // Do nothing
     }
 
-    _configuration.OAuth = new OAuthResponse {
-      Bearer = bearer,
-      Refresh = refresh,
+    _configuration.OAuth = new TwitchAccessToken {
+      AccessToken = bearer,
+      RefreshToken = refresh,
       ExpiresUtc = expires
     };
 
@@ -159,9 +158,9 @@ public class TwitchAccountService : ITwitchAccountService {
     await twitchApi.RefreshAccessToken();
 
     // Update the configuration
-    _configuration.OAuth = new OAuthResponse {
-      Bearer = twitchApi.OAuth.AccessToken,
-      Refresh = twitchApi.OAuth.RefreshToken,
+    _configuration.OAuth = new TwitchAccessToken {
+      AccessToken = twitchApi.OAuth.AccessToken,
+      RefreshToken = twitchApi.OAuth.RefreshToken,
       ExpiresUtc = twitchApi.OAuth.ExpiresUtc ?? DateTime.MinValue
     };
     _configuration.WriteConfiguration();

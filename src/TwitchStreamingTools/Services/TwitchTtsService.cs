@@ -97,8 +97,8 @@ public class TwitchTtsService : ITwitchTtsService {
   private void ConnectChatsInConfig() {
     if (Design.IsDesignMode) {
       return;
-    } 
-    
+    }
+
     List<string?>? missing = _configuration.TwitchChats?
       .Select(c => c.TwitchChannel)
       .Except(_chats?.Select(c => c.ChatConfig?.TwitchChannel) ?? [])
