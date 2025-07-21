@@ -29,7 +29,7 @@ public class App : Application {
   ///   Launches the main application window.
   /// </summary>
   public override void OnFrameworkInitializationCompleted() {
-    TwitchClientProxy.Instance.TwitchOAuthToken = Configuration.Instance.OAuth?.Bearer;
+    TwitchClientProxy.Instance.TwitchOAuthToken = Configuration.Instance.OAuth?.AccessToken;
     TwitchClientProxy.Instance.TwitchUsername = Configuration.Instance.TwitchUsername;
 
     // Register all the services needed for the application to run

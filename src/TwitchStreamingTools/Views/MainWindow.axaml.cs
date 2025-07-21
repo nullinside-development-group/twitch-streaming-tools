@@ -1,10 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Avalonia.Controls;
-
-using Nullinside.Api.Common.Desktop;
 #if !DEBUG
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +7,13 @@ using TwitchStreamingTools.ViewModels;
 #else
 using Avalonia;
 #endif
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Avalonia.Controls;
+
+using Nullinside.Api.Common.Desktop;
 
 namespace TwitchStreamingTools.Views;
 
@@ -26,7 +26,6 @@ public partial class MainWindow : Window {
   /// </summary>
   public MainWindow() {
     InitializeComponent();
-    Constants.Clipboard = Clipboard;
 #if DEBUG
     this.AttachDevTools();
 #endif
