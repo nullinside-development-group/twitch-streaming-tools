@@ -31,7 +31,7 @@ public static class Constants {
   /// <summary>
   ///   The domain that the api service is hosted at.
   /// </summary>
-  public const string API_SITE_DOMAIN = "https://{DOMAIN}";
+  public const string API_SITE_DOMAIN = $"https://{DOMAIN}";
   
   /// <summary>
   ///   The domain that the api service is hosted at.
