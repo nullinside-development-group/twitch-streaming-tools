@@ -136,6 +136,9 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
   private async void UserListRefreshTimer_OnElapsed(object sender, ElapsedEventArgs e) {
     try {
       var api = new TwitchApiWrapper();
+      if (string.IsNullOrWhiteSpace(api.OAuth?.AccessToken)) {
+        return;
+      }
 
       (string? id, string? username) loggedInUser = await api.GetUser().ConfigureAwait(false);
 
