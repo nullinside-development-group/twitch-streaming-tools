@@ -10,6 +10,7 @@ using ReactiveUI;
 
 using TwitchLib.Api.Core.Exceptions;
 using TwitchLib.Api.Helix.Models.Chat.GetChatters;
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
 
 using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Models;
@@ -140,7 +141,7 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
         return;
       }
 
-      (string? id, string? username) loggedInUser = await api.GetUser().ConfigureAwait(false);
+      User? loggedInUser = await api.GetUser().ConfigureAwait(false);
 
       var usernames = new HashSet<string>();
       foreach (TwitchChatConfiguration chat in _configuration.TwitchChats ?? []) {
@@ -150,11 +151,11 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
 
         try {
           (string? id, string? username) userInfo = await api.GetUser(chat.TwitchChannel);
-          if (null == userInfo.id || null == loggedInUser.id) {
+          if (null == userInfo.id || null == loggedInUser?.Id) {
             continue;
           }
 
-          IEnumerable<Chatter> chatters = await api.GetChannelUsers(userInfo.id, loggedInUser.id);
+          IEnumerable<Chatter> chatters = await api.GetChannelUsers(userInfo.id, loggedInUser.Id);
           foreach (Chatter chatter in chatters) {
             usernames.Add(chatter.UserName.ToLowerInvariant());
           }

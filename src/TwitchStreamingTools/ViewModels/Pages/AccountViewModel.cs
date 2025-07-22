@@ -1,8 +1,13 @@
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
 using System.Net.WebSockets;
 using System.Reactive;
 using System.Threading;
+using System.Threading.Tasks;
+
+using Avalonia.Media.Imaging;
 
 using log4net;
 
@@ -13,7 +18,10 @@ using Nullinside.Api.Common.Twitch;
 
 using ReactiveUI;
 
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
+
 using TwitchStreamingTools.Services;
+using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.ViewModels.Pages;
 
@@ -21,6 +29,22 @@ namespace TwitchStreamingTools.ViewModels.Pages;
 ///   Handles binding your account to the application.
 /// </summary>
 public class AccountViewModel : PageViewModelBase, IDisposable {
+  /// <summary>
+  ///   The path to the folder containing cached profile images.
+  /// </summary>
+  private static readonly string PROFILE_IMAGE_FOLDER = Path.Combine(Constants.SAVE_FOLDER,
+    "twitch-profile-image-cache");
+
+  /// <summary>
+  ///   The template for a profile image filename.
+  /// </summary>
+  private static readonly string PROFILE_IMAGE_FILENAME = "twitch_profile_{0}.png";
+
+  /// <summary>
+  ///   The configuration.
+  /// </summary>
+  private readonly IConfiguration _configuration;
+
   /// <summary>
   ///   The logger.
   /// </summary>
@@ -37,6 +61,11 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   private bool _hasValidOAuthToken;
 
   /// <summary>
+  ///   The profile image of the logged in user.
+  /// </summary>
+  private Bitmap? _profileImage;
+
+  /// <summary>
   ///   The authenticated user's twitch username.
   /// </summary>
   private string? _twitchUsername;
@@ -45,10 +74,13 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   ///   Initializes a new instance of the <see cref="AccountViewModel" /> class.
   /// </summary>
   /// <param name="twitchAccountService">Manages the account OAuth information.</param>
-  public AccountViewModel(ITwitchAccountService twitchAccountService) {
+  /// <param name="configuration">The configuration.</param>
+  public AccountViewModel(ITwitchAccountService twitchAccountService, IConfiguration configuration) {
     _twitchAccountService = twitchAccountService;
     _twitchAccountService.OnCredentialsStatusChanged += OnCredentialsStatusChanged;
-    OnLaunchBrowser = ReactiveCommand.Create(LaunchBrowser);
+    _twitchAccountService.OnCredentialsChanged += OnCredentialsChanged;
+    _configuration = configuration;
+    OnPerformLogin = ReactiveCommand.Create(PerformLogin);
     OnLogout = ReactiveCommand.Create(ClearCredentials);
 
     // Set the initial state of the ui
@@ -56,13 +88,21 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     TwitchUsername = _twitchAccountService.TwitchUsername;
   }
 
+  /// <summary>
+  ///   The profile image of the logged in user.
+  /// </summary>
+  public Bitmap? ProfileImage {
+    get => _profileImage;
+    set => this.RaiseAndSetIfChanged(ref _profileImage, value);
+  }
+
   /// <inheritdoc />
   public override string IconResourceKey { get; } = "InprivateAccountRegular";
 
   /// <summary>
-  ///   Called when toggling the menu open and close.
+  ///   Called when the user clicks the login button.
   /// </summary>
-  public ReactiveCommand<Unit, Unit> OnLaunchBrowser { get; }
+  public ReactiveCommand<Unit, Unit> OnPerformLogin { get; }
 
   /// <summary>
   ///   Called when logging out the current user.
@@ -92,8 +132,59 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
 
   /// <inheritdoc />
   public void Dispose() {
-    OnLaunchBrowser.Dispose();
+    OnPerformLogin.Dispose();
     OnLogout.Dispose();
+  }
+
+  /// <summary>
+  ///   Loads the profile image when the UI loads.
+  /// </summary>
+  public override async void OnLoaded() {
+    base.OnLoaded();
+
+    try {
+      await LoadProfileImage();
+    }
+    catch (Exception ex) {
+      _logger.Error("Failed to load profile image", ex);
+    }
+  }
+
+  /// <summary>
+  ///   Finds the profile image locally or downloads it.
+  /// </summary>
+  private async Task LoadProfileImage() {
+    // Try to get the file locally.
+    string? profileImagePath = string.Format(PROFILE_IMAGE_FILENAME, _configuration.TwitchUsername);
+    if (File.Exists(profileImagePath)) {
+      ProfileImage = new Bitmap(profileImagePath);
+      return;
+    }
+
+    // If we couldn't find the file, download it.
+    profileImagePath = await DownloadUserImage();
+    if (null == profileImagePath) {
+      return;
+    }
+
+    ProfileImage = new Bitmap(profileImagePath);
+  }
+
+  /// <summary>
+  ///   Called when the credentials are changed to load the new profile image.
+  /// </summary>
+  /// <param name="token"></param>
+  private async void OnCredentialsChanged(TwitchAccessToken? token) {
+    try {
+      if (string.IsNullOrWhiteSpace(token?.AccessToken)) {
+        return;
+      }
+
+      await LoadProfileImage();
+    }
+    catch (Exception ex) {
+      _logger.Error("Failed to download user profile image", ex);
+    }
   }
 
   /// <summary>
@@ -101,26 +192,31 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// </summary>
   /// <param name="valid">True if the credentials are valid, false otherwise.</param>
   private void OnCredentialsStatusChanged(bool valid) {
-    if (!valid) {
-      HasValidOAuthToken = false;
-      TwitchUsername = null;
-      return;
-    }
+    try {
+      if (!valid) {
+        HasValidOAuthToken = false;
+        TwitchUsername = null;
+        return;
+      }
 
-    HasValidOAuthToken = true;
-    TwitchUsername = _twitchAccountService.TwitchUsername;
+      HasValidOAuthToken = true;
+      TwitchUsername = _twitchAccountService.TwitchUsername;
+    }
+    catch (Exception ex) {
+      _logger.Error("Failed to update credentials status", ex);
+    }
   }
 
   /// <summary>
   ///   Launches the computer's default browser to generate an OAuth token.
   /// </summary>
-  private async void LaunchBrowser() {
+  private async void PerformLogin() {
     try {
-      var token = CancellationToken.None;
-      
+      CancellationToken token = CancellationToken.None;
+
       // Create an identifier for this credential request.
       var guid = Guid.NewGuid();
-      
+
       // Create a web socket connection to the api which will provide us with the credentials from twitch.
       ClientWebSocket webSocket = new();
       await webSocket.ConnectAsync(new Uri($"ws://{Constants.DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools/ws"), token);
@@ -138,10 +234,10 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
       // Wait for the user to finish giving us permission on the website. Once they provide us access we will receive
       // a response on the web socket containing a JSON with our OAuth information.
       string json = await webSocket.ReceiveTextAsync(token);
-      
+
       // Close the connection, both sides will be waiting to do this so we do it immediately.
       await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Completed Successfully!", token);
-      
+
       // Update the oauth token in the twitch account service. 
       var oauthResp = JsonConvert.DeserializeObject<TwitchAccessToken>(json);
       if (null == oauthResp || null == oauthResp.AccessToken || null == oauthResp.RefreshToken || null == oauthResp.ExpiresUtc) {
@@ -161,5 +257,54 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   /// </summary>
   private void ClearCredentials() {
     _twitchAccountService.DeleteCredentials();
+  }
+
+  /// <summary>
+  ///   Downloads the user's profile image and adds it to the cache.
+  /// </summary>
+  /// <returns>The path to the saved file.</returns>
+  private async Task<string?> DownloadUserImage() {
+    // The user object from the API will tell us the download link on twitch for the image.
+    var api = new TwitchApiWrapper();
+    if (string.IsNullOrWhiteSpace(api.OAuth?.AccessToken)) {
+      return null;
+    }
+
+    User? user = await api.GetUser();
+    if (string.IsNullOrWhiteSpace(user?.ProfileImageUrl)) {
+      return null;
+    }
+
+    // Download the image via http.
+    using var http = new HttpClient();
+    byte[] imageBytes = await http.GetByteArrayAsync(user.ProfileImageUrl);
+
+    // If the directory doesn't exist, create it.
+    if (!Directory.Exists(PROFILE_IMAGE_FOLDER)) {
+      Directory.CreateDirectory(PROFILE_IMAGE_FOLDER);
+    }
+    
+    // I don't think twitch usernames can have non-filepath friendly characters but might as well sanitize it anyway.
+    string filename = SanitizeFilename(string.Format(PROFILE_IMAGE_FILENAME, user.Login));
+    string imagePath = Path.Combine(PROFILE_IMAGE_FOLDER, filename);
+    
+    // Save to disk
+    await File.WriteAllBytesAsync(imagePath, imageBytes);
+    
+    // Return path to file, even though everyone already knows it.
+    return imagePath;
+  }
+
+  /// <summary>
+  ///   Removes invalid characters from the passed in string.
+  /// </summary>
+  /// <param name="input">The filename to sanitize.</param>
+  /// <returns>The sanitized filename.</returns>
+  private static string SanitizeFilename(string input) {
+    foreach (char c in Path.GetInvalidFileNameChars()) {
+      input = input.Replace(c, '_');
+    }
+
+    return input;
   }
 }
