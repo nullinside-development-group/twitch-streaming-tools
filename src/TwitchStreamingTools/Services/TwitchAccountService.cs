@@ -58,12 +58,14 @@ public class TwitchAccountService : ITwitchAccountService {
 
   /// <inheritdoc />
   public async Task UpdateCredentials(string bearer, string refresh, DateTime expires) {
+    var oauth = new TwitchAccessToken {
+      AccessToken = bearer,
+      RefreshToken = refresh,
+      ExpiresUtc = expires
+    };
+    
     var twitchApi = new TwitchApiWrapper {
-      OAuth = new TwitchAccessToken {
-        AccessToken = bearer,
-        RefreshToken = refresh,
-        ExpiresUtc = expires
-      }
+      OAuth = oauth
     };
 
     (string? id, string? username)? user = null;
@@ -74,18 +76,14 @@ public class TwitchAccountService : ITwitchAccountService {
       // Do nothing
     }
 
-    _configuration.OAuth = new TwitchAccessToken {
-      AccessToken = bearer,
-      RefreshToken = refresh,
-      ExpiresUtc = expires
-    };
+    _configuration.OAuth = oauth;
 
     _configuration.TwitchUsername = user?.username;
     _configuration.WriteConfiguration();
     _twitchClient.TwitchOAuthToken = bearer;
     _twitchClient.TwitchUsername = user?.username;
 
-    OnCredentialsChanged?.Invoke(null);
+    OnCredentialsChanged?.Invoke(oauth);
     await OnCheckCredentials();
   }
 
@@ -108,10 +106,10 @@ public class TwitchAccountService : ITwitchAccountService {
   /// </summary>
   private async Task OnCheckCredentials() {
     _timer.Stop();
+    // Grab the value so we can check if the value changed
+    bool credsWereValid = CredentialsAreValid;
+    
     try {
-      // Grab the value so we can check if the value changed
-      bool previousValue = CredentialsAreValid;
-
       // Refresh the token
       await DoTokenRefreshIfNearExpiration();
 
@@ -122,16 +120,18 @@ public class TwitchAccountService : ITwitchAccountService {
       // Update the credentials
       CredentialsAreValid = !string.IsNullOrWhiteSpace(username);
       TwitchUsername = username;
-
-      // Fire off the event if something changed
-      if (previousValue != CredentialsAreValid) {
-        OnCredentialsStatusChanged?.Invoke(CredentialsAreValid);
-      }
     }
     catch {
-      // Do nothing
+      if (credsWereValid) {
+        DeleteCredentials();
+      }
     }
     finally {
+      // Fire off the event if something changed
+      if (credsWereValid != CredentialsAreValid) {
+        OnCredentialsStatusChanged?.Invoke(CredentialsAreValid);
+      }
+      
       _timer.Start();
     }
   }
