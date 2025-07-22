@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace TwitchStreamingTools;
@@ -38,6 +40,14 @@ public static class Constants {
   /// </summary>
   public const string DOMAIN = "nullinside.com";
 #endif
+
+  /// <summary>
+  ///   The location of saved files the application generates.
+  /// </summary>
+  /// <remarks>Not the install folder.</remarks>
+  public static readonly string SAVE_FOLDER =
+    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nullinside",
+      "twitch-streaming-tools");
 
   /// <summary>
   ///   A regular expression for identifying a link.

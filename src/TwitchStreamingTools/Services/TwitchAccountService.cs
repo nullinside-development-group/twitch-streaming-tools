@@ -5,6 +5,8 @@ using Avalonia.Threading;
 
 using Nullinside.Api.Common.Twitch;
 
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
+
 using TwitchStreamingTools.Utilities;
 
 namespace TwitchStreamingTools.Services;
@@ -63,12 +65,12 @@ public class TwitchAccountService : ITwitchAccountService {
       RefreshToken = refresh,
       ExpiresUtc = expires
     };
-    
+
     var twitchApi = new TwitchApiWrapper {
       OAuth = oauth
     };
 
-    (string? id, string? username)? user = null;
+    User? user = null;
     try {
       user = await twitchApi.GetUser();
     }
@@ -78,10 +80,10 @@ public class TwitchAccountService : ITwitchAccountService {
 
     _configuration.OAuth = oauth;
 
-    _configuration.TwitchUsername = user?.username;
+    _configuration.TwitchUsername = user?.Login;
     _configuration.WriteConfiguration();
+    _twitchClient.TwitchUsername = user?.Login;
     _twitchClient.TwitchOAuthToken = bearer;
-    _twitchClient.TwitchUsername = user?.username;
 
     OnCredentialsChanged?.Invoke(oauth);
     await OnCheckCredentials();
@@ -108,14 +110,14 @@ public class TwitchAccountService : ITwitchAccountService {
     _timer.Stop();
     // Grab the value so we can check if the value changed
     bool credsWereValid = CredentialsAreValid;
-    
+
     try {
       // Refresh the token
       await DoTokenRefreshIfNearExpiration();
 
       // Make sure the new token works
       var twitchApi = new TwitchApiWrapper();
-      string? username = (await twitchApi.GetUser()).username;
+      string? username = (await twitchApi.GetUser())?.Login;
 
       // Update the credentials
       CredentialsAreValid = !string.IsNullOrWhiteSpace(username);
@@ -131,7 +133,7 @@ public class TwitchAccountService : ITwitchAccountService {
       if (credsWereValid != CredentialsAreValid) {
         OnCredentialsStatusChanged?.Invoke(CredentialsAreValid);
       }
-      
+
       _timer.Start();
     }
   }

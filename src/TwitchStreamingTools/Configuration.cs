@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Speech.Synthesis;
@@ -22,9 +21,7 @@ public class Configuration : IConfiguration {
   /// <summary>
   ///   The location of the configuration file.
   /// </summary>
-  private static readonly string CONFIG_LOCATION =
-    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nullinside",
-      "twitch-streaming-tools", "config.json");
+  private static readonly string CONFIG_LOCATION = Path.Combine(Constants.SAVE_FOLDER, "config.json");
 
   /// <summary>
   ///   The singleton instance.

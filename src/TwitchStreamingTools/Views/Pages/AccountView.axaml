@@ -22,15 +22,18 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     DockPanel.Dock="Top"
-                    Spacing="25">
+                    Spacing="15">
             <Image Width="200" Source="/Assets/twitch-wordart.png" />
             <Button IsVisible="{Binding !HasValidOAuthToken}"
-                    Command="{Binding OnLaunchBrowser}"
+                    Command="{Binding OnPerformLogin}"
                     HorizontalAlignment="Center"
                     VerticalContentAlignment="Top">
                 Login
             </Button>
-            <StackPanel IsVisible="{Binding HasValidOAuthToken}">
+            <Border CornerRadius="100" Width="200" ClipToBounds="True">
+                <Image Source="{Binding ProfileImage}" Width="200" />
+            </Border>
+            <StackPanel IsVisible="{Binding HasValidOAuthToken}" Spacing="5">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -39,8 +42,7 @@
                     <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="0 0 10 0">User:</TextBlock>
                     <TextBox Grid.Column="1" Text="{Binding TwitchUsername}" IsReadOnly="True" />
                 </Grid>
-                <Button Margin="0 15 0 0"
-                        Command="{Binding OnLogout}"
+                <Button Command="{Binding OnLogout}"
                         HorizontalAlignment="Center"
                         VerticalContentAlignment="Top">
                     Logout
