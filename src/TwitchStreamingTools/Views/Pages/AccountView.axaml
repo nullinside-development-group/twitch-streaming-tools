@@ -25,7 +25,7 @@
                     DockPanel.Dock="Top"
                     Spacing="15">
             <Image Width="200" Source="/Assets/twitch-wordart.png" />
-            <controls:Loading IsVisible="{Binding !LoggingIn}" Width="50" Height="50" />
+            <controls:Loading IsVisible="{Binding LoggingIn}" Width="75" Height="75" />
             <Button IsVisible="{Binding !HasValidOAuthToken}"
                     IsEnabled="{Binding !LoggingIn}"
                     Command="{Binding OnPerformLogin}"
@@ -34,7 +34,7 @@
                 Login
             </Button>
             <StackPanel IsVisible="{Binding HasValidOAuthToken}" Spacing="5">
-                <controls:Loading IsVisible="{Binding DownloadingProfileImage}" />
+                <controls:Loading IsVisible="{Binding DownloadingProfileImage}" Width="75" Height="75" />
                 <Border CornerRadius="75" Width="150" ClipToBounds="True" IsVisible="{Binding !DownloadingProfileImage}">
                     <Image Source="{Binding ProfileImage}" />
                 </Border>
