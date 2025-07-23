@@ -143,7 +143,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     base.OnLoaded();
 
     try {
-      await LoadProfileImage();
+      await LoadProfileImage().ConfigureAwait(false);
     }
     catch (Exception ex) {
       _logger.Error("Failed to load profile image", ex);
@@ -162,7 +162,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     }
 
     // If we couldn't find the file, download it.
-    profileImagePath = await DownloadUserImage();
+    profileImagePath = await DownloadUserImage().ConfigureAwait(false);
     if (null == profileImagePath) {
       return;
     }
@@ -177,10 +177,11 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   private async void OnCredentialsChanged(TwitchAccessToken? token) {
     try {
       if (string.IsNullOrWhiteSpace(token?.AccessToken)) {
+        ProfileImage = null;
         return;
       }
-
-      await LoadProfileImage();
+      
+      await LoadProfileImage().ConfigureAwait(false);
     }
     catch (Exception ex) {
       _logger.Error("Failed to download user profile image", ex);
@@ -219,8 +220,8 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
 
       // Create a web socket connection to the api which will provide us with the credentials from twitch.
       ClientWebSocket webSocket = new();
-      await webSocket.ConnectAsync(new Uri($"ws://{Constants.DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools/ws"), token);
-      await webSocket.SendTextAsync(guid.ToString(), token);
+      await webSocket.ConnectAsync(new Uri($"ws://{Constants.DOMAIN}/api/v1/user/twitch-login/twitch-streaming-tools/ws"), token).ConfigureAwait(false);
+      await webSocket.SendTextAsync(guid.ToString(), token).ConfigureAwait(false);
 
       // Launch the web browser to twitch to ask for account permissions. Twitch will be instructed to callback to our
       // api (redirect_uri) which will give us the credentials on the web socket above.
@@ -233,10 +234,10 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
 
       // Wait for the user to finish giving us permission on the website. Once they provide us access we will receive
       // a response on the web socket containing a JSON with our OAuth information.
-      string json = await webSocket.ReceiveTextAsync(token);
+      string json = await webSocket.ReceiveTextAsync(token).ConfigureAwait(false);
 
       // Close the connection, both sides will be waiting to do this so we do it immediately.
-      await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Completed Successfully!", token);
+      await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Completed Successfully!", token).ConfigureAwait(false);
 
       // Update the oauth token in the twitch account service. 
       var oauthResp = JsonConvert.DeserializeObject<TwitchAccessToken>(json);
@@ -245,7 +246,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
         return;
       }
 
-      await _twitchAccountService.UpdateCredentials(oauthResp.AccessToken, oauthResp.RefreshToken, oauthResp.ExpiresUtc.Value);
+      await _twitchAccountService.UpdateCredentials(oauthResp.AccessToken, oauthResp.RefreshToken, oauthResp.ExpiresUtc.Value).ConfigureAwait(false);
     }
     catch (Exception ex) {
       _logger.Error("Failed to launch browser to login", ex);
@@ -270,14 +271,14 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
       return null;
     }
 
-    User? user = await api.GetUser();
+    User? user = await api.GetUser().ConfigureAwait(false);
     if (string.IsNullOrWhiteSpace(user?.ProfileImageUrl)) {
       return null;
     }
 
     // Download the image via http.
     using var http = new HttpClient();
-    byte[] imageBytes = await http.GetByteArrayAsync(user.ProfileImageUrl);
+    byte[] imageBytes = await http.GetByteArrayAsync(user.ProfileImageUrl).ConfigureAwait(false);
 
     // If the directory doesn't exist, create it.
     if (!Directory.Exists(PROFILE_IMAGE_FOLDER)) {
@@ -289,7 +290,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     string imagePath = Path.Combine(PROFILE_IMAGE_FOLDER, filename);
     
     // Save to disk
-    await File.WriteAllBytesAsync(imagePath, imageBytes);
+    await File.WriteAllBytesAsync(imagePath, imageBytes).ConfigureAwait(false);
     
     // Return path to file, even though everyone already knows it.
     return imagePath;
