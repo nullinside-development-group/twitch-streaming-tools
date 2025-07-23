@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Versioning;
+using System.Threading;
 
 using Avalonia;
 using Avalonia.ReactiveUI;
@@ -13,14 +14,24 @@ using log4net.Config;
 namespace TwitchStreamingTools;
 
 internal sealed class Program {
+  // Initialization code. Don't use any Avalonia, third-party APIs or any
+  // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+  // yet and stuff might break.
+
+  /// <summary>
+  ///   The name used to ensure only a single instance of the application is running.
+  /// </summary>
+  private const string MutexName = "TwitchStreamingTools_SingleInstance";
+
   /// <summary>
   ///   The logger.
   /// </summary>
   private static readonly ILog Log = LogManager.GetLogger(typeof(Program));
 
-  // Initialization code. Don't use any Avalonia, third-party APIs or any
-  // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-  // yet and stuff might break.
+  /// <summary>
+  ///   Used to prevent multiple instances of the application from running.
+  /// </summary>
+  private static Mutex? _mutex;
 
   /// <summary>
   ///   Main entrypoint of the application.
@@ -31,7 +42,7 @@ internal sealed class Program {
 #if DEBUG
     XmlConfigurator.Configure(new FileInfo("log4net.debug.config"));
 #else
-    XmlConfigurator.Configure(new FileInfo("log4net.config"));
+      XmlConfigurator.Configure(new FileInfo("log4net.config"));
 #endif
 
     Log.Info("Started application");
@@ -40,11 +51,24 @@ internal sealed class Program {
       Log.Fatal("Unhandled exception", exceptArgs.ExceptionObject as Exception);
     };
 
-    BuildAvaloniaApp()
-      .StartWithClassicDesktopLifetime(args);
-  }
+    // We only allow a single instance of the application to be launched at once (due to having only a single config
+    // file)
+    _mutex = new Mutex(true, MutexName, out bool onlyAppInstance);
+    if (!onlyAppInstance) {
+      Log.Info("Application instance already running. Exiting.");
+      return;
+    }
 
-  // Avalonia configuration, don't remove; also used by visual designer.
+    try {
+      BuildAvaloniaApp()
+        .StartWithClassicDesktopLifetime(args);
+    }
+    finally {
+      // Release the mutex when the application exits
+      _mutex.ReleaseMutex();
+      _mutex.Dispose();
+    }
+  }
 
   /// <summary>
   ///   Builds the avalonia application.
