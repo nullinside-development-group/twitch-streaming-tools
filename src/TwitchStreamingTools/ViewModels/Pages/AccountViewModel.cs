@@ -13,6 +13,7 @@ using log4net;
 
 using Newtonsoft.Json;
 
+using Nullinside.Api.Common;
 using Nullinside.Api.Common.Extensions;
 using Nullinside.Api.Common.Twitch;
 
@@ -264,36 +265,38 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   ///   Downloads the user's profile image and adds it to the cache.
   /// </summary>
   /// <returns>The path to the saved file.</returns>
-  private async Task<string?> DownloadUserImage() {
-    // The user object from the API will tell us the download link on twitch for the image.
-    var api = new TwitchApiWrapper();
-    if (string.IsNullOrWhiteSpace(api.OAuth?.AccessToken)) {
-      return null;
-    }
+  private async Task<string?> DownloadUserImage(CancellationToken token = new()) {
+    return await Retry.Execute(async () => {
+      // The user object from the API will tell us the download link on twitch for the image.
+      var api = new TwitchApiWrapper();
+      if (string.IsNullOrWhiteSpace(api.OAuth?.AccessToken)) {
+        return null;
+      }
 
-    User? user = await api.GetUser().ConfigureAwait(false);
-    if (string.IsNullOrWhiteSpace(user?.ProfileImageUrl)) {
-      return null;
-    }
+      User? user = await api.GetUser(token).ConfigureAwait(false);
+      if (string.IsNullOrWhiteSpace(user?.ProfileImageUrl)) {
+        return null;
+      }
 
-    // Download the image via http.
-    using var http = new HttpClient();
-    byte[] imageBytes = await http.GetByteArrayAsync(user.ProfileImageUrl).ConfigureAwait(false);
+      // Download the image via http.
+      using var http = new HttpClient();
+      byte[] imageBytes = await http.GetByteArrayAsync(user.ProfileImageUrl, token).ConfigureAwait(false);
 
-    // If the directory doesn't exist, create it.
-    if (!Directory.Exists(PROFILE_IMAGE_FOLDER)) {
-      Directory.CreateDirectory(PROFILE_IMAGE_FOLDER);
-    }
+      // If the directory doesn't exist, create it.
+      if (!Directory.Exists(PROFILE_IMAGE_FOLDER)) {
+        Directory.CreateDirectory(PROFILE_IMAGE_FOLDER);
+      }
     
-    // I don't think twitch usernames can have non-filepath friendly characters but might as well sanitize it anyway.
-    string filename = SanitizeFilename(string.Format(PROFILE_IMAGE_FILENAME, user.Login));
-    string imagePath = Path.Combine(PROFILE_IMAGE_FOLDER, filename);
+      // I don't think twitch usernames can have non-filepath friendly characters but might as well sanitize it anyway.
+      string filename = SanitizeFilename(string.Format(PROFILE_IMAGE_FILENAME, user.Login));
+      string imagePath = Path.Combine(PROFILE_IMAGE_FOLDER, filename);
     
-    // Save to disk
-    await File.WriteAllBytesAsync(imagePath, imageBytes).ConfigureAwait(false);
+      // Save to disk
+      await File.WriteAllBytesAsync(imagePath, imageBytes, token).ConfigureAwait(false);
     
-    // Return path to file, even though everyone already knows it.
-    return imagePath;
+      // Return path to file, even though everyone already knows it.
+      return imagePath;
+    }, 10, token, TimeSpan.FromSeconds(1)).ConfigureAwait(false);
   }
 
   /// <summary>
