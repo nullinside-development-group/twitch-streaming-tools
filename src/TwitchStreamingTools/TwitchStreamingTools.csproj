@@ -21,6 +21,7 @@
         <DocumentationFile>bin\Release\TwitchStreamingTools.xml</DocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <NoWarn>CS0108</NoWarn>
+        <DebugType>none</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -42,6 +43,7 @@
         <None Remove="log4net.debug.config"/>
         <Content Include="log4net.debug.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </Content>
     </ItemGroup>
 
