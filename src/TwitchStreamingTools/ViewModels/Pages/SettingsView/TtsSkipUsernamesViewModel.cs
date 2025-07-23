@@ -150,12 +150,12 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
         }
 
         try {
-          (string? id, string? username) userInfo = await api.GetUser(chat.TwitchChannel);
+          (string? id, string? username) userInfo = await api.GetUser(chat.TwitchChannel).ConfigureAwait(false);
           if (null == userInfo.id || null == loggedInUser?.Id) {
             continue;
           }
 
-          IEnumerable<Chatter> chatters = await api.GetChannelUsers(userInfo.id, loggedInUser.Id);
+          IEnumerable<Chatter> chatters = await api.GetChannelUsers(userInfo.id, loggedInUser.Id).ConfigureAwait(false);
           foreach (Chatter chatter in chatters) {
             usernames.Add(chatter.UserName.ToLowerInvariant());
           }

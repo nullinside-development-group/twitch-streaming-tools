@@ -42,7 +42,7 @@ public class TwitchAccountService : ITwitchAccountService {
       Interval = TimeSpan.FromSeconds(5)
     };
 
-    _timer.Tick += async (_, _) => await OnCheckCredentials();
+    _timer.Tick += async (_, _) => await OnCheckCredentials().ConfigureAwait(false);
     _ = OnCheckCredentials();
   }
 
@@ -72,7 +72,7 @@ public class TwitchAccountService : ITwitchAccountService {
 
     User? user = null;
     try {
-      user = await twitchApi.GetUser();
+      user = await twitchApi.GetUser().ConfigureAwait(false);
     }
     catch {
       // Do nothing
@@ -86,7 +86,7 @@ public class TwitchAccountService : ITwitchAccountService {
     _twitchClient.TwitchOAuthToken = bearer;
 
     OnCredentialsChanged?.Invoke(oauth);
-    await OnCheckCredentials();
+    await OnCheckCredentials().ConfigureAwait(false);
   }
 
   /// <inheritdoc />
@@ -113,11 +113,11 @@ public class TwitchAccountService : ITwitchAccountService {
 
     try {
       // Refresh the token
-      await DoTokenRefreshIfNearExpiration();
+      await DoTokenRefreshIfNearExpiration().ConfigureAwait(false);
 
       // Make sure the new token works
       var twitchApi = new TwitchApiWrapper();
-      string? username = (await twitchApi.GetUser())?.Login;
+      string? username = (await twitchApi.GetUser().ConfigureAwait(false))?.Login;
 
       // Update the credentials
       CredentialsAreValid = !string.IsNullOrWhiteSpace(username);
@@ -157,7 +157,7 @@ public class TwitchAccountService : ITwitchAccountService {
     }
 
     // Refresh the token
-    await twitchApi.RefreshAccessToken();
+    await twitchApi.RefreshAccessToken().ConfigureAwait(false);
 
     // Update the configuration
     _configuration.OAuth = new TwitchAccessToken {

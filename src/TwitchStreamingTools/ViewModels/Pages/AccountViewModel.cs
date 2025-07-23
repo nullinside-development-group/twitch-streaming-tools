@@ -181,7 +181,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
         ProfileImage = null;
         return;
       }
-      
+
       await LoadProfileImage().ConfigureAwait(false);
     }
     catch (Exception ex) {
@@ -286,14 +286,14 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
       if (!Directory.Exists(PROFILE_IMAGE_FOLDER)) {
         Directory.CreateDirectory(PROFILE_IMAGE_FOLDER);
       }
-    
+
       // I don't think twitch usernames can have non-filepath friendly characters but might as well sanitize it anyway.
       string filename = SanitizeFilename(string.Format(PROFILE_IMAGE_FILENAME, user.Login));
       string imagePath = Path.Combine(PROFILE_IMAGE_FOLDER, filename);
-    
+
       // Save to disk
       await File.WriteAllBytesAsync(imagePath, imageBytes, token).ConfigureAwait(false);
-    
+
       // Return path to file, even though everyone already knows it.
       return imagePath;
     }, 10, token, TimeSpan.FromSeconds(1)).ConfigureAwait(false);

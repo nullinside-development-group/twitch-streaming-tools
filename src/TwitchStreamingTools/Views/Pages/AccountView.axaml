@@ -30,8 +30,8 @@
                     VerticalContentAlignment="Top">
                 Login
             </Button>
-            <Border CornerRadius="100" Width="200" ClipToBounds="True">
-                <Image Source="{Binding ProfileImage}" Width="200" />
+            <Border CornerRadius="75" Width="150" ClipToBounds="True">
+                <Image Source="{Binding ProfileImage}" />
             </Border>
             <StackPanel IsVisible="{Binding HasValidOAuthToken}" Spacing="5">
                 <Grid>

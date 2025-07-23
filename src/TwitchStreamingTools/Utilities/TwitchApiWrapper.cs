@@ -42,7 +42,7 @@ public class TwitchApiWrapper : TwitchApiProxy {
     try {
       // If the secret is specified, then this isn't using our API to authenticate, it's using the twitch api directly.
       if (!string.IsNullOrWhiteSpace(TwitchAppConfig?.ClientSecret)) {
-        await base.RefreshAccessToken(token);
+        await base.RefreshAccessToken(token).ConfigureAwait(false);
       }
 
       using var client = new HttpClient();
@@ -50,9 +50,9 @@ public class TwitchApiWrapper : TwitchApiProxy {
       var request = new HttpRequestMessage(HttpMethod.Post, url);
       var values = new Dictionary<string, string> { { "refreshToken", OAuth?.RefreshToken ?? string.Empty } };
       var content = new FormUrlEncodedContent(values);
-      using HttpResponseMessage response = await client.PostAsync(request.RequestUri, content, token);
+      using HttpResponseMessage response = await client.PostAsync(request.RequestUri, content, token).ConfigureAwait(false);
       response.EnsureSuccessStatusCode();
-      string responseBody = await response.Content.ReadAsStringAsync(token);
+      string responseBody = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
       var oauthResp = JsonConvert.DeserializeObject<TwitchAccessToken>(responseBody);
       if (null == oauthResp) {
         return null;
