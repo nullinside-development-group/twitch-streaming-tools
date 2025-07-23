@@ -45,7 +45,7 @@ public partial class MainWindow : Window {
     // handle the command line arguments for updating the application if applicable.
     string[] args = Environment.GetCommandLineArgs();
     if (args.Contains("--update")) {
-      _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "windows-x64.zip");
+      _ = GitHubUpdateManager.PerformUpdateAndRestart("nullinside-development-group", "twitch-streaming-tools", args[2], "twitch-streaming-tools.zip ");
       return;
     }
 
