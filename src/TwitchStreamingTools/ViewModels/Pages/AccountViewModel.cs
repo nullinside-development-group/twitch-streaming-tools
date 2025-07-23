@@ -57,9 +57,19 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   private readonly ITwitchAccountService _twitchAccountService;
 
   /// <summary>
+  ///   True if currently downloading the logged in user's profile photo, false otherwise.
+  /// </summary>
+  private bool _downloadingProfileImage;
+
+  /// <summary>
   ///   True if we have a valid OAuth token, false otherwise.
   /// </summary>
   private bool _hasValidOAuthToken;
+
+  /// <summary>
+  ///   True if currently in the logging in process, false otherwise.
+  /// </summary>
+  private bool _loggingIn;
 
   /// <summary>
   ///   The profile image of the logged in user.
@@ -111,6 +121,22 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   public ReactiveCommand<Unit, Unit> OnLogout { get; }
 
   /// <summary>
+  ///   True if currently in the logging in process, false otherwise.
+  /// </summary>
+  public bool LoggingIn {
+    get => _loggingIn;
+    set => this.RaiseAndSetIfChanged(ref _loggingIn, value);
+  }
+
+  /// <summary>
+  ///   True if currently downloading the logged in user's profile photo, false otherwise.
+  /// </summary>
+  public bool DownloadingProfileImage {
+    get => _downloadingProfileImage;
+    set => this.RaiseAndSetIfChanged(ref _downloadingProfileImage, value);
+  }
+
+  /// <summary>
   ///   True if we have a valid OAuth token, false otherwise.
   /// </summary>
   public bool HasValidOAuthToken {
@@ -157,18 +183,21 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   private async Task LoadProfileImage() {
     // Try to get the file locally.
     string? profileImagePath = string.Format(PROFILE_IMAGE_FILENAME, _configuration.TwitchUsername);
+    profileImagePath = Path.Combine(PROFILE_IMAGE_FOLDER, profileImagePath);
     if (File.Exists(profileImagePath)) {
       ProfileImage = new Bitmap(profileImagePath);
       return;
     }
 
     // If we couldn't find the file, download it.
+    DownloadingProfileImage = true;
     profileImagePath = await DownloadUserImage().ConfigureAwait(false);
     if (null == profileImagePath) {
       return;
     }
 
     ProfileImage = new Bitmap(profileImagePath);
+    DownloadingProfileImage = false;
   }
 
   /// <summary>
@@ -213,6 +242,7 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
   ///   Launches the computer's default browser to generate an OAuth token.
   /// </summary>
   private async void PerformLogin() {
+    LoggingIn = true;
     try {
       CancellationToken token = CancellationToken.None;
 
@@ -251,6 +281,9 @@ public class AccountViewModel : PageViewModelBase, IDisposable {
     }
     catch (Exception ex) {
       _logger.Error("Failed to launch browser to login", ex);
+    }
+    finally {
+      LoggingIn = false;
     }
   }
 

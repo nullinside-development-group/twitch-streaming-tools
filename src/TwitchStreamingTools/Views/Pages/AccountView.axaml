@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:pages="clr-namespace:TwitchStreamingTools.ViewModels.Pages"
+             xmlns:controls="clr-namespace:TwitchStreamingTools.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TwitchStreamingTools.Views.Pages.AccountView"
              x:DataType="pages:AccountViewModel">
@@ -24,16 +25,19 @@
                     DockPanel.Dock="Top"
                     Spacing="15">
             <Image Width="200" Source="/Assets/twitch-wordart.png" />
+            <controls:Loading IsVisible="{Binding !LoggingIn}" Width="50" Height="50" />
             <Button IsVisible="{Binding !HasValidOAuthToken}"
+                    IsEnabled="{Binding !LoggingIn}"
                     Command="{Binding OnPerformLogin}"
                     HorizontalAlignment="Center"
                     VerticalContentAlignment="Top">
                 Login
             </Button>
-            <Border CornerRadius="75" Width="150" ClipToBounds="True">
-                <Image Source="{Binding ProfileImage}" />
-            </Border>
             <StackPanel IsVisible="{Binding HasValidOAuthToken}" Spacing="5">
+                <controls:Loading IsVisible="{Binding DownloadingProfileImage}" />
+                <Border CornerRadius="75" Width="150" ClipToBounds="True" IsVisible="{Binding !DownloadingProfileImage}">
+                    <Image Source="{Binding ProfileImage}" />
+                </Border>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
