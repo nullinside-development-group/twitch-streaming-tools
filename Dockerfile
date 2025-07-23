@@ -20,10 +20,8 @@ ARG DESCRIPTION
 RUN apt-get update && apt-get dist-upgrade -y && apt-get install zip jq -y
 
 # Generate the executables
-RUN dotnet publish "TwitchStreamingTools.csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x64 -r win-x64 -p:PublishSingleFile=True -p:PublishTrimmed=True -p:TrimMode=CopyUsed -p:PublishReadyToRun=True --self-contained
-RUN dotnet publish "TwitchStreamingTools.csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x86 -r win-x86 -p:PublishSingleFile=True -p:PublishTrimmed=True -p:TrimMode=CopyUsed -p:PublishReadyToRun=True --self-contained
-RUN cd /app/publish/win-x64 && zip -r ../windows-x64.zip *
-RUN cd /app/publish/win-x86 && zip -r ../windows-x86.zip *
+RUN dotnet publish "TwitchStreamingTools.csproj" -p:Version="$TAG_VERSION" -c $BUILD_CONFIGURATION -o /app/publish/win-x64 -r win-x64 -p:PublishSingleFile=True -p:PublishReadyToRun=True --self-contained
+RUN cd /app/publish/win-x64 && zip -r ../twitch-streaming-tools.zip *
 
 # Create a tag and associate it with a release in GitHub. We don't need to check if it already exist, if it already
 # exists the command won't do anything.
@@ -48,12 +46,5 @@ RUN export RELEASE_ID=$(curl -L \
       -H "Accept: application/vnd.github+json" \
       -H "Authorization: Bearer $GITHUB_TOKEN" \
       -H "Content-Type: application/octet-stream" \
-      "https://uploads.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases/$RELEASE_ID/assets?name=windows-x64.zip" \
-      --data-binary "@/app/publish/windows-x64.zip" && \
-    curl -L \
-    -X POST \
-    -H "Accept: application/vnd.github+json" \
-    -H "Authorization: Bearer $GITHUB_TOKEN" \
-    -H "Content-Type: application/octet-stream" \
-    "https://uploads.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases/$RELEASE_ID/assets?name=windows-x86.zip" \
-    --data-binary "@/app/publish/windows-x86.zip"
+      "https://uploads.github.com/repos/nullinside-development-group/twitch-streaming-tools/releases/$RELEASE_ID/assets?name=twitch-streaming-tools.zip" \
+      --data-binary "@/app/publish/twitch-streaming-tools.zip"
