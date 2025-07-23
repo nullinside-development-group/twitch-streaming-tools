@@ -110,7 +110,9 @@ public partial class WindowsTitleBar : UserControl {
 
     while (hostWindow == null) {
       hostWindow = VisualRoot as Window;
-      await Task.Delay(50).ConfigureAwait(false);
+      
+      // Need to stay on the GUI thread.
+      await Task.Delay(50).ConfigureAwait(true);
     }
 
     hostWindow.GetObservable(Window.WindowStateProperty).Subscribe(s => {
