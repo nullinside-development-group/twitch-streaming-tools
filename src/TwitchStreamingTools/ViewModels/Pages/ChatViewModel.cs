@@ -169,7 +169,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         OutputDevice = Configuration.GetDefaultAudioDevice(),
         TtsOn = true,
         TtsVoice = Configuration.GetDefaultTtsVoice(),
-        TtsVolume = 50
+        TtsVolume = Configuration.GetDefaultTtsVolume() ?? 50u
       }).ToList();
 
     _configuration.WriteConfiguration();
@@ -194,7 +194,7 @@ public class ChatViewModel : PageViewModelBase, IDisposable {
         OutputDevice = Configuration.GetDefaultAudioDevice(),
         TtsOn = true,
         TtsVoice = Configuration.GetDefaultTtsVoice(),
-        TtsVolume = 50
+        TtsVolume = Configuration.GetDefaultTtsVolume() ?? 50u
       }).ToList();
 
     _configuration.WriteConfiguration();
