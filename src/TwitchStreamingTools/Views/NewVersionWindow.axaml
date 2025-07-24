@@ -3,16 +3,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:TwitchStreamingTools.ViewModels"
-        xmlns:views="clr-namespace:TwitchStreamingTools.Views"
         xmlns:controls="clr-namespace:TwitchStreamingTools.Controls"
         x:Name="Window"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
         x:Class="TwitchStreamingTools.Views.NewVersionWindow"
         x:DataType="viewModels:NewVersionWindowViewModel"
         WindowStartupLocation="CenterOwner"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="-1"
         SizeToContent="WidthAndHeight"
         Icon="/Assets/update.png"
         Title="New Version Available"
@@ -24,7 +20,6 @@
     <DockPanel HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"
                Name="ContentWrapper">
-        <views:WindowsTitleBar IsSeamless="True" />
         <StackPanel>
             <!-- The normal panel -->
             <StackPanel Margin="10" IsVisible="{Binding !IsUpdating}">
