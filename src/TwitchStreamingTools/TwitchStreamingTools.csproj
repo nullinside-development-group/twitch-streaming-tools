@@ -78,10 +78,6 @@
             <DependentUpon>MainWindow.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\WindowsTitleBar.axaml.cs">
-            <DependentUpon>WindowsTitleBar.axaml</DependentUpon>
-            <SubType>Code</SubType>
-        </Compile>
         <Compile Update="Views\Pages\PageViewBase.axaml.cs">
             <DependentUpon>PageViewBase.axaml</DependentUpon>
             <SubType>Code</SubType>
