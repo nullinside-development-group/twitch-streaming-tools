@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 using log4net;
@@ -25,6 +27,28 @@ public class GlobalKeyPressService {
   private static User32.SafeHookHandle? s_hook;
 
   /// <summary>
+  ///   Maps each modifier key to whether or not it's being held down. This is kind overkill but it's at least accurate.
+  /// </summary>
+  private static readonly Dictionary<Keys, bool> holding = new() {
+    { Keys.Control, false },
+    { Keys.ControlKey, false },
+    { Keys.LControlKey, false },
+    { Keys.RControlKey, false },
+    { Keys.Shift, false },
+    { Keys.ShiftKey, false },
+    { Keys.LShiftKey, false },
+    { Keys.RShiftKey, false }
+  };
+
+  /// <summary>
+  ///   The possible modifier keys for quick comparison at runtime.
+  /// </summary>
+  private static readonly HashSet<Keys> modifiers = [
+    Keys.Control, Keys.ControlKey, Keys.LControlKey, Keys.RControlKey,
+    Keys.Shift, Keys.ShiftKey, Keys.LShiftKey, Keys.RShiftKey
+  ];
+
+  /// <summary>
   ///   The thread to execute on.
   /// </summary>
   private readonly Thread _thread;
@@ -43,7 +67,7 @@ public class GlobalKeyPressService {
   /// <summary>
   ///   Gets or sets the callbacks to invoke when a keystroke is pressed.
   /// </summary>
-  public static Action<string>? OnKeystroke { get; set; }
+  public static Action<Keys, bool, bool, bool>? OnKeystroke { get; set; }
 
   /// <summary>
   ///   The main loop which registers for keystrokes on the system and flushes the message buffer.
@@ -69,13 +93,52 @@ public class GlobalKeyPressService {
   private static int KeystrokeCallback(int nCode, IntPtr wParam, IntPtr lParam) {
     var keyboardEvent = Marshal.PtrToStructure<KeyboardLowLevelHookStruct>(lParam);
     var whatHappened = (KeyboardMessage)wParam;
+    var key = (Keys)keyboardEvent.vkCode;
 
     if (whatHappened == KeyboardMessage.KEY_DOWN) {
-      var key = (Keys)keyboardEvent.vkCode;
-      LOGGER.Debug($"Key pressed: {key}");
-      OnKeystroke?.Invoke(key.ToString());
+      if (modifiers.Contains(key)) {
+        holding[key] = true;
+      }
+
+      // You don't get a keyboard event for ALT, you have to check it this way.
+      bool holdingAlt = (keyboardEvent.flags & 0b_0001_0000) != 0;
+      bool holdingCtrl = holding[Keys.Control] || holding[Keys.ControlKey] || holding[Keys.LControlKey] || holding[Keys.RControlKey];
+      bool holdingShift = holding[Keys.Shift] || holding[Keys.ShiftKey] || holding[Keys.LShiftKey] || holding[Keys.RShiftKey];
+      LogKey(key, holdingCtrl, holdingAlt, holdingShift);
+      OnKeystroke?.Invoke(key, holdingCtrl, holdingAlt, holdingShift);
+    }
+    else if (whatHappened == KeyboardMessage.KEY_UP) {
+      if (modifiers.Contains(key)) {
+        holding[key] = false;
+      }
     }
 
     return User32.CallNextHookEx(s_hook?.DangerousGetHandle() ?? 0, nCode, wParam, lParam);
+  }
+
+  /// <summary>
+  ///   Logs the keystroke for debugging.
+  /// </summary>
+  /// <param name="key">The key pressed.</param>
+  /// <param name="holdingCtrl">True if control is held down.</param>
+  /// <param name="holdingAlt">True if alt is held down.</param>
+  /// <param name="holdingShift">True if shift is held down.</param>
+  private static void LogKey(Keys key, bool holdingCtrl, bool holdingAlt, bool holdingShift) {
+    var sb = new StringBuilder("Key Pressed: ");
+    if (holdingCtrl) {
+      sb.Append("Ctrl + ");
+    }
+
+    if (holdingShift) {
+      sb.Append("Shift + ");
+    }
+
+    if (holdingAlt) {
+      sb.Append("Alt + ");
+    }
+
+    sb.Append(key);
+
+    LOGGER.Debug(sb.ToString());
   }
 }

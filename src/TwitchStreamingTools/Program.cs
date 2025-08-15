@@ -55,7 +55,7 @@ internal sealed class Program {
     // file)
     _mutex = new Mutex(true, MutexName, out bool onlyAppInstance);
     if (!onlyAppInstance) {
-      Log.Info("Application instance already running. Exiting.");
+      LOG.Info("Application instance already running. Exiting.");
       return;
     }
 
