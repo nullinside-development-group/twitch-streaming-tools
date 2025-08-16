@@ -9,6 +9,7 @@ using log4net;
 
 using Nullinside.Api.Common.Twitch;
 
+using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Tts;
 using TwitchStreamingTools.Utilities;
 
@@ -32,6 +33,11 @@ public class TwitchTtsService : ITwitchTtsService {
   ///   The application configuration.
   /// </summary>
   private readonly IConfiguration _configuration;
+
+  /// <summary>
+  ///   The service that listens for keystrokes.
+  /// </summary>
+  private readonly IGlobalKeyPressService _keyPressService;
 
   /// <summary>
   ///   The logger.
@@ -59,7 +65,10 @@ public class TwitchTtsService : ITwitchTtsService {
   /// <param name="twitchClientProxy">The twitch chat client.</param>
   /// <param name="configuration">The application configuration.</param>
   /// <param name="twitchChatLog">The twitch chat log.</param>
-  public TwitchTtsService(ITwitchClientProxy twitchClientProxy, IConfiguration configuration, ITwitchChatLog twitchChatLog) {
+  /// <param name="keyPressService">The service that listens for keystrokes.</param>
+  public TwitchTtsService(ITwitchClientProxy twitchClientProxy, IConfiguration configuration, ITwitchChatLog twitchChatLog, IGlobalKeyPressService keyPressService) {
+    _keyPressService = keyPressService;
+    _keyPressService.OnKeystroke += OnKeystroke;
     _configuration = configuration;
     _twitchClientProxy = twitchClientProxy;
     _twitchChatLog = twitchChatLog;
@@ -68,6 +77,26 @@ public class TwitchTtsService : ITwitchTtsService {
     };
 
     _thread.Start();
+  }
+
+  /// <summary>
+  ///   Handles listening for keystrokes to update the TTS queue.
+  /// </summary>
+  /// <param name="keybind">The keystroke.</param>
+  private void OnKeystroke(Keybind keybind) {
+    Keybind? skip = _configuration.SkipTtsKey;
+    if (null == skip) {
+      return;
+    }
+
+    if (keybind.Key == skip.Key &&
+        keybind.IsAlt == skip.IsAlt &&
+        keybind.IsCtrl == skip.IsCtrl &&
+        keybind.IsShift == skip.IsShift) {
+      foreach (TwitchChatTts chat in _chats) {
+        chat.SkipCurrentTts();
+      }
+    }
   }
 
   /// <summary>

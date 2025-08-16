@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 using Nullinside.Api.Common.Twitch;
 
+using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Utilities;
 
@@ -84,6 +85,9 @@ public class Configuration : IConfiguration {
 
   /// <inheritdoc />
   public bool SayUsernameWithMessage { get; set; }
+
+  /// <inheritdoc />
+  public Keybind? SkipTtsKey { get; set; } = new() { Key = Keys.End };
 
   /// <summary>
   ///   Writes the configuration file to disk.

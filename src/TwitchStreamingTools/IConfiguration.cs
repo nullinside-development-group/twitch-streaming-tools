@@ -2,6 +2,7 @@
 
 using Nullinside.Api.Common.Twitch;
 
+using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Models;
 
 namespace TwitchStreamingTools;
@@ -49,6 +50,11 @@ public interface IConfiguration {
   ///   True if "username says message" should be used as the template for TTS messages, false to read just the message.
   /// </summary>
   bool SayUsernameWithMessage { get; set; }
+
+  /// <summary>
+  ///   The key press to skip the TTS.
+  /// </summary>
+  Keybind? SkipTtsKey { get; set; }
 
   /// <summary>
   ///   Writes the configuration file to disk.

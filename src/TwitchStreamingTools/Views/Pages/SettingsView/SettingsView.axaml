@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settingsView="clr-namespace:TwitchStreamingTools.Views.Pages.SettingsView"
              xmlns:pages1="clr-namespace:TwitchStreamingTools.ViewModels.Pages.SettingsView"
+             xmlns:controls="clr-namespace:TwitchStreamingTools.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TwitchStreamingTools.Views.Pages.SettingsView.SettingsView"
              x:DataType="pages1:SettingsViewModel">
@@ -23,6 +24,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -33,33 +35,42 @@
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center">
-                TTS Output Device:
+                Skip TTS Button:
             </Label>
-            <ComboBox Grid.Row="0"
-                      Grid.Column="1"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Center"
-                      ItemsSource="{Binding OutputDevices}"
-                      SelectedItem="{Binding SelectedOutputDevice}" />
+            <controls:Keybind Grid.Row="0"
+                              Grid.Column="1"
+                              DataContext="{Binding SkipTtsKeyBinding}" />
             <Label Grid.Row="1"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center">
-                TTS Voice:
+                TTS Output Device:
             </Label>
             <ComboBox Grid.Row="1"
                       Grid.Column="1"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Center"
+                      ItemsSource="{Binding OutputDevices}"
+                      SelectedItem="{Binding SelectedOutputDevice}" />
+            <Label Grid.Row="2"
+                   Grid.Column="0"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center">
+                TTS Voice:
+            </Label>
+            <ComboBox Grid.Row="2"
+                      Grid.Column="1"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Center"
                       ItemsSource="{Binding TtsVoices}"
                       SelectedItem="{Binding SelectedTtsVoice}" />
-            <Label Grid.Row="2"
+            <Label Grid.Row="3"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center">
                 TTS Volume:
             </Label>
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -78,14 +89,14 @@
                         IsSnapToTickEnabled="True"
                         Value="{Binding TtsVolume}" />
             </Grid>
-            <Label Grid.Row="3"
+            <Label Grid.Row="4"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
                    Margin="0 12 0 0">
                 TTS Playback Speed:
             </Label>
-            <Grid Grid.Row="3"
+            <Grid Grid.Row="4"
                   Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -106,30 +117,30 @@
                         Maximum="3"
                         Value="{Binding Speed}" />
             </Grid>
-            <Label Grid.Row="4"
+            <Label Grid.Row="5"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
                    Margin="0 3 0 0">
                 Say Username with Message:
             </Label>
-            <CheckBox Grid.Row="4"
+            <CheckBox Grid.Row="5"
                       Grid.Column="1"
                       IsChecked="{Binding SayUsernameWithMessage}" />
-            <Label Grid.Row="5"
+            <Label Grid.Row="6"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
                    Margin="0 5 0 0">
                 Advanced TTS Playback:
             </Label>
-            <Button Grid.Row="5"
+            <Button Grid.Row="6"
                     Grid.Column="1"
                     IsVisible="{Binding !ShowAdvancedTts}"
                     Command="{Binding ToggleAdvancedTtsCommand}">
                 Show Options
             </Button>
-            <Grid Grid.Row="5"
+            <Grid Grid.Row="6"
                   Grid.Column="1"
                   IsVisible="{Binding ShowAdvancedTts}">
                 <Grid>
@@ -197,26 +208,26 @@
                               IsChecked="{Binding TurnOnSpeech}" />
                 </Grid>
             </Grid>
-            <Label Grid.Row="6"
+            <Label Grid.Row="7"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
                    Margin="0 5 0 0">
                 Skip User TTS:
             </Label>
-            <Grid Grid.Row="6"
+            <Grid Grid.Row="7"
                   Grid.Column="1">
                 <settingsView:TtsSkipUsernamesControl Margin="0,0,5,0"
                                                       DataContext="{Binding TtsSkipUsernamesViewModel}" />
             </Grid>
-            <Label Grid.Row="7"
+            <Label Grid.Row="8"
                    Grid.Column="0"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
                    Margin="0 5 0 0">
                 Phonetic Spellings:
             </Label>
-            <Grid Grid.Row="7"
+            <Grid Grid.Row="8"
                   Grid.Column="1">
                 <settingsView:TtsPhoneticWordsControl Margin="0,0,5,0"
                                                       DataContext="{Binding TtsPhoneticWordsViewModel}" />
