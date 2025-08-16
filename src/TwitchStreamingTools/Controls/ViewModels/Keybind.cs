@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 using TwitchStreamingTools.Models;
 
@@ -51,5 +52,22 @@ public class Keybind {
 
     sb.Append(Key);
     return sb.ToString();
+  }
+
+  /// <inheritdoc />
+  public override bool Equals(object? obj) {
+    if (obj is Keybind keybind) {
+      return Key == keybind.Key &&
+             IsCtrl == keybind.IsCtrl &&
+             IsShift == keybind.IsShift &&
+             IsAlt == keybind.IsAlt;
+    }
+
+    return base.Equals(obj);
+  }
+
+  /// <inheritdoc />
+  public override int GetHashCode() {
+    return HashCode.Combine(Key, IsCtrl, IsShift, IsAlt);
   }
 }

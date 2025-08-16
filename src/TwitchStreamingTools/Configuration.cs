@@ -87,7 +87,10 @@ public class Configuration : IConfiguration {
   public bool SayUsernameWithMessage { get; set; }
 
   /// <inheritdoc />
-  public Keybind? SkipTtsKey { get; set; } = new() { Key = Keys.End };
+  public Keybind? SkipTtsKey { get; set; } = new() { Key = Keys.Pause };
+
+  /// <inheritdoc />
+  public Keybind? SkipAllTtsKey { get; set; }
 
   /// <summary>
   ///   Writes the configuration file to disk.

@@ -49,14 +49,14 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   ];
 
   /// <summary>
-  ///   The thread to execute on.
-  /// </summary>
-  private readonly Thread _thread;
-
-  /// <summary>
   ///   The keystroke callback.
   /// </summary>
   private static Action<Keybind>? s_onKeystroke;
+
+  /// <summary>
+  ///   The thread to execute on.
+  /// </summary>
+  private readonly Thread _thread;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="GlobalKeyPressService" /> class.
@@ -130,8 +130,8 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
       };
       LogKey(keybind);
 
-      var callbacks = s_onKeystroke;
-      foreach (var callback in callbacks?.GetInvocationList() ?? []) {
+      Action<Keybind>? callbacks = s_onKeystroke;
+      foreach (Delegate callback in callbacks?.GetInvocationList() ?? []) {
         try {
           callback.DynamicInvoke(keybind);
         }
