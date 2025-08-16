@@ -73,6 +73,11 @@ public class SettingsViewModel : PageViewModelBase {
   private bool _showAdvancedTts;
 
   /// <summary>
+  ///   The keybind for skipping all TTS messages.
+  /// </summary>
+  private KeybindViewModel _skipAllTtsKeyBinding;
+
+  /// <summary>
   ///   The keybind for skipping TTS messages.
   /// </summary>
   private KeybindViewModel _skipTtsKeyBinding;
@@ -120,7 +125,8 @@ public class SettingsViewModel : PageViewModelBase {
   /// <param name="ttsPhoneticWordsViewModel">The view model for the phonetic words list.</param>
   /// <param name="ttsSkipUsernamesViewModel">The control responsible for managing the list of usernames to skip.</param>
   /// <param name="keybindViewModel">The skip TTS keybind.</param>
-  public SettingsViewModel(IConfiguration configuration, TtsPhoneticWordsViewModel ttsPhoneticWordsViewModel, TtsSkipUsernamesViewModel ttsSkipUsernamesViewModel, KeybindViewModel keybindViewModel) {
+  /// <param name="keybindAllViewModel">The skip all TTS keybind.</param>
+  public SettingsViewModel(IConfiguration configuration, TtsPhoneticWordsViewModel ttsPhoneticWordsViewModel, TtsSkipUsernamesViewModel ttsSkipUsernamesViewModel, KeybindViewModel keybindViewModel, KeybindViewModel keybindAllViewModel) {
     _configuration = configuration;
     _ttsPhoneticWordsViewModel = ttsPhoneticWordsViewModel;
     _ttsSkipUsernamesViewModel = ttsSkipUsernamesViewModel;
@@ -137,6 +143,9 @@ public class SettingsViewModel : PageViewModelBase {
     _skipTtsKeyBinding = keybindViewModel;
     _skipTtsKeyBinding.Keybind = _configuration.SkipTtsKey;
     _skipTtsKeyBinding.Changed.Subscribe(OnSkipTtsKeybindChanged);
+    _skipAllTtsKeyBinding = keybindAllViewModel;
+    _skipAllTtsKeyBinding.Keybind = _configuration.SkipAllTtsKey;
+    _skipAllTtsKeyBinding.Changed.Subscribe(OnSkipAllTtsKeybindChanged);
 
     ToggleAdvancedTtsCommand = ReactiveCommand.Create(() => ShowAdvancedTts = !ShowAdvancedTts);
 
@@ -401,6 +410,14 @@ public class SettingsViewModel : PageViewModelBase {
   }
 
   /// <summary>
+  ///   The keybind to use to skip all TTS messages.
+  /// </summary>
+  public KeybindViewModel SkipAllTtsKeyBinding {
+    get => _skipAllTtsKeyBinding;
+    set => this.RaiseAndSetIfChanged(ref _skipAllTtsKeyBinding, value);
+  }
+
+  /// <summary>
   ///   Handles updating the configuration when the skip TTS keybind changes.
   /// </summary>
   /// <param name="args">The arguments about the properties that changed.</param>
@@ -410,6 +427,19 @@ public class SettingsViewModel : PageViewModelBase {
     }
 
     _configuration.SkipTtsKey = _skipTtsKeyBinding.Keybind;
+    _configuration.WriteConfiguration();
+  }
+
+  /// <summary>
+  ///   Handles updating the configuration when the skip all TTS keybind changes.
+  /// </summary>
+  /// <param name="args">The arguments about the properties that changed.</param>
+  private void OnSkipAllTtsKeybindChanged(IReactivePropertyChangedEventArgs<IReactiveObject> args) {
+    if (!nameof(_skipAllTtsKeyBinding.Keybind).Equals(args.PropertyName)) {
+      return;
+    }
+
+    _configuration.SkipAllTtsKey = _skipAllTtsKeyBinding.Keybind;
     _configuration.WriteConfiguration();
   }
 }

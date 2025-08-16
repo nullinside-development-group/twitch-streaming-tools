@@ -57,6 +57,11 @@ public interface IConfiguration {
   Keybind? SkipTtsKey { get; set; }
 
   /// <summary>
+  ///   The key press to skip all the TTS.
+  /// </summary>
+  Keybind? SkipAllTtsKey { get; set; }
+
+  /// <summary>
   ///   Writes the configuration file to disk.
   /// </summary>
   /// <returns>True if successful, false otherwise.</returns>

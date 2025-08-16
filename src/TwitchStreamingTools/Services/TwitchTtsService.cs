@@ -85,21 +85,37 @@ public class TwitchTtsService : ITwitchTtsService {
   /// <param name="keybind">The keystroke.</param>
   private void OnKeystroke(Keybind keybind) {
     Keybind? skip = _configuration.SkipTtsKey;
-    if (null == skip) {
-      return;
+    if (null != skip) {
+      if (keybind.Key == skip.Key &&
+          keybind.IsAlt == skip.IsAlt &&
+          keybind.IsCtrl == skip.IsCtrl &&
+          keybind.IsShift == skip.IsShift) {
+        List<TwitchChatTts> chats = _chats.ToList();
+        foreach (TwitchChatTts chat in chats) {
+          try {
+            chat.SkipCurrentTts();
+          }
+          catch {
+            // Do nothing, just try to skip the best we can.
+          }
+        }
+      }
     }
 
-    if (keybind.Key == skip.Key &&
-        keybind.IsAlt == skip.IsAlt &&
-        keybind.IsCtrl == skip.IsCtrl &&
-        keybind.IsShift == skip.IsShift) {
-      var chats = _chats.ToList();
-      foreach (TwitchChatTts chat in chats) {
-        try {
-          chat.SkipCurrentTts();
-        }
-        catch {
-          // Do nothing, just try to skip the best we can.
+    Keybind? skipAll = _configuration.SkipAllTtsKey;
+    if (null != skipAll) {
+      if (keybind.Key == skipAll.Key &&
+          keybind.IsAlt == skipAll.IsAlt &&
+          keybind.IsCtrl == skipAll.IsCtrl &&
+          keybind.IsShift == skipAll.IsShift) {
+        List<TwitchChatTts> chats = _chats.ToList();
+        foreach (TwitchChatTts chat in chats) {
+          try {
+            chat.SkipAllTts();
+          }
+          catch {
+            // Do nothing, just try to skip the best we can.
+          }
         }
       }
     }
