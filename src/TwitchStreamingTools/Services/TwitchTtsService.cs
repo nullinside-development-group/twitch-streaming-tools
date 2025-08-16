@@ -93,8 +93,14 @@ public class TwitchTtsService : ITwitchTtsService {
         keybind.IsAlt == skip.IsAlt &&
         keybind.IsCtrl == skip.IsCtrl &&
         keybind.IsShift == skip.IsShift) {
-      foreach (TwitchChatTts chat in _chats) {
-        chat.SkipCurrentTts();
+      var chats = _chats.ToList();
+      foreach (TwitchChatTts chat in chats) {
+        try {
+          chat.SkipCurrentTts();
+        }
+        catch {
+          // Do nothing, just try to skip the best we can.
+        }
       }
     }
   }
