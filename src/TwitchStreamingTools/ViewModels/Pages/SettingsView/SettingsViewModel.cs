@@ -7,6 +7,7 @@ using System.Speech.Synthesis;
 
 using ReactiveUI;
 
+using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Models;
 using TwitchStreamingTools.Utilities;
 
@@ -72,6 +73,11 @@ public class SettingsViewModel : PageViewModelBase {
   private bool _showAdvancedTts;
 
   /// <summary>
+  ///   The keybind for skipping TTS messages.
+  /// </summary>
+  private KeybindViewModel _skipTtsKeyBinding;
+
+  /// <summary>
   ///   The speed (as a multiplicative).
   /// </summary>
   private double _speed;
@@ -110,7 +116,11 @@ public class SettingsViewModel : PageViewModelBase {
   /// <summary>
   ///   Initializes a new instance of the <see cref="SettingsViewModel" /> class.
   /// </summary>
-  public SettingsViewModel(IConfiguration configuration, TtsPhoneticWordsViewModel ttsPhoneticWordsViewModel, TtsSkipUsernamesViewModel ttsSkipUsernamesViewModel) {
+  /// <param name="configuration">The application configuration.</param>
+  /// <param name="ttsPhoneticWordsViewModel">The view model for the phonetic words list.</param>
+  /// <param name="ttsSkipUsernamesViewModel">The control responsible for managing the list of usernames to skip.</param>
+  /// <param name="keybindViewModel">The skip TTS keybind.</param>
+  public SettingsViewModel(IConfiguration configuration, TtsPhoneticWordsViewModel ttsPhoneticWordsViewModel, TtsSkipUsernamesViewModel ttsSkipUsernamesViewModel, KeybindViewModel keybindViewModel) {
     _configuration = configuration;
     _ttsPhoneticWordsViewModel = ttsPhoneticWordsViewModel;
     _ttsSkipUsernamesViewModel = ttsSkipUsernamesViewModel;
@@ -124,6 +134,9 @@ public class SettingsViewModel : PageViewModelBase {
     _turnOnSpeech = _configuration.SoundStretchArgs.TurnOnSpeech;
     _speed = (Tempo / 50.0) + 1.0;
     _sayUsernameWithMessage = _configuration.SayUsernameWithMessage;
+    _skipTtsKeyBinding = keybindViewModel;
+    _skipTtsKeyBinding.Keybind = _configuration.SkipTtsKey;
+    _skipTtsKeyBinding.Changed.Subscribe(OnSkipTtsKeybindChanged);
 
     ToggleAdvancedTtsCommand = ReactiveCommand.Create(() => ShowAdvancedTts = !ShowAdvancedTts);
 
@@ -377,5 +390,26 @@ public class SettingsViewModel : PageViewModelBase {
       _configuration.SayUsernameWithMessage = value;
       _configuration.WriteConfiguration();
     }
+  }
+
+  /// <summary>
+  ///   The keybind to use to skip TTS messages.
+  /// </summary>
+  public KeybindViewModel SkipTtsKeyBinding {
+    get => _skipTtsKeyBinding;
+    set => this.RaiseAndSetIfChanged(ref _skipTtsKeyBinding, value);
+  }
+
+  /// <summary>
+  ///   Handles updating the configuration when the skip TTS keybind changes.
+  /// </summary>
+  /// <param name="args">The arguments about the properties that changed.</param>
+  private void OnSkipTtsKeybindChanged(IReactivePropertyChangedEventArgs<IReactiveObject> args) {
+    if (!nameof(_skipTtsKeyBinding.Keybind).Equals(args.PropertyName)) {
+      return;
+    }
+
+    _configuration.SkipTtsKey = _skipTtsKeyBinding.Keybind;
+    _configuration.WriteConfiguration();
   }
 }

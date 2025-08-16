@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Nullinside.Api.Common.Twitch;
 
+using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Services;
 using TwitchStreamingTools.Utilities;
 using TwitchStreamingTools.ViewModels;
@@ -25,7 +26,7 @@ public static class ServiceCollectionExtensions {
     collection.AddSingleton<IConfiguration, Configuration>(_ => Configuration.Instance);
     collection.AddSingleton<ITwitchClientProxy, TwitchClientProxy>(_ => TwitchClientProxy.Instance);
     collection.AddSingleton<ITwitchChatLog, TwitchChatLog>();
-    collection.AddSingleton<GlobalKeyPressService>();
+    collection.AddSingleton<IGlobalKeyPressService, GlobalKeyPressService>();
 
     // Services
     collection.AddSingleton<ITwitchAccountService, TwitchAccountService>();
@@ -39,6 +40,7 @@ public static class ServiceCollectionExtensions {
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<TtsPhoneticWordsViewModel>();
     collection.AddTransient<TtsSkipUsernamesViewModel>();
+    collection.AddTransient<KeybindViewModel>();
   }
 
   /// <summary>
@@ -48,6 +50,6 @@ public static class ServiceCollectionExtensions {
   public static void StartupServices(this IServiceProvider provider) {
     provider.GetRequiredService<ITwitchAccountService>();
     provider.GetRequiredService<ITwitchTtsService>();
-    provider.GetRequiredService<GlobalKeyPressService>();
+    provider.GetRequiredService<IGlobalKeyPressService>();
   }
 }

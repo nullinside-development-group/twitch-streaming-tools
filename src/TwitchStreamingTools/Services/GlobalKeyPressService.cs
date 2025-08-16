@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 
 using log4net;
 
 using PInvoke;
 
+using TwitchStreamingTools.Controls.ViewModels;
 using TwitchStreamingTools.Models;
 
 namespace TwitchStreamingTools.Services;
@@ -15,7 +15,7 @@ namespace TwitchStreamingTools.Services;
 /// <summary>
 ///   Detects when keys are pressed anywhere on the OS.
 /// </summary>
-public class GlobalKeyPressService {
+public class GlobalKeyPressService : IGlobalKeyPressService {
   /// <summary>
   ///   The logger.
   /// </summary>
@@ -54,6 +54,11 @@ public class GlobalKeyPressService {
   private readonly Thread _thread;
 
   /// <summary>
+  ///   The keystroke callback.
+  /// </summary>
+  private Action<Keybind>? s_onKeystroke;
+
+  /// <summary>
   ///   Initializes a new instance of the <see cref="GlobalKeyPressService" /> class.
   /// </summary>
   public GlobalKeyPressService() {
@@ -67,7 +72,15 @@ public class GlobalKeyPressService {
   /// <summary>
   ///   Gets or sets the callbacks to invoke when a keystroke is pressed.
   /// </summary>
-  public static Action<Keys, bool, bool, bool>? OnKeystroke { get; set; }
+  public Action<Keybind>? OnKeystroke {
+    get => s_onKeystroke;
+    set => s_onKeystroke = value;
+  }
+
+  /// <inheritdoc />
+  public bool IsModifier(Keys key) {
+    return modifiers.Contains(key);
+  }
 
   /// <summary>
   ///   The main loop which registers for keystrokes on the system and flushes the message buffer.
@@ -90,7 +103,7 @@ public class GlobalKeyPressService {
   /// <param name="wParam">The <seealso cref="KeyboardMessage" />.</param>
   /// <param name="lParam">The <seealso cref="KeyboardLowLevelHookStruct" />.</param>
   /// <returns>The next hook that should be called.</returns>
-  private static int KeystrokeCallback(int nCode, IntPtr wParam, IntPtr lParam) {
+  private int KeystrokeCallback(int nCode, IntPtr wParam, IntPtr lParam) {
     var keyboardEvent = Marshal.PtrToStructure<KeyboardLowLevelHookStruct>(lParam);
     var whatHappened = (KeyboardMessage)wParam;
     var key = (Keys)keyboardEvent.vkCode;
@@ -104,8 +117,14 @@ public class GlobalKeyPressService {
       bool holdingAlt = (keyboardEvent.flags & 0b_0001_0000) != 0;
       bool holdingCtrl = holding[Keys.Control] || holding[Keys.ControlKey] || holding[Keys.LControlKey] || holding[Keys.RControlKey];
       bool holdingShift = holding[Keys.Shift] || holding[Keys.ShiftKey] || holding[Keys.LShiftKey] || holding[Keys.RShiftKey];
-      LogKey(key, holdingCtrl, holdingAlt, holdingShift);
-      OnKeystroke?.Invoke(key, holdingCtrl, holdingAlt, holdingShift);
+      var keybind = new Keybind {
+        IsCtrl = holdingCtrl,
+        IsShift = holdingShift,
+        IsAlt = holdingAlt,
+        Key = key
+      };
+      LogKey(keybind);
+      s_onKeystroke?.Invoke(keybind);
     }
     else if (whatHappened == KeyboardMessage.KEY_UP) {
       if (modifiers.Contains(key)) {
@@ -119,26 +138,8 @@ public class GlobalKeyPressService {
   /// <summary>
   ///   Logs the keystroke for debugging.
   /// </summary>
-  /// <param name="key">The key pressed.</param>
-  /// <param name="holdingCtrl">True if control is held down.</param>
-  /// <param name="holdingAlt">True if alt is held down.</param>
-  /// <param name="holdingShift">True if shift is held down.</param>
-  private static void LogKey(Keys key, bool holdingCtrl, bool holdingAlt, bool holdingShift) {
-    var sb = new StringBuilder("Key Pressed: ");
-    if (holdingCtrl) {
-      sb.Append("Ctrl + ");
-    }
-
-    if (holdingShift) {
-      sb.Append("Shift + ");
-    }
-
-    if (holdingAlt) {
-      sb.Append("Alt + ");
-    }
-
-    sb.Append(key);
-
-    LOGGER.Debug(sb.ToString());
+  /// <param name="keybind">The key pressed.</param>
+  private void LogKey(Keybind keybind) {
+    LOGGER.Debug($"Key pressed: {keybind}");
   }
 }
