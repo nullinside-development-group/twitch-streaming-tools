@@ -19,7 +19,7 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   /// <summary>
   ///   The logger.
   /// </summary>
-  private static readonly ILog LOGGER = LogManager.GetLogger(typeof(GlobalKeyPressService));
+  private static readonly ILog LOG = LogManager.GetLogger(typeof(GlobalKeyPressService));
 
   /// <summary>
   ///   The pointer to the hook we added.
@@ -124,7 +124,16 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
         Key = key
       };
       LogKey(keybind);
-      s_onKeystroke?.Invoke(keybind);
+
+      var callbacks = s_onKeystroke;
+      foreach (var callback in callbacks?.GetInvocationList() ?? []) {
+        try {
+          callback.DynamicInvoke(keybind);
+        }
+        catch (Exception ex) {
+          LOG.Error("Callback failed", ex);
+        }
+      }
     }
     else if (whatHappened == KeyboardMessage.KEY_UP) {
       if (modifiers.Contains(key)) {
@@ -140,6 +149,6 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   /// </summary>
   /// <param name="keybind">The key pressed.</param>
   private void LogKey(Keybind keybind) {
-    LOGGER.Debug($"Key pressed: {keybind}");
+    LOG.Debug($"Key pressed: {keybind}");
   }
 }
