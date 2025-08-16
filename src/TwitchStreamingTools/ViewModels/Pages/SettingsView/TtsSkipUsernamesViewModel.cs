@@ -182,9 +182,8 @@ public class TtsSkipUsernamesViewModel : ViewModelBase {
       _userListRefreshTimer.Interval = 5000;
       _userListRefreshTimer.Start();
     }
-    catch (Exception ex) {
+    catch {
       // do nothing don't crash
-      LOG.Error("Failed to refresh user list", ex);
     }
   }
 }
