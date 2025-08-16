@@ -56,7 +56,7 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   /// <summary>
   ///   The keystroke callback.
   /// </summary>
-  private Action<Keybind>? s_onKeystroke;
+  private static Action<Keybind>? s_onKeystroke;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="GlobalKeyPressService" /> class.
@@ -86,13 +86,18 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   ///   The main loop which registers for keystrokes on the system and flushes the message buffer.
   /// </summary>
   private void Main() {
-    // Set a hook.
-    s_hook = User32.SetWindowsHookEx(User32.WindowsHookType.WH_KEYBOARD_LL, KeystrokeCallback, IntPtr.Zero, 0);
+    try {
+      // Set a hook.
+      s_hook = User32.SetWindowsHookEx(User32.WindowsHookType.WH_KEYBOARD_LL, KeystrokeCallback, IntPtr.Zero, 0);
 
-    unsafe {
-      // Buffer the messages.
-      User32.MSG message;
-      while (0 != User32.GetMessage(&message, IntPtr.Zero, 0, 0)) { }
+      unsafe {
+        // Buffer the messages.
+        User32.MSG message;
+        while (0 != User32.GetMessage(&message, IntPtr.Zero, 0, 0)) { }
+      }
+    }
+    catch (Exception ex) {
+      LOG.Error("Failed to subscribe to Win32 windows hook", ex);
     }
   }
 
@@ -103,7 +108,7 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   /// <param name="wParam">The <seealso cref="KeyboardMessage" />.</param>
   /// <param name="lParam">The <seealso cref="KeyboardLowLevelHookStruct" />.</param>
   /// <returns>The next hook that should be called.</returns>
-  private int KeystrokeCallback(int nCode, IntPtr wParam, IntPtr lParam) {
+  private static int KeystrokeCallback(int nCode, IntPtr wParam, IntPtr lParam) {
     var keyboardEvent = Marshal.PtrToStructure<KeyboardLowLevelHookStruct>(lParam);
     var whatHappened = (KeyboardMessage)wParam;
     var key = (Keys)keyboardEvent.vkCode;
@@ -148,7 +153,7 @@ public class GlobalKeyPressService : IGlobalKeyPressService {
   ///   Logs the keystroke for debugging.
   /// </summary>
   /// <param name="keybind">The key pressed.</param>
-  private void LogKey(Keybind keybind) {
+  private static void LogKey(Keybind keybind) {
     LOG.Debug($"Key pressed: {keybind}");
   }
 }
