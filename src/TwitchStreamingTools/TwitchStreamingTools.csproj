@@ -57,10 +57,11 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.4"/>
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.4"/>
         <PackageReference Include="DynamicData" Version="9.4.1"/>
-        <PackageReference Include="log4net" Version="3.1.0"/>
+        <PackageReference Include="log4net" Version="3.2.0"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8"/>
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1"/>
         <PackageReference Include="NAudio.WinMM" Version="2.2.1"/>
+        <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507"/>
         <PackageReference Include="PInvoke.User32" Version="0.7.124"/>
         <PackageReference Include="System.Speech" Version="9.0.8"/>
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2"/>
@@ -102,6 +103,10 @@
         </Compile>
         <Compile Update="Views\Pages\SettingsView\SettingsView.axaml.cs">
             <DependentUpon>SettingsView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Pages\AutomationView.axaml.cs">
+            <DependentUpon>AutomationView.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
